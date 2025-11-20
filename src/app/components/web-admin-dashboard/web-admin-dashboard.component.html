@@ -1,0 +1,91 @@
+`
+    <div class="dashboard-container">
+      <h2>Web Admin Dashboard</h2>
+      
+      <div class="filters">
+        <button 
+          [class.active]="currentFilter === 'Pending'"
+          (click)="setFilter('Pending')">
+          Needs Website Update ({{ (pendingCount$ | async) || 0 }})
+        </button>
+        <button 
+          [class.active]="currentFilter === 'Added'"
+          (click)="setFilter('Added')">
+          Added to Website ({{ (addedCount$ | async) || 0 }})
+        </button>
+      </div>
+
+      <div class="actions-bar" *ngIf="currentFilter === 'Added'">
+        <button class="verify-all-btn" (click)="verifyAll()" [disabled]="isVerifyingAll">
+          {{ isVerifyingAll ? 'Verifying...' : 'Verify Website Listings' }}
+        </button>
+      </div>
+
+      <div class="registrations-list">
+        <div *ngFor="let reg of filteredRegistrations$ | async" class="registration-card">
+          <div class="card-header">
+            <span class="type-badge" 
+                  [class.sponsor]="reg.type === 'Sponsor'"
+                  [class.both]="reg.type === 'Both'">
+              {{ reg.type }}
+            </span>
+            <span class="status-badge approved">Approved</span>
+          </div>
+
+          <div class="verification-status" *ngIf="reg.verification">
+            <div class="status-row" [class.found]="reg.verification.found" [class.missing]="!reg.verification.found">
+              <span class="icon">{{ reg.verification.found ? '✅' : '❌' }}</span>
+              <span class="text">
+                {{ reg.verification.found ? 'Verified on Live Site' : 'Not Found on Live Site' }}
+              </span>
+              <span class="time">Checked: {{ reg.verification.lastChecked | date:'mediumTime' }}</span>
+            </div>
+          </div>
+          
+          <div class="card-body">
+            <div class="logo-container" *ngIf="reg.logoUrl">
+              <img [src]="reg.logoUrl" alt="Organization Logo">
+            </div>
+            <div class="logo-placeholder" *ngIf="!reg.logoUrl">
+              No Logo
+            </div>
+            
+            <div class="details">
+              <h3>{{ reg.organizationName }}</h3>
+              
+              <div class="info-grid">
+                <div class="info-item full-width" *ngIf="reg.description">
+                  <span class="label">Description:</span>
+                  <p class="description-text">{{ reg.description }}</p>
+                </div>
+                <div class="info-item" *ngIf="reg.website">
+                  <span class="label">Website:</span>
+                  <a [href]="reg.website" target="_blank">{{ reg.website }}</a>
+                </div>
+                <div class="info-item" *ngIf="reg.participatedBefore">
+                  <span class="tag">Returning Participant</span>
+                </div>
+              </div>
+
+              <div class="actions">
+                <button *ngIf="!reg.websiteStatus || reg.websiteStatus === 'Pending'" 
+                        (click)="markAsAdded(reg.id)" 
+                        class="action-btn add-btn">
+                  Mark as Added to Website
+                </button>
+                <button *ngIf="reg.websiteStatus === 'Added'" 
+                        (click)="markAsPending(reg.id)" 
+                        class="action-btn undo-btn">
+                  Undo (Mark as Pending)
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div *ngIf="(filteredRegistrations$ | async)?.length === 0" class="empty-state">
+          No registrations found for this filter.
+        </div>
+      </div>
+    </div>
+  `

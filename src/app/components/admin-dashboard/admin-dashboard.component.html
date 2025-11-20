@@ -1,0 +1,80 @@
+`
+    <div class="dashboard-container">
+      <h2>Admin Dashboard</h2>
+      
+      <div class="stats">
+        <div class="stat-card">
+          <h3>Total</h3>
+          <div class="value">{{ (registrations$ | async)?.length }}</div>
+        </div>
+        <div class="stat-card">
+          <h3>Pending</h3>
+          <div class="value">{{ getPendingCount(registrations$ | async) }}</div>
+        </div>
+      </div>
+
+      <div class="registrations-list">
+        <div *ngFor="let reg of registrations$ | async" class="registration-card" [class.approved]="reg.status === 'Approved'">
+          <div class="card-header">
+            <span class="type-badge" 
+                  [class.sponsor]="reg.type === 'Sponsor'"
+                  [class.both]="reg.type === 'Both'">
+              {{ reg.type }}
+            </span>
+            <span class="status-badge" [ngClass]="reg.status.toLowerCase()">{{ reg.status }}</span>
+          </div>
+          
+          <div class="card-body">
+            <div class="logo-container" *ngIf="reg.logoUrl">
+              <img [src]="reg.logoUrl" alt="Organization Logo">
+            </div>
+            
+            <div class="details">
+              <h3>{{ reg.organizationName }}</h3>
+              
+              <div class="info-grid">
+                <div class="info-item">
+                  <span class="label">Contact:</span>
+                  {{ reg.firstName }} {{ reg.lastName }}
+                </div>
+                <div class="info-item">
+                  <span class="label">Email:</span>
+                  <a [href]="'mailto:' + reg.email">{{ reg.email }}</a>
+                </div>
+                <div class="info-item" *ngIf="reg.phone">
+                  <span class="label">Phone:</span>
+                  {{ reg.phone }}
+                </div>
+                <div class="info-item" *ngIf="reg.website">
+                  <span class="label">Website:</span>
+                  <a [href]="reg.website" target="_blank">{{ reg.website }}</a>
+                </div>
+                <div class="info-item full-width" *ngIf="reg.address">
+                  <span class="label">Address:</span>
+                  {{ reg.address }}, {{ reg.city }}, {{ reg.state }} {{ reg.zip }}
+                </div>
+                <div class="info-item full-width" *ngIf="reg.description">
+                  <span class="label">Description:</span>
+                  <p class="description-text">{{ reg.description }}</p>
+                </div>
+                <div class="info-item full-width" *ngIf="reg.participatedBefore">
+                  <span class="tag">Returning Participant</span>
+                </div>
+              </div>
+
+              <p class="date">Registered: {{ reg.timestamp | date:'medium' }}</p>
+            </div>
+          </div>
+          
+          <div class="actions" *ngIf="reg.status === 'Pending'">
+            <button (click)="approve(reg.id)" class="approve-btn">Approve</button>
+            <button (click)="reject(reg.id)" class="reject-btn">Reject</button>
+          </div>
+        </div>
+        
+        <div *ngIf="(registrations$ | async)?.length === 0" class="empty-state">
+          No registrations yet.
+        </div>
+      </div>
+    </div>
+  `
