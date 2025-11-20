@@ -1,0 +1,109 @@
+<div class="signup-container">
+    <h3 class="subtitle">Join us for the Twin Cities Veg Fest!</h3>
+
+    <form [formGroup]="signupForm" (ngSubmit)="onSubmit()">
+
+        <!-- Organization Details -->
+        <div class="section-title">Organization Details</div>
+        <div class="form-group">
+            <label for="orgName">Organization Name</label>
+            <input id="orgName" type="text" formControlName="organizationName" placeholder="e.g. Vegan Delights">
+        </div>
+
+        <div class="form-group">
+            <label for="website">Website</label>
+            <input id="website" type="url" formControlName="website" placeholder="https://example.com">
+        </div>
+
+        <div class="form-group">
+            <label for="description">Description</label>
+            <textarea id="description" formControlName="description" rows="3"
+                placeholder="Tell us about your organization..."></textarea>
+        </div>
+
+        <!-- Contact Info -->
+        <div class="section-title">Contact Information</div>
+        <div class="row">
+            <div class="form-group half">
+                <label for="firstName">First Name</label>
+                <input id="firstName" type="text" formControlName="firstName" placeholder="Jane">
+            </div>
+            <div class="form-group half">
+                <label for="lastName">Last Name</label>
+                <input id="lastName" type="text" formControlName="lastName" placeholder="Doe">
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="form-group half">
+                <label for="email">Email Address</label>
+                <input id="email" type="email" formControlName="email" placeholder="you@example.com">
+            </div>
+            <div class="form-group half">
+                <label for="phone">Phone Number</label>
+                <input id="phone" type="tel" formControlName="phone" placeholder="612-555-0123">
+            </div>
+        </div>
+
+        <!-- Address -->
+        <div class="section-title">Address</div>
+        <div class="form-group">
+            <label for="address">Street Address</label>
+            <input id="address" type="text" formControlName="address" placeholder="123 Green Way">
+        </div>
+
+        <div class="row">
+            <div class="form-group third">
+                <label for="city">City</label>
+                <input id="city" type="text" formControlName="city" placeholder="Minneapolis">
+            </div>
+            <div class="form-group third">
+                <label for="state">State</label>
+                <input id="state" type="text" formControlName="state" placeholder="MN">
+            </div>
+            <div class="form-group third">
+                <label for="zip">Zip Code</label>
+                <input id="zip" type="text" formControlName="zip" placeholder="55401">
+            </div>
+        </div>
+
+        <!-- Logo Upload -->
+        <div class="section-title">Logo Upload</div>
+        <div class="upload-zone" (dragover)="onDragOver($event)" (dragleave)="onDragLeave($event)"
+            (drop)="onDrop($event)" (click)="fileInput.click()" [class.drag-over]="isDragging">
+            <input #fileInput type="file" (change)="onFileSelected($event)" accept="image/*" hidden>
+            <div *ngIf="!logoPreview" class="upload-placeholder">
+                <span class="icon">📁</span>
+                <p>Drag & drop your logo here or click to browse</p>
+            </div>
+            <div *ngIf="logoPreview" class="preview-container">
+                <img [src]="logoPreview" alt="Logo preview">
+                <button type="button" class="remove-btn" (click)="removeLogo($event)">×</button>
+            </div>
+        </div>
+
+        <!-- Additional Info -->
+        <div class="section-title">Additional Information</div>
+        <div class="form-group checkbox-group">
+            <input id="participated" type="checkbox" formControlName="participatedBefore">
+            <label for="participated">Have you participated in Twin Cities Veg Fest before?</label>
+        </div>
+
+        <div class="form-group">
+            <label for="type">Registration Type</label>
+            <select id="type" formControlName="type">
+                <option value="Exhibitor">Exhibitor</option>
+                <option value="Sponsor">Sponsor</option>
+                <option value="Both">Both (Exhibitor & Sponsor)</option>
+            </select>
+        </div>
+
+        <button type="submit" [disabled]="signupForm.invalid || submitted">
+            {{ submitted ? 'Submitted!' : 'Submit Registration' }}
+        </button>
+
+        <div *ngIf="submitted" class="success-message">
+            Thank you! Your registration has been received and is pending approval.
+        </div>
+    </form>
+</div>

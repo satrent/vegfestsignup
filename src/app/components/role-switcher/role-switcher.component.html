@@ -1,0 +1,9 @@
+<div class="role-switcher">
+    <span class="label">Current Role:</span>
+    <select [value]="currentRole$ | async" (change)="onRoleChange($event)">
+        <option value="GUEST">Guest</option>
+        <option value="PARTICIPANT">Participant</option>
+        <option value="ADMIN">Admin</option>
+        <option value="WEB_ADMIN">Web Admin</option>
+    </select>
+</div>
