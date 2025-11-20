@@ -6,7 +6,8 @@ import { StorageService, Registration } from '../../services/storage.service';
   selector: 'app-admin-dashboard',
   standalone: true,
   imports: [CommonModule],
-  templateUrl: './admin-dashboard.component.html',\n  styleUrls: ['./admin-dashboard.component.scss']
+  templateUrl: './admin-dashboard.component.html',
+  styleUrls: ['./admin-dashboard.component.scss']
 })
 export class AdminDashboardComponent {
   private storageService = inject(StorageService);
@@ -24,4 +25,3 @@ export class AdminDashboardComponent {
     this.storageService.updateStatus(id, 'Rejected');
   }
 }
-

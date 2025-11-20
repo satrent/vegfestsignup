@@ -13,7 +13,8 @@ interface RegistrationWithVerification extends Registration {
   selector: 'app-web-admin-dashboard',
   standalone: true,
   imports: [CommonModule],
-  templateUrl: './web-admin-dashboard.component.html',\n  styleUrls: ['./web-admin-dashboard.component.scss']
+  templateUrl: './web-admin-dashboard.component.html',
+  styleUrls: ['./web-admin-dashboard.component.scss']
 })
 export class WebAdminDashboardComponent {
   private storageService = inject(StorageService);
@@ -114,4 +115,3 @@ export class WebAdminDashboardComponent {
     });
   }
 }
-
