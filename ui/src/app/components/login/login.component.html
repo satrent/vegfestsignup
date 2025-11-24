@@ -1,0 +1,75 @@
+<div class="login-container">
+  <div class="login-card">
+    <h1>VegFest Signup</h1>
+    <p class="subtitle">Participant Login</p>
+
+    <!-- Error Message -->
+    <div *ngIf="error" class="alert alert-error">
+      {{ error }}
+    </div>
+
+    <!-- Success Message -->
+    <div *ngIf="success" class="alert alert-success">
+      {{ success }}
+    </div>
+
+    <!-- Email Input (Step 1) -->
+    <div *ngIf="!codeSent" class="form-section">
+      <label for="email">Email Address</label>
+      <input
+        type="email"
+        id="email"
+        [(ngModel)]="email"
+        placeholder="your@email.com"
+        [disabled]="loading"
+        (keyup.enter)="requestCode()"
+      />
+
+      <button
+        class="btn btn-primary"
+        (click)="requestCode()"
+        [disabled]="loading || !email"
+      >
+        {{ loading ? 'Sending...' : 'Send Verification Code' }}
+      </button>
+    </div>
+
+    <!-- Code Input (Step 2) -->
+    <div *ngIf="codeSent" class="form-section">
+      <label for="code">Verification Code</label>
+      <p class="help-text">Enter the 6-digit code sent to {{ email }}</p>
+      <input
+        type="text"
+        id="code"
+        [(ngModel)]="code"
+        placeholder="123456"
+        maxlength="6"
+        [disabled]="loading"
+        (keyup.enter)="verifyCode()"
+      />
+
+      <button
+        class="btn btn-primary"
+        (click)="verifyCode()"
+        [disabled]="loading || code.length !== 6"
+      >
+        {{ loading ? 'Verifying...' : 'Verify & Login' }}
+      </button>
+
+      <button
+        class="btn btn-secondary"
+        (click)="codeSent = false; code = ''; error = ''; success = ''"
+        [disabled]="loading"
+      >
+        Use Different Email
+      </button>
+    </div>
+
+    <!-- Admin Login Link -->
+    <div class="admin-link">
+      <button class="btn-link" (click)="goToAdminLogin()">
+        Admin? Sign in with Google →
+      </button>
+    </div>
+  </div>
+</div>

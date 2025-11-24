@@ -1,0 +1,124 @@
+<div class="dashboard-container">
+  <div class="header">
+    <h2>Web Admin Dashboard</h2>
+    <div class="header-actions">
+      <button class="btn-secondary" (click)="loadUsers()" [disabled]="loadingUsers">
+        {{ showUserManagement ? 'Hide' : 'Show' }} User Management
+      </button>
+      <button class="logout-btn" (click)="logout()">Logout</button>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading">
+    Loading registrations...
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error" class="error-message">
+    {{ error }}
+  </div>
+
+  <!-- Dashboard Content -->
+  <div *ngIf="!loading && !error">
+    <!-- Website Status Filter -->
+    <div class="filter-tabs">
+      <button class="tab" [class.active]="currentFilter === 'Pending'" (click)="setFilter('Pending')">
+        Pending ({{ pendingCount }})
+      </button>
+      <button class="tab" [class.active]="currentFilter === 'Added'" (click)="setFilter('Added')">
+        Added to Website ({{ addedCount }})
+      </button>
+    </div>
+
+    <!-- Registrations List -->
+    <div class="registrations-list">
+      <div *ngFor="let reg of filteredRegistrations" class="registration-card">
+        <div class="card-header">
+          <span class="type-badge" [class.sponsor]="reg.type === 'Sponsor'" [class.both]="reg.type === 'Both'">
+            {{ reg.type }}
+          </span>
+          <span class="status-badge website" [ngClass]="(reg.websiteStatus || 'Pending').toLowerCase()">
+            {{ reg.websiteStatus || 'Pending' }}
+          </span>
+        </div>
+
+        <div class="card-body">
+          <div class="logo-container" *ngIf="reg.logoUrl">
+            <img [src]="reg.logoUrl" alt="Organization Logo">
+          </div>
+
+          <div class="details">
+            <h3>{{ reg.organizationName }}</h3>
+
+            <div class="info-grid">
+              <div class="info-item">
+                <span class="label">Contact:</span>
+                {{ reg.firstName }} {{ reg.lastName }}
+              </div>
+              <div class="info-item">
+                <span class="label">Email:</span>
+                <a [href]="'mailto:' + reg.email">{{ reg.email }}</a>
+              </div>
+              <div class="info-item" *ngIf="reg.website">
+                <span class="label">Website:</span>
+                <a [href]="reg.website" target="_blank">{{ reg.website }}</a>
+              </div>
+              <div class="info-item full-width" *ngIf="reg.description">
+                <span class="label">Description:</span>
+                <p class="description-text">{{ reg.description }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button *ngIf="currentFilter === 'Pending'" (click)="markAsAdded(reg._id!)" class="approve-btn">
+            Mark as Added to Website
+          </button>
+          <button *ngIf="currentFilter === 'Added'" (click)="markAsPending(reg._id!)" class="reject-btn">
+            Move Back to Pending
+          </button>
+        </div>
+      </div>
+
+      <div *ngIf="filteredRegistrations.length === 0" class="empty-state">
+        No {{ currentFilter.toLowerCase() }} registrations.
+      </div>
+    </div>
+
+    <!-- User Management Section -->
+    <div *ngIf="showUserManagement" class="user-management">
+      <h3>User Management</h3>
+
+      <div *ngIf="loadingUsers" class="loading">
+        Loading users...
+      </div>
+
+      <div *ngIf="!loadingUsers" class="users-list">
+        <div *ngFor="let user of users" class="user-card">
+          <div class="user-info">
+            <h4>{{ user.firstName }} {{ user.lastName }}</h4>
+            <p>{{ user.email }}</p>
+            <span class="role-badge" [ngClass]="user.role.toLowerCase()">{{ user.role }}</span>
+          </div>
+          <div class="user-actions">
+            <select [value]="user.role" (change)="updateUserRole(user.id, $any($event.target).value)"
+              class="role-select">
+              <option value="PARTICIPANT">Participant</option>
+              <option value="ADMIN">Admin</option>
+              <option value="WEB_ADMIN">Web Admin</option>
+            </select>
+            <button (click)="deactivateUser(user.id)" class="btn-danger">
+              Deactivate
+            </button>
+          </div>
+        </div>
+
+        <div *ngIf="users.length === 0" class="empty-state">
+          No users found.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
