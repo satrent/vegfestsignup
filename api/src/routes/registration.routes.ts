@@ -33,6 +33,7 @@ router.get('/my-registrations', authenticate, async (req: Request, res: Response
 });
 
 // Create registration
+// Create registration
 router.post(
     '/',
     authenticate,
@@ -42,6 +43,7 @@ router.post(
         body('lastName').trim().notEmpty(),
         body('email').isEmail().normalizeEmail(),
         body('type').isIn(['Exhibitor', 'Sponsor', 'Both']),
+        body('usePreviousLogo').optional().isBoolean(),
     ],
     async (req: Request, res: Response) => {
         try {
@@ -51,8 +53,22 @@ router.post(
                 return;
             }
 
+            let logoUrl = req.body.logoUrl;
+
+            if (req.body.usePreviousLogo) {
+                const previousRegistration = await Registration.findOne({
+                    userId: req.user!.userId,
+                    logoUrl: { $exists: true, $ne: null }
+                }).sort({ createdAt: -1 });
+
+                if (previousRegistration && previousRegistration.logoUrl) {
+                    logoUrl = previousRegistration.logoUrl;
+                }
+            }
+
             const registration = await Registration.create({
                 ...req.body,
+                logoUrl,
                 userId: req.user!.userId,
             });
 

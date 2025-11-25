@@ -69,8 +69,15 @@
 
         <!-- Logo Upload -->
         <div class="section-title">Logo Upload</div>
-        <div class="upload-zone" (dragover)="onDragOver($event)" (dragleave)="onDragLeave($event)"
-            (drop)="onDrop($event)" (click)="fileInput.click()" [class.drag-over]="isDragging">
+
+        <div class="form-group checkbox-group">
+            <input id="usePreviousLogo" type="checkbox" formControlName="usePreviousLogo" (change)="toggleLogoUpload()">
+            <label for="usePreviousLogo">Use logo from last year</label>
+        </div>
+
+        <div class="upload-zone" *ngIf="!signupForm.get('usePreviousLogo')?.value" (dragover)="onDragOver($event)"
+            (dragleave)="onDragLeave($event)" (drop)="onDrop($event)" (click)="fileInput.click()"
+            [class.drag-over]="isDragging">
             <input #fileInput type="file" (change)="onFileSelected($event)" accept="image/*" hidden>
             <div *ngIf="!logoPreview" class="upload-placeholder">
                 <span class="icon">📁</span>

@@ -9,16 +9,11 @@ import connectDatabase from './config/database';
 // Import routes
 import authRoutes from './routes/auth.routes';
 import googleAuthRoutes from './routes/google-auth.routes';
+import mockAuthRoutes from './routes/mock-auth.routes';
 import registrationRoutes from './routes/registration.routes';
 import adminRoutes from './routes/admin.routes';
 
 const app = express();
-
-// Middleware
-app.use(helmet()); // Security headers
-app.use(morgan('dev')); // Logging
-app.use(express.json()); // Parse JSON bodies
-app.use(express.urlencoded({ extended: true })); // Parse URL-encoded bodies
 
 // CORS configuration
 app.use(
@@ -27,6 +22,12 @@ app.use(
         credentials: true,
     })
 );
+
+// Middleware
+app.use(helmet()); // Security headers
+app.use(morgan('dev')); // Logging
+app.use(express.json({ limit: '50mb' })); // Parse JSON bodies
+app.use(express.urlencoded({ extended: true, limit: '50mb' })); // Parse URL-encoded bodies
 
 // Initialize Passport
 app.use(passport.initialize());
@@ -42,7 +43,13 @@ app.get('/health', (_req: Request, res: Response) => {
 
 // API Routes
 app.use('/api/auth', authRoutes);
-app.use('/api/auth', googleAuthRoutes);
+
+if (config.mockGoogleAuth) {
+    console.log('⚠️  Using MOCK Google Authentication');
+    app.use('/api/auth', mockAuthRoutes);
+} else {
+    app.use('/api/auth', googleAuthRoutes);
+}
 app.use('/api/registrations', registrationRoutes);
 app.use('/api/admin/users', adminRoutes);
 

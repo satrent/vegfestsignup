@@ -95,7 +95,12 @@ export class AuthService {
 
     // Get current user info from backend
     getCurrentUser(): Observable<User> {
-        return this.api.get<User>('/auth/me');
+        return this.api.get<User>('/auth/me').pipe(
+            tap((user) => {
+                console.log('Setting currentUserSubject:', user);
+                this.currentUserSubject.next(user);
+            })
+        );
     }
 
     // Logout

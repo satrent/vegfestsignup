@@ -33,6 +33,7 @@ export class SignupFormComponent {
       zip: [''],
       description: [''],
       participatedBefore: [false],
+      usePreviousLogo: [false],
       type: ['Exhibitor', Validators.required]
     });
   }
@@ -99,7 +100,7 @@ export class SignupFormComponent {
           // Reset after 3 seconds
           setTimeout(() => {
             this.submitted = false;
-            this.signupForm.reset({ type: 'Exhibitor', participatedBefore: false });
+            this.signupForm.reset({ type: 'Exhibitor', participatedBefore: false, usePreviousLogo: false });
             this.logoPreview = null;
             this.signupForm.enable();
           }, 3000);
@@ -110,6 +111,13 @@ export class SignupFormComponent {
           this.signupForm.enable();
         }
       });
+    }
+  }
+
+  toggleLogoUpload() {
+    const usePrevious = this.signupForm.get('usePreviousLogo')?.value;
+    if (usePrevious) {
+      this.logoPreview = null;
     }
   }
 }

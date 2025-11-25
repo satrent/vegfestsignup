@@ -35,6 +35,8 @@ export const config = {
             secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || '',
         },
     },
+
+    mockGoogleAuth: process.env.MOCK_GOOGLE_AUTH === 'true',
 };
 
 export default config;

@@ -65,44 +65,60 @@ if (config.google.clientId && config.google.clientSecret) {
 }
 
 // Initiate Google OAuth
-router.get(
-    '/google',
-    passport.authenticate('google', {
-        scope: ['profile', 'email'],
-        session: false,
-    })
-);
+// Initiate Google OAuth
+if (config.google.clientId && config.google.clientSecret) {
+    router.get(
+        '/google',
+        passport.authenticate('google', {
+            scope: ['profile', 'email'],
+            session: false,
+        })
+    );
 
-// Google OAuth callback
-router.get(
-    '/google/callback',
-    passport.authenticate('google', {
-        session: false,
-        failureRedirect: `${config.frontend.url}/login?error=google_auth_failed`,
-    }),
-    (req: Request, res: Response) => {
-        try {
-            const user = req.user as any;
+    // Google OAuth callback
+    router.get(
+        '/google/callback',
+        passport.authenticate('google', {
+            session: false,
+            failureRedirect: `${config.frontend.url}/login?error=google_auth_failed`,
+        }),
+        (req: Request, res: Response) => {
+            try {
+                const user = req.user as any;
 
-            if (!user) {
-                res.redirect(`${config.frontend.url}/login?error=no_user`);
-                return;
+                if (!user) {
+                    res.redirect(`${config.frontend.url}/login?error=no_user`);
+                    return;
+                }
+
+                // Generate JWT token
+                const token = generateToken({
+                    userId: user._id.toString(),
+                    email: user.email,
+                    role: user.role,
+                });
+
+                // Redirect to frontend with token
+                res.redirect(`${config.frontend.url}/auth/google/callback?token=${token}`);
+            } catch (error) {
+                console.error('Google OAuth callback error:', error);
+                res.redirect(`${config.frontend.url}/login?error=auth_failed`);
             }
-
-            // Generate JWT token
-            const token = generateToken({
-                userId: user._id.toString(),
-                email: user.email,
-                role: user.role,
-            });
-
-            // Redirect to frontend with token
-            res.redirect(`${config.frontend.url}/auth/google/callback?token=${token}`);
-        } catch (error) {
-            console.error('Google OAuth callback error:', error);
-            res.redirect(`${config.frontend.url}/login?error=auth_failed`);
         }
-    }
-);
+    );
+} else {
+    // Fallback routes when Google Auth is not configured
+    router.get('/google', (_req: Request, res: Response) => {
+        res.status(503).json({
+            error: 'Google OAuth is not configured. Please check server logs or contact administrator.',
+        });
+    });
+
+    router.get('/google/callback', (_req: Request, res: Response) => {
+        res.status(503).json({
+            error: 'Google OAuth is not configured. Please check server logs or contact administrator.',
+        });
+    });
+}
 
 export default router;
