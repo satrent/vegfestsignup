@@ -23,7 +23,7 @@ const router = Router();
 router.post(
     '/request-code',
     [
-        body('email').isEmail().normalizeEmail(),
+        body('email').isEmail().normalizeEmail({ gmail_remove_subaddress: false }),
     ],
     async (req: Request, res: Response) => {
         try {
@@ -78,7 +78,7 @@ router.post(
 router.post(
     '/verify-code',
     [
-        body('email').isEmail().normalizeEmail(),
+        body('email').isEmail().normalizeEmail({ gmail_remove_subaddress: false }),
         body('code').isString().isLength({ min: 6, max: 6 }),
     ],
     async (req: Request, res: Response) => {

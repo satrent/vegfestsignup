@@ -59,7 +59,7 @@ router.post(
         body('organizationName').trim().notEmpty(),
         body('firstName').trim().notEmpty(),
         body('lastName').trim().notEmpty(),
-        body('email').isEmail().normalizeEmail(),
+        body('email').isEmail().normalizeEmail({ gmail_remove_subaddress: false }),
         body('type').isIn(['Exhibitor', 'Sponsor', 'Both']),
         body('usePreviousLogo').optional().isBoolean(),
     ],
