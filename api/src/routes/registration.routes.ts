@@ -35,8 +35,20 @@ router.get('/my-registrations', authenticate, async (req: Request, res: Response
 // Get user's latest registration
 router.get('/latest', authenticate, async (req: Request, res: Response) => {
     try {
-        const registration = await Registration.findOne({ userId: req.user!.userId })
+        let registration = await Registration.findOne({ userId: req.user!.userId })
             .sort({ createdAt: -1 });
+
+        // If not found by userId, try finding by email (in case user account was recreated)
+        if (!registration && req.user!.email) {
+            registration = await Registration.findOne({ email: req.user!.email })
+                .sort({ createdAt: -1 });
+
+            // If found by email, update the userId to link it to the current user
+            if (registration) {
+                registration.userId = req.user!.userId as any;
+                await registration.save();
+            }
+        }
 
         if (!registration) {
             res.status(404).json({ error: 'No registration found' });
