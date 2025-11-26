@@ -1,0 +1,114 @@
+<div class="registration-status-container">
+    <div class="header">
+        <h1>Your Registration</h1>
+        <button class="logout-btn" (click)="logout()">Logout</button>
+    </div>
+
+    <div *ngIf="loading" class="loading">
+        <p>Loading your registration...</p>
+    </div>
+
+    <div *ngIf="error" class="error">
+        <p>{{ error }}</p>
+        <button (click)="loadRegistration()">Try Again</button>
+    </div>
+
+    <div *ngIf="!loading && !error && registration" class="registration-details">
+        <div class="status-section">
+            <h2>Status</h2>
+            <span class="status-badge" [ngClass]="getStatusClass(registration.status)">
+                {{ registration.status }}
+            </span>
+            <p class="status-message" *ngIf="registration.status === 'Pending'">
+                Your registration is currently under review. We'll notify you once it's been processed.
+            </p>
+            <p class="status-message success" *ngIf="registration.status === 'Approved'">
+                Congratulations! Your registration has been approved.
+            </p>
+            <p class="status-message error" *ngIf="registration.status === 'Rejected'">
+                Unfortunately, your registration was not approved. Please contact us for more information.
+            </p>
+        </div>
+
+        <div class="info-section">
+            <h2>Organization Information</h2>
+            <div class="info-grid">
+                <div class="info-item">
+                    <label>Organization Name</label>
+                    <p>{{ registration.organizationName }}</p>
+                </div>
+                <div class="info-item">
+                    <label>Registration Type</label>
+                    <p>{{ registration.type }}</p>
+                </div>
+                <div class="info-item" *ngIf="registration.website">
+                    <label>Website</label>
+                    <p><a [href]="registration.website" target="_blank">{{ registration.website }}</a></p>
+                </div>
+                <div class="info-item" *ngIf="registration.participatedBefore !== undefined">
+                    <label>Participated Before</label>
+                    <p>{{ registration.participatedBefore ? 'Yes' : 'No' }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="info-section">
+            <h2>Contact Information</h2>
+            <div class="info-grid">
+                <div class="info-item">
+                    <label>First Name</label>
+                    <p>{{ registration.firstName }}</p>
+                </div>
+                <div class="info-item">
+                    <label>Last Name</label>
+                    <p>{{ registration.lastName }}</p>
+                </div>
+                <div class="info-item">
+                    <label>Email</label>
+                    <p>{{ registration.email }}</p>
+                </div>
+                <div class="info-item" *ngIf="registration.phone">
+                    <label>Phone</label>
+                    <p>{{ registration.phone }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="info-section"
+            *ngIf="registration.address || registration.city || registration.state || registration.zip">
+            <h2>Address</h2>
+            <div class="info-grid">
+                <div class="info-item full-width" *ngIf="registration.address">
+                    <label>Street Address</label>
+                    <p>{{ registration.address }}</p>
+                </div>
+                <div class="info-item" *ngIf="registration.city">
+                    <label>City</label>
+                    <p>{{ registration.city }}</p>
+                </div>
+                <div class="info-item" *ngIf="registration.state">
+                    <label>State</label>
+                    <p>{{ registration.state }}</p>
+                </div>
+                <div class="info-item" *ngIf="registration.zip">
+                    <label>ZIP Code</label>
+                    <p>{{ registration.zip }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="info-section" *ngIf="registration.description">
+            <h2>Description</h2>
+            <p class="description">{{ registration.description }}</p>
+        </div>
+
+        <div class="info-section" *ngIf="registration.logoUrl">
+            <h2>Logo</h2>
+            <img [src]="registration.logoUrl" alt="Organization Logo" class="logo-preview">
+        </div>
+
+        <div class="info-section metadata">
+            <p class="submitted-date">Submitted on {{ registration.createdAt | date:'medium' }}</p>
+        </div>
+    </div>
+</div>

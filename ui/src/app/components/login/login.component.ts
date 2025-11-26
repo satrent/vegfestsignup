@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import { StorageService } from '../../services/storage.service';
 
 @Component({
     selector: 'app-login',
@@ -13,6 +14,7 @@ import { AuthService } from '../../services/auth.service';
 })
 export class LoginComponent {
     private authService = inject(AuthService);
+    private storageService = inject(StorageService);
     private router = inject(Router);
 
     email = '';
@@ -56,10 +58,25 @@ export class LoginComponent {
 
         this.authService.verifyCode(this.email, this.code).subscribe({
             next: (response) => {
-                this.loading = false;
                 if (response.success) {
-                    // Navigate to signup form
-                    this.router.navigate(['/signup']);
+                    // Check if user has existing registration
+                    this.storageService.getLatestRegistration().subscribe({
+                        next: (registration) => {
+                            this.loading = false;
+                            // User has a registration, show status view
+                            this.router.navigate(['/registration-status']);
+                        },
+                        error: (err) => {
+                            this.loading = false;
+                            if (err.status === 404) {
+                                // No registration found, go to signup
+                                this.router.navigate(['/signup']);
+                            } else {
+                                // Other error, default to signup
+                                this.router.navigate(['/signup']);
+                            }
+                        }
+                    });
                 }
             },
             error: (err) => {

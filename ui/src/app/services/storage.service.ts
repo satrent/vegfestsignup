@@ -41,6 +41,11 @@ export class StorageService {
     return this.api.get<Registration[]>('/registrations/my-registrations');
   }
 
+  // Get current user's latest registration
+  getLatestRegistration(): Observable<Registration> {
+    return this.api.get<Registration>('/registrations/latest');
+  }
+
   // Create new registration
   saveRegistration(registration: Registration): Observable<Registration> {
     return this.api.post<Registration>('/registrations', registration);

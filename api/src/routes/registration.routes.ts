@@ -32,6 +32,24 @@ router.get('/my-registrations', authenticate, async (req: Request, res: Response
     }
 });
 
+// Get user's latest registration
+router.get('/latest', authenticate, async (req: Request, res: Response) => {
+    try {
+        const registration = await Registration.findOne({ userId: req.user!.userId })
+            .sort({ createdAt: -1 });
+
+        if (!registration) {
+            res.status(404).json({ error: 'No registration found' });
+            return;
+        }
+
+        res.json(registration);
+    } catch (error) {
+        console.error('Error fetching latest registration:', error);
+        res.status(500).json({ error: 'Failed to fetch registration' });
+    }
+});
+
 // Create registration
 // Create registration
 router.post(
