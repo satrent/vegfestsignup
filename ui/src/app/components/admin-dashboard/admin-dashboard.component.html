@@ -63,34 +63,19 @@
               </div>
               <div class="info-item" *ngIf="reg.website">
                 <span class="label">Website:</span>
-                <a [href]="reg.website" target="_blank">{{ reg.website }}</a>
-              </div>
-              <div class="info-item full-width" *ngIf="reg.address">
-                <span class="label">Address:</span>
-                {{ reg.address }}, {{ reg.city }}, {{ reg.state }} {{ reg.zip }}
-              </div>
-              <div class="info-item full-width" *ngIf="reg.description">
-                <span class="label">Description:</span>
-                <p class="description-text">{{ reg.description }}</p>
-              </div>
-              <div class="info-item full-width" *ngIf="reg.participatedBefore">
-                <span class="tag">Returning Participant</span>
+                <p class="date" *ngIf="reg.createdAt">Registered: {{ reg.createdAt | date:'medium' }}</p>
               </div>
             </div>
 
-            <p class="date" *ngIf="reg.createdAt">Registered: {{ reg.createdAt | date:'medium' }}</p>
+            <div class="actions" *ngIf="reg.status === 'Pending'">
+              <button (click)="updateStatus(reg._id!, 'Approved')" class="approve-btn">Approve</button>
+              <button (click)="updateStatus(reg._id!, 'Rejected')" class="reject-btn">Reject</button>
+            </div>
+          </div>
+
+          <div *ngIf="registrations.length === 0" class="empty-state">
+            No registrations yet.
           </div>
         </div>
-
-        <div class="actions" *ngIf="reg.status === 'Pending'">
-          <button (click)="updateStatus(reg._id!, 'Approved')" class="approve-btn">Approve</button>
-          <button (click)="updateStatus(reg._id!, 'Rejected')" class="reject-btn">Reject</button>
-        </div>
-      </div>
-
-      <div *ngIf="registrations.length === 0" class="empty-state">
-        No registrations yet.
       </div>
     </div>
-  </div>
-</div>

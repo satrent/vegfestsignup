@@ -1,0 +1,124 @@
+.dashboard-container {
+    max-width: 800px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+}
+
+.dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+
+    h2 {
+        margin: 0;
+        color: #2c3e50;
+    }
+
+    .logout-btn {
+        padding: 0.5rem 1rem;
+        background: #f8f9fa;
+        border: 1px solid #dee2e6;
+        border-radius: 4px;
+        cursor: pointer;
+
+        &:hover {
+            background: #e9ecef;
+        }
+    }
+}
+
+.status-card {
+    padding: 1.5rem;
+    border-radius: 8px;
+    margin-bottom: 2rem;
+    background: #f8f9fa;
+    border-left: 5px solid #ccc;
+
+    &.pending {
+        background: #fff3cd;
+        border-left-color: #ffc107;
+        color: #856404;
+    }
+
+    &.approved {
+        background: #d4edda;
+        border-left-color: #28a745;
+        color: #155724;
+    }
+
+    &.rejected {
+        background: #f8d7da;
+        border-left-color: #dc3545;
+        color: #721c24;
+    }
+
+    h3 {
+        margin-top: 0;
+    }
+}
+
+.sections-list {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    padding: 1rem;
+
+    h3 {
+        margin-top: 0;
+        margin-bottom: 1rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 1px solid #eee;
+    }
+}
+
+.section-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    border-bottom: 1px solid #f1f1f1;
+    cursor: pointer;
+    transition: background 0.2s;
+
+    &:last-child {
+        border-bottom: none;
+    }
+
+    &:hover {
+        background: #f8f9fa;
+    }
+
+    .section-info {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .status-icon {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        border: 2px solid #ccc;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: transparent;
+        font-weight: bold;
+
+        &.complete {
+            background: #28a745;
+            border-color: #28a745;
+            color: white;
+        }
+    }
+
+    .section-title {
+        font-size: 1.1rem;
+        font-weight: 500;
+    }
+
+    .arrow {
+        color: #ccc;
+    }
+}

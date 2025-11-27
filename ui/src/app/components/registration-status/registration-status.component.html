@@ -91,24 +91,9 @@
                     <p>{{ registration.state }}</p>
                 </div>
                 <div class="info-item" *ngIf="registration.zip">
-                    <label>ZIP Code</label>
-                    <p>{{ registration.zip }}</p>
+
+                    <div class="info-section metadata">
+                        <p class="submitted-date">Submitted on {{ registration.createdAt | date:'medium' }}</p>
+                    </div>
                 </div>
             </div>
-        </div>
-
-        <div class="info-section" *ngIf="registration.description">
-            <h2>Description</h2>
-            <p class="description">{{ registration.description }}</p>
-        </div>
-
-        <div class="info-section" *ngIf="registration.logoUrl">
-            <h2>Logo</h2>
-            <img [src]="registration.logoUrl" alt="Organization Logo" class="logo-preview">
-        </div>
-
-        <div class="info-section metadata">
-            <p class="submitted-date">Submitted on {{ registration.createdAt | date:'medium' }}</p>
-        </div>
-    </div>
-</div>

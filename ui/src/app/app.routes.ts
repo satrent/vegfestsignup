@@ -8,6 +8,7 @@ import { WebAdminDashboardComponent } from './components/web-admin-dashboard/web
 import { GoogleAuthCallbackComponent } from './components/google-auth-callback/google-auth-callback.component';
 import { authGuard } from './guards/auth.guard';
 import { roleGuard } from './guards/role.guard';
+import { DashboardComponent } from './components/dashboard/dashboard.component';
 
 export const routes: Routes = [
     { path: '', redirectTo: '/login', pathMatch: 'full' },
@@ -17,6 +18,41 @@ export const routes: Routes = [
     {
         path: 'signup',
         component: SignupFormComponent,
+        canActivate: [authGuard]
+    },
+    {
+        path: 'dashboard',
+        component: DashboardComponent,
+        canActivate: [authGuard]
+    },
+    {
+        path: 'dashboard/contact',
+        loadComponent: () => import('./components/section-forms/contact-info.component').then(m => m.ContactInfoComponent),
+        canActivate: [authGuard]
+    },
+    {
+        path: 'dashboard/products',
+        loadComponent: () => import('./components/section-forms/products.component').then(m => m.ProductsComponent),
+        canActivate: [authGuard]
+    },
+    {
+        path: 'dashboard/logistics',
+        loadComponent: () => import('./components/section-forms/logistics.component').then(m => m.LogisticsComponent),
+        canActivate: [authGuard]
+    },
+    {
+        path: 'dashboard/documents',
+        loadComponent: () => import('./components/section-forms/documents.component').then(m => m.DocumentsComponent),
+        canActivate: [authGuard]
+    },
+    {
+        path: 'dashboard/profile',
+        loadComponent: () => import('./components/section-forms/profile.component').then(m => m.ProfileComponent),
+        canActivate: [authGuard]
+    },
+    {
+        path: 'dashboard/sponsorship',
+        loadComponent: () => import('./components/section-forms/sponsorship.component').then(m => m.SponsorshipComponent),
         canActivate: [authGuard]
     },
     {

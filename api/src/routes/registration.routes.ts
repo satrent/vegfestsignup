@@ -63,7 +63,7 @@ router.get('/latest', authenticate, async (req: Request, res: Response) => {
 });
 
 // Create registration
-// Create registration
+// Create registration (Simplified Initial Signup)
 router.post(
     '/',
     authenticate,
@@ -72,8 +72,8 @@ router.post(
         body('firstName').trim().notEmpty(),
         body('lastName').trim().notEmpty(),
         body('email').isEmail().normalizeEmail({ gmail_remove_subaddress: false }),
+        body('phone').optional().trim(),
         body('type').isIn(['Exhibitor', 'Sponsor', 'Both']),
-        body('usePreviousLogo').optional().isBoolean(),
     ],
     async (req: Request, res: Response) => {
         try {
@@ -83,29 +83,55 @@ router.post(
                 return;
             }
 
-            let logoUrl = req.body.logoUrl;
-
-            if (req.body.usePreviousLogo) {
-                const previousRegistration = await Registration.findOne({
-                    userId: req.user!.userId,
-                    logoUrl: { $exists: true, $ne: null }
-                }).sort({ createdAt: -1 });
-
-                if (previousRegistration && previousRegistration.logoUrl) {
-                    logoUrl = previousRegistration.logoUrl;
-                }
-            }
-
             const registration = await Registration.create({
                 ...req.body,
-                logoUrl,
                 userId: req.user!.userId,
+                // sectionStatus will be initialized by default values in schema
             });
 
             res.status(201).json(registration);
         } catch (error) {
             console.error('Error creating registration:', error);
             res.status(500).json({ error: 'Failed to create registration' });
+        }
+    }
+);
+
+// Update registration (for saving sections)
+router.patch(
+    '/:id',
+    authenticate,
+    async (req: Request, res: Response) => {
+        try {
+            const { id } = req.params;
+            const updates = req.body;
+
+            // Prevent updating sensitive fields via this endpoint
+            delete updates.userId;
+            delete updates.createdAt;
+            delete updates.updatedAt;
+
+            // Protect status and websiteStatus from being updated here by regular users.
+            if (req.user?.role !== 'ADMIN') {
+                delete updates.status;
+                delete updates.websiteStatus;
+            }
+
+            const registration = await Registration.findOneAndUpdate(
+                { _id: id, userId: req.user!.userId }, // Ensure user owns the registration
+                { $set: updates },
+                { new: true, runValidators: true }
+            );
+
+            if (!registration) {
+                res.status(404).json({ error: 'Registration not found' });
+                return;
+            }
+
+            res.json(registration);
+        } catch (error) {
+            console.error('Error updating registration:', error);
+            res.status(500).json({ error: 'Failed to update registration' });
         }
     }
 );
