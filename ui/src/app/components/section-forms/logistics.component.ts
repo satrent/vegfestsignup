@@ -46,17 +46,21 @@ import { StorageService } from '../../services/storage.service';
         </div>
 
         <h3>Supplies Order</h3>
-        <p>All exhibitors are required to have a 10x10 tent. Please indicate what supplies you'd like to order:</p>
-        <div class="checkbox-list">
-            <div *ngFor="let supply of supplyOptions">
-              <input type="checkbox" [value]="supply" (change)="onSupplyChange($event, supply)" [checked]="isSupplySelected(supply)">
-              <label>{{ supply }}</label>
-            </div>
+        <p>All exhibitors are required to have a 10x10 tent. Please indicate how many of each supply you'd like to order:</p>
+        
+        <div class="form-group inline-number">
+          <input id="numTables" type="number" formControlName="numTables" min="0">
+          <label for="numTables">Tables ($15 each)</label>
         </div>
 
-        <div class="form-group">
-          <label for="suppliesQuantity">Do you need more than one of any of the above? If so, explain exactly what you'd like to order here.</label>
-          <textarea id="suppliesQuantity" formControlName="suppliesQuantity" rows="2"></textarea>
+        <div class="form-group inline-number">
+          <input id="numChairs" type="number" formControlName="numChairs" min="0">
+          <label for="numChairs">Chairs ($5 each)</label>
+        </div>
+
+        <div class="form-group inline-number">
+          <input id="numTents" type="number" formControlName="numTents" min="0">
+          <label for="numTents">Tents ($150 each)</label>
         </div>
 
         <h3>Power Needs</h3>
@@ -128,6 +132,9 @@ import { StorageService } from '../../services/storage.service';
     .alert { padding: 1rem; margin-bottom: 1rem; border-radius: 4px; }
     .alert-warning { background-color: #fff3cd; color: #856404; border: 1px solid #ffeeba; }
     .form-group { margin-bottom: 1.5rem; }
+    .inline-number { display: flex; align-items: center; gap: 1rem; }
+    .inline-number label { margin-bottom: 0; }
+    .inline-number input { width: 60px; }
     .checkbox-group { display: flex; align-items: flex-start; gap: 0.5rem; }
     .checkbox-group input { width: auto; margin-top: 0.3rem; }
     .checkbox-list { display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1rem; }
@@ -150,7 +157,6 @@ export class LogisticsComponent implements OnInit {
   registrationId: string = '';
 
   equipmentOptions = ['Tent', 'Table', 'Chairs', 'Display Rack', 'Signage'];
-  supplyOptions = ['Table ($15)', 'Chair ($5)', 'Tent ($150)'];
 
   constructor() {
     this.form = this.fb.group({
@@ -158,8 +164,9 @@ export class LogisticsComponent implements OnInit {
       tablesChairs: [[]], // Array of strings
       otherEquipment: [''],
       vehicleDetails: [''],
-      suppliesOrdered: [[]], // Array of strings
-      suppliesQuantity: [''],
+      numTables: [0],
+      numChairs: [0],
+      numTents: [0],
       amperageDraw: [''],
       standardPower: [false],
       electricalEquipment: [''],
@@ -202,21 +209,7 @@ export class LogisticsComponent implements OnInit {
     }
   }
 
-  isSupplySelected(item: string): boolean {
-    const selected = this.form.get('suppliesOrdered')?.value as string[];
-    return selected ? selected.includes(item) : false;
-  }
 
-  onSupplyChange(event: Event, item: string) {
-    const checkbox = event.target as HTMLInputElement;
-    const current = this.form.get('suppliesOrdered')?.value as string[] || [];
-
-    if (checkbox.checked) {
-      this.form.patchValue({ suppliesOrdered: [...current, item] });
-    } else {
-      this.form.patchValue({ suppliesOrdered: current.filter(i => i !== item) });
-    }
-  }
 
   onSubmit() {
     if (this.form.valid && this.registrationId) {
