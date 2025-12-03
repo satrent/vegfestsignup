@@ -11,6 +11,9 @@ import { StorageService } from '../../services/storage.service';
   template: `
     <div class="section-container">
       <h2>Products & Festival Guidelines</h2>
+      <div *ngIf="form.disabled" class="alert alert-warning">
+        This application has been submitted and is currently locked.
+      </div>
       <form [formGroup]="form" (ngSubmit)="onSubmit()">
         
         <div class="form-group">
@@ -88,19 +91,6 @@ import { StorageService } from '../../services/storage.service';
   styles: [`
     .section-container {
       max-width: 800px;
-      margin: 2rem auto;
-      padding: 2rem;
-      background: white;
-      border-radius: 8px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-    .form-group { margin-bottom: 1.5rem; }
-    .checkbox-group { display: flex; align-items: flex-start; gap: 0.5rem; }
-    .checkbox-group input { width: auto; margin-top: 0.3rem; }
-    label { display: block; margin-bottom: 0.5rem; font-weight: 500; }
-    input[type="text"], textarea, select { width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px; }
-    .actions { display: flex; justify-content: flex-end; gap: 1rem; margin-top: 2rem; }
-    button { padding: 0.5rem 1.5rem; border-radius: 4px; cursor: pointer; border: none; background: #007bff; color: white; }
     button.secondary { background: #6c757d; }
     button:disabled { opacity: 0.7; cursor: not-allowed; }
   `]
@@ -136,9 +126,11 @@ export class ProductsComponent implements OnInit {
       if (reg && reg._id) {
         this.registrationId = reg._id;
         this.form.patchValue(reg);
-        // Simple logic: if they are selling drinks or samples, or if they are a food vendor (which we might need to infer or ask explicitly if not covered)
-        // For now, let's assume 'Exhibitor' might be food vendor, but we don't have a specific 'Food Vendor' type. 
-        // We'll rely on the checkboxes for now.
+
+        if (reg.status !== 'In Progress') {
+          this.form.disable();
+          this.saving = true;
+        }
       }
     });
   }

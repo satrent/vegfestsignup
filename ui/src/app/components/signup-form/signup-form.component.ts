@@ -49,7 +49,7 @@ export class SignupFormComponent implements OnInit {
       // Use getRawValue() to include disabled fields (email)
       const registrationData = {
         ...this.signupForm.getRawValue(),
-        status: 'Pending' as const
+        status: 'In Progress' as const
       };
 
       this.signupForm.disable();

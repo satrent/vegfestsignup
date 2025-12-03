@@ -85,7 +85,7 @@ export interface Registration {
   couponOtherInfo?: string;
 
   type: 'Exhibitor' | 'Sponsor' | 'Both';
-  status: 'Pending' | 'Approved' | 'Rejected';
+  status: 'In Progress' | 'Pending' | 'Approved' | 'Rejected';
   websiteStatus?: 'Pending' | 'Added';
   sectionStatus?: {
     contact: boolean;
@@ -123,6 +123,11 @@ export class StorageService {
   // Create new registration
   saveRegistration(registration: Registration): Observable<Registration> {
     return this.api.post<Registration>('/registrations', registration);
+  }
+
+  // Submit registration (change status to Pending)
+  submitRegistration(id: string): Observable<Registration> {
+    return this.api.post<Registration>(`/registrations/${id}/submit`, {});
   }
 
   // Update registration (partial update)

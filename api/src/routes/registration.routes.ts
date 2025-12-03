@@ -136,6 +136,38 @@ router.patch(
     }
 );
 
+// Submit registration (change status to Pending)
+router.post(
+    '/:id/submit',
+    authenticate,
+    async (req: Request, res: Response) => {
+        try {
+            const { id } = req.params;
+
+            const registration = await Registration.findOne({
+                _id: id,
+                userId: req.user!.userId
+            });
+
+            if (!registration) {
+                res.status(404).json({ error: 'Registration not found' });
+                return;
+            }
+
+            // Optional: Validate that all sections are complete before allowing submission
+            // For now, we'll trust the frontend check, but ideally we should check here too.
+
+            registration.status = 'Pending';
+            await registration.save();
+
+            res.json(registration);
+        } catch (error) {
+            console.error('Error submitting registration:', error);
+            res.status(500).json({ error: 'Failed to submit registration' });
+        }
+    }
+);
+
 // Update registration status (admin only)
 router.patch(
     '/:id/status',

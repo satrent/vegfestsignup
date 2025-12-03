@@ -11,6 +11,9 @@ import { StorageService } from '../../services/storage.service';
   template: `
     <div class="section-container">
       <h2>Licensing & Insurance (Required Documents)</h2>
+      <div *ngIf="form.disabled" class="alert alert-warning">
+        This application has been submitted and is currently locked.
+      </div>
       <form [formGroup]="form" (ngSubmit)="onSubmit()">
         
         <div class="form-group">
@@ -56,6 +59,8 @@ import { StorageService } from '../../services/storage.service';
       border-radius: 8px;
       box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }
+    .alert { padding: 1rem; margin-bottom: 1rem; border-radius: 4px; }
+    .alert-warning { background-color: #fff3cd; color: #856404; border: 1px solid #ffeeba; }
     .form-group { margin-bottom: 1.5rem; }
     label { display: block; margin-bottom: 0.5rem; font-weight: 500; }
     input[type="text"], select { width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px; }
@@ -88,6 +93,11 @@ export class DocumentsComponent implements OnInit {
       if (reg && reg._id) {
         this.registrationId = reg._id;
         this.form.patchValue(reg);
+
+        if (reg.status !== 'In Progress') {
+          this.form.disable();
+          this.saving = true;
+        }
       }
     });
   }

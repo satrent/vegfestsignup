@@ -4,29 +4,45 @@
         <button class="logout-btn" (click)="logout()">Logout</button>
     </header>
 
-    <div *ngIf="loading" class="loading">Loading...</div>
-    <div *ngIf="error" class="error">{{ error }}</div>
+    <div *ngIf="loading" class="loading-spinner">
+        Loading...
+    </div>
 
-    <div *ngIf="registration" class="dashboard-content">
-        <!-- Status Section -->
+    <div *ngIf="error" class="error-message">
+        {{ error }}
+    </div>
+
+    <div *ngIf="registration && !loading">
+        <!-- Status Card -->
         <div class="status-card" [ngClass]="getStatusClass(registration.status)">
             <h3>Registration Status</h3>
             <div class="status-value">{{ registration.status }}</div>
+
+            <p *ngIf="registration.status === 'In Progress'">
+                Your application is currently in progress. Please complete all sections below to submit your
+                application.
+            </p>
             <p *ngIf="registration.status === 'Pending'">
-                Your registration is currently under review. We'll notify you once it's been processed.
+                Your application has been submitted and is pending review. We will notify you once a decision has been
+                made.
             </p>
             <p *ngIf="registration.status === 'Approved'">
-                Congratulations! Your registration has been approved.
+                Congratulations! Your application has been approved. Welcome to the festival!
             </p>
             <p *ngIf="registration.status === 'Rejected'">
-                Unfortunately, your registration was not approved. Please contact us for more information.
+                Thank you for your interest. Unfortunately, we cannot accommodate your application this year.
             </p>
+
+            <div class="submit-section" *ngIf="registration.status === 'In Progress' && canSubmit">
+                <button class="submit-btn" (click)="submitApplication()">Submit Application</button>
+            </div>
         </div>
 
-        <!-- Registration Sections Links -->
+        <!-- Sections List -->
         <div class="sections-list">
             <h3>Registration Sections</h3>
-            <div class="section-item" *ngFor="let section of sections" [routerLink]="[section.route]">
+
+            <div class="section-item" *ngFor="let section of sections" (click)="navigateToSection(section.id)">
                 <div class="section-info">
                     <span class="status-icon" [class.complete]="isSectionComplete(section.id)">
                         {{ isSectionComplete(section.id) ? '✓' : '○' }}
@@ -37,8 +53,8 @@
             </div>
         </div>
 
-        <!-- Registration Details (Merged from Registration Status) -->
-        <div class="registration-details">
+        <!-- Registration Details -->
+        <div class="registration-details" style="margin-top: 2rem;">
             <div class="info-section">
                 <h2>Organization Information</h2>
                 <div class="info-grid">

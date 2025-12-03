@@ -68,8 +68,47 @@ export class DashboardComponent implements OnInit {
             case 'Rejected':
                 return 'status-rejected';
             case 'Pending':
+                return 'status-pending';
+            case 'In Progress':
+                return 'status-in-progress';
             default:
                 return 'status-pending';
+        }
+    }
+
+    get canSubmit(): boolean {
+        if (!this.registration || !this.registration.sectionStatus) return false;
+        const s = this.registration.sectionStatus;
+        return s.contact && s.products && s.logistics && s.documents && s.profile && s.sponsorship;
+    }
+
+    submitApplication(): void {
+        if (!this.registration || !this.registration._id) return;
+
+        if (!confirm('Are you sure you want to submit your application? Once submitted, you will not be able to make changes until it is reviewed.')) {
+            return;
+        }
+
+        this.loading = true;
+        this.storageService.submitRegistration(this.registration._id).subscribe({
+            next: (updatedReg) => {
+                this.registration = updatedReg;
+                this.loading = false;
+                // Scroll to top to see status change
+                window.scrollTo(0, 0);
+            },
+            error: (err) => {
+                console.error('Error submitting application:', err);
+                this.loading = false;
+                this.error = 'Failed to submit application. Please try again.';
+            }
+        });
+    }
+
+    navigateToSection(sectionId: string): void {
+        const section = this.sections.find(s => s.id === sectionId);
+        if (section) {
+            this.router.navigate([section.route]);
         }
     }
 }
