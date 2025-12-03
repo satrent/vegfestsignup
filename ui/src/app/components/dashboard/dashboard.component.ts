@@ -108,7 +108,7 @@ export class DashboardComponent implements OnInit {
     navigateToSection(sectionId: string): void {
         const section = this.sections.find(s => s.id === sectionId);
         if (section) {
-            this.router.navigate([section.route]);
+            this.router.navigate(['/dashboard', section.route]);
         }
     }
 }

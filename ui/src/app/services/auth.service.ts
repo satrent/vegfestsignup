@@ -123,7 +123,15 @@ export class AuthService {
 
     // Check if user is authenticated (synchronous)
     isAuthenticated(): boolean {
-        return !!localStorage.getItem('auth_token') && !!this.currentUserSubject.value;
+        const token = localStorage.getItem('auth_token');
+        if (!token) return false;
+
+        try {
+            const payload = this.decodeToken(token);
+            return payload && !this.isTokenExpired(payload);
+        } catch {
+            return false;
+        }
     }
 
     // Check auth status asynchronously, waiting for initialization
