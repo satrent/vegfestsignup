@@ -2,7 +2,6 @@ import { Routes } from '@angular/router';
 import { LoginComponent } from './components/login/login.component';
 import { AdminLoginComponent } from './components/admin-login/admin-login.component';
 import { SignupFormComponent } from './components/signup-form/signup-form.component';
-import { RegistrationStatusComponent } from './components/registration-status/registration-status.component';
 import { AdminDashboardComponent } from './components/admin-dashboard/admin-dashboard.component';
 import { WebAdminDashboardComponent } from './components/web-admin-dashboard/web-admin-dashboard.component';
 import { GoogleAuthCallbackComponent } from './components/google-auth-callback/google-auth-callback.component';
@@ -53,11 +52,6 @@ export const routes: Routes = [
     {
         path: 'dashboard/sponsorship',
         loadComponent: () => import('./components/section-forms/sponsorship.component').then(m => m.SponsorshipComponent),
-        canActivate: [authGuard]
-    },
-    {
-        path: 'registration-status',
-        component: RegistrationStatusComponent,
         canActivate: [authGuard]
     },
     {

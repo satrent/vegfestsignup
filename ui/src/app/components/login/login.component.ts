@@ -64,7 +64,7 @@ export class LoginComponent {
                         next: (registration) => {
                             this.loading = false;
                             // User has a registration, show status view
-                            this.router.navigate(['/registration-status']);
+                            this.router.navigate(['/dashboard']);
                         },
                         error: (err) => {
                             this.loading = false;

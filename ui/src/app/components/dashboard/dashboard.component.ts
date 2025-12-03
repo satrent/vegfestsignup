@@ -60,4 +60,16 @@ export class DashboardComponent implements OnInit {
         this.authService.logout();
         this.router.navigate(['/login']);
     }
+
+    getStatusClass(status: string): string {
+        switch (status) {
+            case 'Approved':
+                return 'status-approved';
+            case 'Rejected':
+                return 'status-rejected';
+            case 'Pending':
+            default:
+                return 'status-pending';
+        }
+    }
 }

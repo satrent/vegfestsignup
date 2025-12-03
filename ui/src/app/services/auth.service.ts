@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { BehaviorSubject, Observable, tap } from 'rxjs';
+import { BehaviorSubject, Observable, of, tap, filter, map, switchMap, take } from 'rxjs';
 import { ApiService } from './api.service';
 
 export type UserRole = 'PARTICIPANT' | 'ADMIN' | 'WEB_ADMIN';
@@ -27,6 +27,8 @@ export class AuthService {
     private api = inject(ApiService);
     private currentUserSubject = new BehaviorSubject<User | null>(null);
     public currentUser$ = this.currentUserSubject.asObservable();
+    private initialized = new BehaviorSubject<boolean>(false);
+    public initialized$ = this.initialized.asObservable();
 
     constructor() {
         // Check if user is already logged in
@@ -42,15 +44,25 @@ export class AuthService {
                 if (payload && !this.isTokenExpired(payload)) {
                     // Fetch full user details from backend
                     this.getCurrentUser().subscribe({
-                        next: (user) => this.currentUserSubject.next(user),
-                        error: () => this.logout()
+                        next: (user) => {
+                            this.currentUserSubject.next(user);
+                            this.initialized.next(true);
+                        },
+                        error: () => {
+                            this.logout();
+                            this.initialized.next(true);
+                        }
                     });
                 } else {
                     this.logout();
+                    this.initialized.next(true);
                 }
             } catch (error) {
                 this.logout();
+                this.initialized.next(true);
             }
+        } else {
+            this.initialized.next(true);
         }
     }
 
@@ -109,9 +121,18 @@ export class AuthService {
         this.currentUserSubject.next(null);
     }
 
-    // Check if user is authenticated
+    // Check if user is authenticated (synchronous)
     isAuthenticated(): boolean {
         return !!localStorage.getItem('auth_token') && !!this.currentUserSubject.value;
+    }
+
+    // Check auth status asynchronously, waiting for initialization
+    checkAuth(): Observable<boolean> {
+        return this.initialized.pipe(
+            filter(init => init),
+            take(1),
+            map(() => this.isAuthenticated())
+        );
     }
 
     // Get current user role

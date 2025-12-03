@@ -29,32 +29,65 @@
 }
 
 .status-card {
-    padding: 1.5rem;
-    border-radius: 8px;
-    margin-bottom: 2rem;
+    padding: 2.5rem;
+    border-radius: 12px;
+    margin-bottom: 2.5rem;
     background: #f8f9fa;
-    border-left: 5px solid #ccc;
-
-    &.pending {
-        background: #fff3cd;
-        border-left-color: #ffc107;
-        color: #856404;
-    }
-
-    &.approved {
-        background: #d4edda;
-        border-left-color: #28a745;
-        color: #155724;
-    }
-
-    &.rejected {
-        background: #f8d7da;
-        border-left-color: #dc3545;
-        color: #721c24;
-    }
+    text-align: center;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    border: 2px solid transparent;
 
     h3 {
         margin-top: 0;
+        margin-bottom: 0.5rem;
+        font-size: 1.1rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        opacity: 0.8;
+    }
+
+    .status-value {
+        font-size: 3rem;
+        font-weight: 800;
+        margin-bottom: 1rem;
+        line-height: 1.2;
+    }
+
+    p {
+        font-size: 1.1rem;
+        max-width: 600px;
+        margin: 0 auto;
+        opacity: 0.9;
+    }
+
+    &.pending {
+        background: #fff8e1;
+        border-color: #ffe082;
+        color: #856404;
+
+        .status-value {
+            color: #f57f17;
+        }
+    }
+
+    &.approved {
+        background: #e8f5e9;
+        border-color: #a5d6a7;
+        color: #1b5e20;
+
+        .status-value {
+            color: #2e7d32;
+        }
+    }
+
+    &.rejected {
+        background: #ffebee;
+        border-color: #ef9a9a;
+        color: #b71c1c;
+
+        .status-value {
+            color: #c62828;
+        }
     }
 }
 
