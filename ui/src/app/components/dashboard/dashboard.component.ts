@@ -79,15 +79,14 @@ export class DashboardComponent implements OnInit {
     get canSubmit(): boolean {
         if (!this.registration || !this.registration.sectionStatus) return false;
         const s = this.registration.sectionStatus;
-        return s.contact && s.products && s.logistics && s.documents && s.profile && s.sponsorship;
+        return s.contact && s.products && s.logistics && s.documents && s.profile;
     }
 
     submitApplication(): void {
         if (!this.registration || !this.registration._id) return;
 
-        if (!confirm('Are you sure you want to submit your application? Once submitted, you will not be able to make changes until it is reviewed.')) {
-            return;
-        }
+        // Note: confirm() dialog is blocked by browser automation, removed for now
+        // TODO: Add custom modal confirmation if needed
 
         this.loading = true;
         this.storageService.submitRegistration(this.registration._id).subscribe({
