@@ -62,6 +62,33 @@ export class AdminDashboardComponent implements OnInit {
     });
   }
 
+  // Log Modal
+  selectedLogs: any[] = [];
+  showLogModal = false;
+  selectedRegistrationName = '';
+
+  viewLogs(registration: Registration) {
+    if (!registration._id) return;
+
+    this.selectedRegistrationName = registration.organizationName;
+    this.storageService.getRegistrationLogs(registration._id).subscribe({
+      next: (logs) => {
+        this.selectedLogs = logs;
+        this.showLogModal = true;
+      },
+      error: (err) => {
+        console.error('Error loading logs:', err);
+        alert('Failed to load logs');
+      }
+    });
+  }
+
+  closeLogModal() {
+    this.showLogModal = false;
+    this.selectedLogs = [];
+    this.selectedRegistrationName = '';
+  }
+
   get pendingCount(): number {
     return this.registrations.filter(r => r.status === 'Pending').length;
   }

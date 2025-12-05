@@ -144,4 +144,8 @@ export class StorageService {
   updateWebsiteStatus(id: string, websiteStatus: 'Pending' | 'Added'): Observable<Registration> {
     return this.api.patch<Registration>(`/registrations/${id}/website-status`, { websiteStatus });
   }
+
+  getRegistrationLogs(id: string): Observable<any[]> {
+    return this.api.get<any[]>(`/registrations/${id}/logs`);
+  }
 }

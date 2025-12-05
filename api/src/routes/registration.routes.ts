@@ -179,15 +179,38 @@ router.patch(
             const { id } = req.params;
             const { status } = req.body;
 
-            const registration = await Registration.findByIdAndUpdate(
-                id,
-                { status },
-                { new: true }
-            );
+            // Find the registration first to get previous status
+            const registration = await Registration.findById(id);
 
             if (!registration) {
                 res.status(404).json({ error: 'Registration not found' });
                 return;
+            }
+
+            const previousStatus = registration.status;
+
+            // Update the status
+            registration.status = status;
+            await registration.save();
+
+            // Log the action
+            try {
+                // Fetch admin user to get their name
+                const adminUser = await import('../models/User').then(m => m.User.findById(req.user!.userId));
+                const adminName = adminUser ? (adminUser.firstName && adminUser.lastName ? `${adminUser.firstName} ${adminUser.lastName}` : adminUser.firstName || adminUser.email) : 'Unknown Admin';
+
+                await import('../models/ParticipantApprovalLog').then(m => m.ParticipantApprovalLog.create({
+                    adminId: req.user!.userId,
+                    adminName: adminName,
+                    registrationId: registration._id,
+                    participantName: `${registration.firstName} ${registration.lastName}`,
+                    action: status === 'Approved' ? 'Approve' : status === 'Rejected' ? 'Reject' : 'Pending',
+                    previousStatus: previousStatus,
+                    newStatus: status
+                }));
+            } catch (logError) {
+                console.error('Error creating approval log:', logError);
+                // Don't fail the request if logging fails
             }
 
             res.json(registration);
@@ -224,6 +247,29 @@ router.patch(
         } catch (error) {
             console.error('Error updating website status:', error);
             res.status(500).json({ error: 'Failed to update website status' });
+        }
+    }
+);
+
+// Get logs for a registration (admin only)
+router.get(
+    '/:id/logs',
+    authenticate,
+    requireAdmin,
+    async (req: Request, res: Response) => {
+        try {
+            const { id } = req.params;
+
+            // Dynamic import to avoid circular dependency issues if any, though not strictly needed here
+            const { ParticipantApprovalLog } = await import('../models/ParticipantApprovalLog');
+
+            const logs = await ParticipantApprovalLog.find({ registrationId: id })
+                .sort({ timestamp: -1 });
+
+            res.json(logs);
+        } catch (error) {
+            console.error('Error fetching registration logs:', error);
+            res.status(500).json({ error: 'Failed to fetch logs' });
         }
     }
 );
