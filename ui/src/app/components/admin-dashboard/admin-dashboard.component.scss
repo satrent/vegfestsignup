@@ -84,7 +84,7 @@
 
 .registration-card {
   background: white;
-  padding: 1.5rem;
+  padding: 1.25rem;
   border-radius: 12px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
   border-left: 5px solid #cbd5e0;
@@ -107,7 +107,7 @@
 
 .card-body {
   display: flex;
-  gap: 1.5rem;
+  gap: 1rem;
 }
 
 .logo-container {
@@ -133,9 +133,9 @@
   flex-grow: 1;
 
   h3 {
-    margin: 0 0 1rem 0;
+    margin: 0 0 0.75rem 0;
     color: #2d3748;
-    font-size: 1.4rem;
+    font-size: 1.3rem;
   }
 }
 
@@ -184,7 +184,7 @@
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
   gap: 0.75rem;
-  margin-bottom: 1rem;
+  margin-bottom: 0.75rem;
 }
 
 .info-item {
@@ -200,6 +200,13 @@
   font-weight: 600;
   color: #718096;
   margin-right: 0.25rem;
+}
+
+.products-description {
+  margin-top: 0.25rem;
+  color: #4a5568;
+  line-height: 1.5;
+  white-space: pre-wrap;
 }
 
 .description-text {
@@ -224,7 +231,7 @@
 }
 
 .actions {
-  margin-top: 1.5rem;
+  margin-top: 1rem;
   display: flex;
   gap: 1rem;
   justify-content: flex-end;
@@ -275,3 +282,21 @@ a {
     text-decoration: underline;
   }
 }
+
+.registration-date {
+  color: #718096;
+  font-size: 0.9rem;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #edf2f7;
+}
+
+.social-icon {
+  width: 16px;
+  height: 16px;
+  margin-right: 0.4rem;
+  vertical-align: middle;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
