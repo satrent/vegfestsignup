@@ -101,30 +101,26 @@
               <div class="products-description">{{ reg.productsDescription }}</div>
             </div>
 
-            <!-- Registration Date -->
-            <p class="registration-date" *ngIf="reg.createdAt">
-              <span class="label">Registered:</span> {{ reg.createdAt | date:'medium' }}
-            </p>
-
             <div class="actions" *ngIf="reg.status === 'Pending'">
               <button (click)="updateStatus(reg._id!, 'Approved')" class="approve-btn">Approve</button>
               <button (click)="updateStatus(reg._id!, 'Rejected')" class="reject-btn">Reject</button>
             </div>
 
-            <div class="history-action" style="margin-top: 10px; text-align: right;">
-              <button class="btn-icon" (click)="viewLogs(reg)" title="View History"
-                style="background: none; border: none; cursor: pointer; color: #718096;">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
-                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <circle cx="12" cy="12" r="10"></circle>
-                  <polyline points="12 6 12 12 16 14"></polyline>
-                </svg>
-              </button>
-            </div>
-          </div>
+            <div class="card-footer">
+              <p class="registration-date" *ngIf="reg.createdAt">
+                <span class="label">Registered:</span> {{ reg.createdAt | date:'medium' }}
+              </p>
 
-          <div *ngIf="registrations.length === 0" class="empty-state">
-            No registrations yet.
+              <div class="history-action">
+                <button class="btn-icon" (click)="viewLogs(reg)" title="View History">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <polyline points="12 6 12 12 16 14"></polyline>
+                  </svg>
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
