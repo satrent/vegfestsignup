@@ -97,7 +97,89 @@ router.post(
     }
 );
 
+// Export to QuickBooks (Admin only)
+router.get('/export/quickbooks', authenticate, requireAdmin, async (_req: Request, res: Response) => {
+    try {
+        // Filter out registrations that already have an invoice number
+        const registrations = await Registration.find({
+            $or: [
+                { invoiceNumber: { $exists: false } },
+                { invoiceNumber: null },
+                { invoiceNumber: '' }
+            ]
+        }).sort({ createdAt: -1 });
+
+        // CSV Header
+        let csv = 'Organization Name,First Name,Last Name,Email,Phone,Line 1,City,State,Postal Code,Notes\n';
+
+        registrations.forEach(r => {
+            // Calculate Invoice Amount
+            const base = 200;
+            // "Extra Site" logic: $100 for each tent beyond the first one (assuming 1 is included)
+            // Using max(0, ...) to ensure no negative cost if 0 tents
+            const extraSiteCost = Math.max(0, (r.numTents || 0) - 1) * 100;
+            const tablesCost = (r.numTables || 0) * 20;
+            const chairsCost = (r.numChairs || 0) * 5;
+            const total = base + extraSiteCost + tablesCost + chairsCost;
+
+            const calculationNotes = `Total: $${total} (Base: $200, Extra Sites: $${extraSiteCost}, Tables: $${tablesCost}, Chairs: $${chairsCost})`;
+
+            // Escape fields for CSV
+            const escape = (field: string | undefined) => {
+                if (!field) return '';
+                const stringField = String(field);
+                if (stringField.includes(',') || stringField.includes('"') || stringField.includes('\n')) {
+                    return `"${stringField.replace(/"/g, '""')}"`;
+                }
+                return stringField;
+            };
+
+            csv += `${escape(r.organizationName)},${escape(r.firstName)},${escape(r.lastName)},${escape(r.email)},${escape(r.phone)},${escape(r.address)},${escape(r.city)},${escape(r.state)},${escape(r.zip)},${escape(calculationNotes)}\n`;
+        });
+
+        res.header('Content-Type', 'text/csv');
+        res.header('Content-Disposition', 'attachment; filename="vegfest_export_quickbooks.csv"');
+        res.send(csv);
+
+    } catch (error) {
+        console.error('Error exporting to QuickBooks:', error);
+        res.status(500).json({ error: 'Failed to export to QuickBooks' });
+    }
+});
+
+// Update invoice number (Admin only)
+router.patch(
+    '/:id/invoice',
+    authenticate,
+    requireAdmin,
+    [body('invoiceNumber').trim()],
+    async (req: Request, res: Response) => {
+        try {
+            const { id } = req.params;
+            const { invoiceNumber } = req.body;
+
+            const registration = await Registration.findByIdAndUpdate(
+                id,
+                { invoiceNumber },
+                { new: true }
+            );
+
+            if (!registration) {
+                res.status(404).json({ error: 'Registration not found' });
+                return;
+            }
+
+            res.json(registration);
+        } catch (error) {
+            console.error('Error updating invoice number:', error);
+            res.status(500).json({ error: 'Failed to update invoice number' });
+        }
+    }
+);
+
 // Update registration (for saving sections)
+// Modified to prevent regular users from updating invoiceNumber
+
 router.patch(
     '/:id',
     authenticate,
@@ -110,6 +192,11 @@ router.patch(
             delete updates.userId;
             delete updates.createdAt;
             delete updates.updatedAt;
+
+            // Protect invoiceNumber from being updated here by regular users
+            if (req.user?.role !== 'ADMIN') {
+                delete updates.invoiceNumber;
+            }
 
             // Protect status and websiteStatus from being updated here by regular users.
             if (req.user?.role !== 'ADMIN') {

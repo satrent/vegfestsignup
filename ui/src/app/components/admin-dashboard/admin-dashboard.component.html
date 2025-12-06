@@ -1,7 +1,10 @@
 <div class="dashboard-container">
   <div class="header">
     <h2>Admin Dashboard</h2>
-    <button class="logout-btn" (click)="logout()">Logout</button>
+    <div class="header-actions">
+      <button class="export-btn" (click)="exportToQuickBooks()">Export to QuickBooks</button>
+      <button class="logout-btn" (click)="logout()">Logout</button>
+    </div>
   </div>
 
   <!-- Loading State -->
@@ -43,6 +46,21 @@
         <div class="card-body">
           <div class="details">
             <h3>{{ reg.organizationName }}</h3>
+
+            <div class="invoice-section">
+              <label>Invoice #:</label>
+              <div class="invoice-input-group">
+                <input type="text" [(ngModel)]="reg.invoiceNumber" placeholder="Enter Invoice #" class="invoice-input">
+                <button class="save-btn" (click)="updateInvoiceNumber(reg)" title="Save Invoice Number">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                    <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                    <polyline points="7 3 7 8 15 8"></polyline>
+                  </svg>
+                </button>
+              </div>
+            </div>
 
             <div class="info-grid">
               <div class="info-item">

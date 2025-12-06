@@ -85,6 +85,14 @@ export interface IRegistration extends Document {
     couponLogoUrl?: string;
     couponOtherInfo?: string;
 
+    // Admin Fields
+    invoiceNumber?: string;
+
+    // Logistics Counts (Explicit fields for calculation)
+    numTables?: number;
+    numChairs?: number;
+    numTents?: number;
+
     type: RegistrationType;
     status: RegistrationStatus;
     websiteStatus?: WebsiteStatus;
@@ -156,7 +164,10 @@ const registrationSchema = new Schema<IRegistration>(
 
         // Section 3: Logistics & Equipment
         loadInDay: String,
-        tablesChairs: [String], // Checkbox items
+        tablesChairs: [String], // Checkbox items (Legacy/Visual)
+        numTables: { type: Number, default: 0 },
+        numChairs: { type: Number, default: 0 },
+        numTents: { type: Number, default: 0 },
         otherEquipment: String,
         vehicleDetails: String, // Dimensions if bringing vehicle
         suppliesOrdered: [String],
@@ -203,6 +214,13 @@ const registrationSchema = new Schema<IRegistration>(
         couponCode: String,
         couponLogoUrl: String,
         couponOtherInfo: String,
+
+        // Admin Fields
+        invoiceNumber: {
+            type: String,
+            trim: true,
+            index: true
+        },
 
         type: {
             type: String,

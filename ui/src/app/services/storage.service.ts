@@ -1,6 +1,8 @@
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
 import { ApiService } from './api.service';
+import { environment } from '../../environments/environment';
 
 export interface Registration {
   _id?: string;
@@ -84,6 +86,14 @@ export interface Registration {
   couponLogoUrl?: string;
   couponOtherInfo?: string;
 
+  // Admin Fields
+  invoiceNumber?: string;
+
+  // Logistics Counts
+  numTables?: number;
+  numChairs?: number;
+  numTents?: number;
+
   type: 'Exhibitor' | 'Sponsor' | 'Both';
   status: 'In Progress' | 'Pending' | 'Approved' | 'Rejected';
   websiteStatus?: 'Pending' | 'Added';
@@ -104,10 +114,17 @@ export interface Registration {
 })
 export class StorageService {
   private api = inject(ApiService);
+  private http = inject(HttpClient);
+  private baseUrl = environment.apiUrl;
 
   // Get all registrations (admin only)
   loadRegistrations(): Observable<Registration[]> {
     return this.api.get<Registration[]>('/registrations');
+  }
+
+  // Export to QuickBooks
+  exportQuickBooks(): Observable<Blob> {
+    return this.http.get(`${this.baseUrl}/registrations/export/quickbooks`, { responseType: 'blob' });
   }
 
   // Get current user's registrations
@@ -138,6 +155,11 @@ export class StorageService {
   // Update registration status (admin only)
   updateRegistrationStatus(id: string, status: 'Pending' | 'Approved' | 'Rejected'): Observable<Registration> {
     return this.api.patch<Registration>(`/registrations/${id}/status`, { status });
+  }
+
+  // Update invoice number (admin only)
+  updateInvoiceNumber(id: string, invoiceNumber: string): Observable<Registration> {
+    return this.api.patch<Registration>(`/registrations/${id}/invoice`, { invoiceNumber });
   }
 
   // Update website status (web admin only)

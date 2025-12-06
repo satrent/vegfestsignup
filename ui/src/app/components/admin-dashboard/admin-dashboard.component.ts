@@ -1,5 +1,6 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms'; // Added import
 import { Router } from '@angular/router';
 import { StorageService, Registration } from '../../services/storage.service';
 import { AuthService } from '../../services/auth.service';
@@ -7,7 +8,7 @@ import { AuthService } from '../../services/auth.service';
 @Component({
   selector: 'app-admin-dashboard',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule], // Added FormsModule
   templateUrl: './admin-dashboard.component.html',
   styleUrls: ['./admin-dashboard.component.scss']
 })
@@ -58,6 +59,44 @@ export class AdminDashboardComponent implements OnInit {
       error: (err) => {
         alert('Failed to update status');
         console.error('Error updating status:', err);
+      }
+    });
+  }
+
+  updateInvoiceNumber(registration: Registration): void {
+    if (!registration._id || registration.invoiceNumber === undefined) return;
+
+    this.storageService.updateInvoiceNumber(registration._id, registration.invoiceNumber).subscribe({
+      next: (updatedRegistration) => {
+        // Update local object if needed, though ngModel probably kept it in sync
+        const index = this.registrations.findIndex(r => r._id === updatedRegistration._id);
+        if (index !== -1) {
+          this.registrations[index].invoiceNumber = updatedRegistration.invoiceNumber;
+        }
+        alert('Invoice number saved');
+      },
+      error: (err) => {
+        console.error('Error updating invoice number:', err);
+        alert('Failed to update invoice number');
+      }
+    });
+  }
+
+  exportToQuickBooks(): void {
+    this.storageService.exportQuickBooks().subscribe({
+      next: (blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'vegfest_export_quickbooks.csv';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+      },
+      error: (err) => {
+        console.error('Error exporting to QuickBooks:', err);
+        alert('Failed to export to QuickBooks');
       }
     });
   }
