@@ -19,6 +19,7 @@ export class LoginComponent {
 
     email = '';
     code = '';
+    stayLoggedIn = false;
     codeSent = false;
     loading = false;
     error = '';
@@ -56,7 +57,7 @@ export class LoginComponent {
         this.loading = true;
         this.error = '';
 
-        this.authService.verifyCode(this.email, this.code).subscribe({
+        this.authService.verifyCode(this.email, this.code, this.stayLoggedIn).subscribe({
             next: (response) => {
                 if (response.success) {
                     // Check if user has existing registration

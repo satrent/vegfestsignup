@@ -36,7 +36,7 @@ export class AuthService {
     }
 
     private loadUserFromToken(): void {
-        const token = localStorage.getItem('auth_token');
+        const token = localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token');
         if (token) {
             // Decode JWT to get user info
             try {
@@ -94,11 +94,17 @@ export class AuthService {
     }
 
     // Verify code and login
-    verifyCode(email: string, code: string): Observable<AuthResponse> {
+    verifyCode(email: string, code: string, rememberMe: boolean = false): Observable<AuthResponse> {
         return this.api.post<AuthResponse>('/auth/verify-code', { email, code }).pipe(
             tap((response) => {
                 if (response.success && response.token && response.user) {
-                    localStorage.setItem('auth_token', response.token);
+                    if (rememberMe) {
+                        localStorage.setItem('auth_token', response.token);
+                        sessionStorage.removeItem('auth_token'); // Ensure it's not in session
+                    } else {
+                        sessionStorage.setItem('auth_token', response.token);
+                        localStorage.removeItem('auth_token'); // Ensure it's not in local
+                    }
                     this.currentUserSubject.next(response.user);
                 }
             })
@@ -118,12 +124,13 @@ export class AuthService {
     // Logout
     logout(): void {
         localStorage.removeItem('auth_token');
+        sessionStorage.removeItem('auth_token');
         this.currentUserSubject.next(null);
     }
 
     // Check if user is authenticated (synchronous)
     isAuthenticated(): boolean {
-        const token = localStorage.getItem('auth_token');
+        const token = localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token');
         if (!token) return false;
 
         try {
