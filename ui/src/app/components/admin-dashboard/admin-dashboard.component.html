@@ -37,21 +37,19 @@
     <div class="registrations-list">
       <div *ngFor="let reg of registrations" class="registration-card" [class.approved]="reg.status === 'Approved'">
         <div class="card-header">
-          <span class="type-badge" [class.sponsor]="reg.type === 'Sponsor'" [class.both]="reg.type === 'Both'">
-            {{ reg.type }}
-          </span>
-          <span class="status-badge" [ngClass]="reg.status.toLowerCase()">{{ reg.status }}</span>
-        </div>
-
-        <div class="card-body">
-          <div class="details">
+          <div class="header-left">
             <h3>{{ reg.organizationName }}</h3>
+            <span class="type-badge" [class.sponsor]="reg.type === 'Sponsor'" [class.both]="reg.type === 'Both'">
+              {{ reg.type }}
+            </span>
+          </div>
 
+          <div class="header-right">
             <div class="invoice-section">
               <label>Invoice #:</label>
               <div class="invoice-input-group">
-                <input type="text" [(ngModel)]="reg.invoiceNumber" placeholder="Enter Invoice #" class="invoice-input">
-                <button class="save-btn" (click)="updateInvoiceNumber(reg)" title="Save Invoice Number">
+                <input type="text" [(ngModel)]="reg.invoiceNumber" placeholder="00000" class="invoice-input">
+                <button class="save-btn" (click)="updateInvoiceNumber(reg)" title="Save">
                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
@@ -61,6 +59,13 @@
                 </button>
               </div>
             </div>
+            <span class="status-badge" [ngClass]="reg.status.toLowerCase()">{{ reg.status }}</span>
+          </div>
+        </div>
+
+        <div class="card-body">
+          <div class="details">
+
 
             <div class="info-grid">
               <div class="info-item">
