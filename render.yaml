@@ -18,9 +18,10 @@ services:
       - key: MOCK_GOOGLE_AUTH
         value: false
 
-staticSites:
   # Frontend UI
-  - name: vegfest-ui
+  - type: web
+    name: vegfest-ui
+    env: static
     rootDir: ui
     buildCommand: npm install && npm run build
     staticPublishPath: dist/veg-fest-signup/browser
