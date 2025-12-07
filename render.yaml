@@ -23,7 +23,7 @@ services:
     name: vegfest-ui
     env: static
     rootDir: ui
-    buildCommand: npm install && npm run build
+    buildCommand: npm install --production=false && npm run build
     staticPublishPath: dist/veg-fest-signup/browser
     envVars:
       - key: NODE_ENV
