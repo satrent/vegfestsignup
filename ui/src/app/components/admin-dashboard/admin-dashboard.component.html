@@ -127,6 +127,13 @@
               </p>
 
               <div class="history-action">
+                <button class="btn-icon" (click)="openEditModal(reg)" title="Edit Registration">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                  </svg>
+                </button>
                 <button class="btn-icon" (click)="viewLogs(reg)" title="View History">
                   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -138,6 +145,94 @@
             </div>
           </div>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit Modal -->
+  <div class="modal-overlay" *ngIf="showEditModal" (click)="closeEditModal()">
+    <div class="modal-content edit-modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Edit Registration: {{ editingRegistration?.organizationName }}</h3>
+        <button class="close-btn" (click)="closeEditModal()">&times;</button>
+      </div>
+      <div class="modal-body" *ngIf="editingRegistration">
+        <div class="tabs">
+          <button class="tab-btn" [class.active]="activeTab === 'admin'" (click)="setActiveTab('admin')">Admin</button>
+          <button class="tab-btn" [class.active]="activeTab === 'contact'"
+            (click)="setActiveTab('contact')">Contact</button>
+          <button class="tab-btn" [class.active]="activeTab === 'logistics'"
+            (click)="setActiveTab('logistics')">Logistics</button>
+        </div>
+
+        <div class="tab-content">
+          <!-- Admin Tab -->
+          <div *ngIf="activeTab === 'admin'" class="form-section">
+            <div class="form-group checkbox-group">
+              <label class="checkbox-container">
+                <input type="checkbox" [(ngModel)]="editingRegistration.invoiced">
+                <span class="checkmark"></span>
+                <span class="label-text">Invoiced</span>
+              </label>
+              <p class="help-text">Check this if the participant has been sent an invoice.</p>
+            </div>
+
+            <div class="form-group">
+              <label>Status</label>
+              <select [(ngModel)]="editingRegistration.status">
+                <option value="Pending">Pending</option>
+                <option value="Approved">Approved</option>
+                <option value="Rejected">Rejected</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Contact Tab -->
+          <div *ngIf="activeTab === 'contact'" class="form-section">
+            <div class="form-group">
+              <label>Organization Name</label>
+              <input type="text" [(ngModel)]="editingRegistration.organizationName">
+            </div>
+            <div class="form-group two-col">
+              <div>
+                <label>First Name</label>
+                <input type="text" [(ngModel)]="editingRegistration.firstName">
+              </div>
+              <div>
+                <label>Last Name</label>
+                <input type="text" [(ngModel)]="editingRegistration.lastName">
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Email</label>
+              <input type="email" [(ngModel)]="editingRegistration.email">
+            </div>
+            <div class="form-group">
+              <label>Phone</label>
+              <input type="text" [(ngModel)]="editingRegistration.phone">
+            </div>
+          </div>
+
+          <!-- Logistics Tab -->
+          <div *ngIf="activeTab === 'logistics'" class="form-section">
+            <div class="form-group">
+              <label>Number of Tables ($20/ea)</label>
+              <input type="number" [(ngModel)]="editingRegistration.numTables">
+            </div>
+            <div class="form-group">
+              <label>Number of Chairs ($5/ea)</label>
+              <input type="number" [(ngModel)]="editingRegistration.numChairs">
+            </div>
+            <div class="form-group">
+              <label>Number of Tents (1st Free, $100/ea extra)</label>
+              <input type="number" [(ngModel)]="editingRegistration.numTents">
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="cancel-btn" (click)="closeEditModal()">Cancel</button>
+        <button class="save-btn" (click)="saveEdit()">Save Changes</button>
       </div>
     </div>
   </div>

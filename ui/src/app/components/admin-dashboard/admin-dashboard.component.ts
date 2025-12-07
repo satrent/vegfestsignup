@@ -111,6 +111,47 @@ export class AdminDashboardComponent implements OnInit {
     this.selectedRegistrationName = '';
   }
 
+  // Edit Modal
+  showEditModal = false;
+  editingRegistration: Registration | null = null;
+  activeTab = 'admin';
+
+  openEditModal(registration: Registration): void {
+    // Create a deep copy to avoid modifying the list view immediately
+    this.editingRegistration = JSON.parse(JSON.stringify(registration));
+    this.showEditModal = true;
+    this.activeTab = 'admin';
+  }
+
+  closeEditModal(): void {
+    this.showEditModal = false;
+    this.editingRegistration = null;
+  }
+
+  setActiveTab(tab: string): void {
+    this.activeTab = tab;
+  }
+
+  saveEdit(): void {
+    if (!this.editingRegistration || !this.editingRegistration._id) return;
+
+    this.storageService.updateRegistration(this.editingRegistration._id, this.editingRegistration).subscribe({
+      next: (updatedReg) => {
+        // Update the item in the list
+        const index = this.registrations.findIndex(r => r._id === updatedReg._id);
+        if (index !== -1) {
+          this.registrations[index] = updatedReg;
+        }
+        this.closeEditModal();
+        alert('Registration updated successfully');
+      },
+      error: (err) => {
+        console.error('Error updating registration:', err);
+        alert('Failed to update registration');
+      }
+    });
+  }
+
   get pendingCount(): number {
     return this.registrations.filter(r => r.status === 'Pending').length;
   }
