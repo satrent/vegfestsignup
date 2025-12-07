@@ -182,8 +182,15 @@ router.patch(
                 delete updates.websiteStatus;
             }
 
+            // Construct the query based on user role
+            const query: any = { _id: id };
+            // If not admin, restrict to own registration
+            if (req.user?.role !== 'ADMIN') {
+                query.userId = req.user!.userId;
+            }
+
             const registration = await Registration.findOneAndUpdate(
-                { _id: id, userId: req.user!.userId }, // Ensure user owns the registration
+                query,
                 { $set: updates },
                 { new: true, runValidators: true }
             );
