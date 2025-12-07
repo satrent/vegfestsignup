@@ -100,19 +100,17 @@ router.post(
 // Export to QuickBooks (Admin only)
 router.get('/export/quickbooks', authenticate, requireAdmin, async (_req: Request, res: Response) => {
     try {
-        // Filter out registrations that already have an invoice number
+        // Filter out registrations that are already invoiced
         const registrations = await Registration.find({
-            $or: [
-                { invoiceNumber: { $exists: false } },
-                { invoiceNumber: null },
-                { invoiceNumber: '' }
-            ]
+            invoiced: { $ne: true }
         }).sort({ createdAt: -1 });
 
         // CSV Header
         let csv = 'Organization Name,First Name,Last Name,Email,Phone,Line 1,City,State,Postal Code,Notes\n';
+        const idsToUpdate: any[] = [];
 
         registrations.forEach(r => {
+            idsToUpdate.push(r._id);
             // Calculate Invoice Amount
             const base = 200;
             // "Extra Site" logic: $100 for each tent beyond the first one (assuming 1 is included)
@@ -137,6 +135,14 @@ router.get('/export/quickbooks', authenticate, requireAdmin, async (_req: Reques
             csv += `${escape(r.organizationName)},${escape(r.firstName)},${escape(r.lastName)},${escape(r.email)},${escape(r.phone)},${escape(r.address)},${escape(r.city)},${escape(r.state)},${escape(r.zip)},${escape(calculationNotes)}\n`;
         });
 
+        // Mark as invoiced
+        if (idsToUpdate.length > 0) {
+            await Registration.updateMany(
+                { _id: { $in: idsToUpdate } },
+                { $set: { invoiced: true } }
+            );
+        }
+
         res.header('Content-Type', 'text/csv');
         res.header('Content-Disposition', 'attachment; filename="vegfest_export_quickbooks.csv"');
         res.send(csv);
@@ -147,38 +153,10 @@ router.get('/export/quickbooks', authenticate, requireAdmin, async (_req: Reques
     }
 });
 
-// Update invoice number (Admin only)
-router.patch(
-    '/:id/invoice',
-    authenticate,
-    requireAdmin,
-    [body('invoiceNumber').trim()],
-    async (req: Request, res: Response) => {
-        try {
-            const { id } = req.params;
-            const { invoiceNumber } = req.body;
 
-            const registration = await Registration.findByIdAndUpdate(
-                id,
-                { invoiceNumber },
-                { new: true }
-            );
-
-            if (!registration) {
-                res.status(404).json({ error: 'Registration not found' });
-                return;
-            }
-
-            res.json(registration);
-        } catch (error) {
-            console.error('Error updating invoice number:', error);
-            res.status(500).json({ error: 'Failed to update invoice number' });
-        }
-    }
-);
 
 // Update registration (for saving sections)
-// Modified to prevent regular users from updating invoiceNumber
+// Modified to prevent regular users from updating invoiced status
 
 router.patch(
     '/:id',
@@ -193,9 +171,9 @@ router.patch(
             delete updates.createdAt;
             delete updates.updatedAt;
 
-            // Protect invoiceNumber from being updated here by regular users
+            // Protect invoiced from being updated here by regular users
             if (req.user?.role !== 'ADMIN') {
-                delete updates.invoiceNumber;
+                delete updates.invoiced;
             }
 
             // Protect status and websiteStatus from being updated here by regular users.

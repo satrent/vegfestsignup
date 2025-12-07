@@ -63,24 +63,7 @@ export class AdminDashboardComponent implements OnInit {
     });
   }
 
-  updateInvoiceNumber(registration: Registration): void {
-    if (!registration._id || registration.invoiceNumber === undefined) return;
 
-    this.storageService.updateInvoiceNumber(registration._id, registration.invoiceNumber).subscribe({
-      next: (updatedRegistration) => {
-        // Update local object if needed, though ngModel probably kept it in sync
-        const index = this.registrations.findIndex(r => r._id === updatedRegistration._id);
-        if (index !== -1) {
-          this.registrations[index].invoiceNumber = updatedRegistration.invoiceNumber;
-        }
-        alert('Invoice number saved');
-      },
-      error: (err) => {
-        console.error('Error updating invoice number:', err);
-        alert('Failed to update invoice number');
-      }
-    });
-  }
 
   exportToQuickBooks(): void {
     this.storageService.exportQuickBooks().subscribe({

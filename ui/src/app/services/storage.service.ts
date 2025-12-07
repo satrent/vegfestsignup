@@ -87,7 +87,7 @@ export interface Registration {
   couponOtherInfo?: string;
 
   // Admin Fields
-  invoiceNumber?: string;
+  invoiced?: boolean;
 
   // Logistics Counts
   numTables?: number;
@@ -157,10 +157,7 @@ export class StorageService {
     return this.api.patch<Registration>(`/registrations/${id}/status`, { status });
   }
 
-  // Update invoice number (admin only)
-  updateInvoiceNumber(id: string, invoiceNumber: string): Observable<Registration> {
-    return this.api.patch<Registration>(`/registrations/${id}/invoice`, { invoiceNumber });
-  }
+
 
   // Update website status (web admin only)
   updateWebsiteStatus(id: string, websiteStatus: 'Pending' | 'Added'): Observable<Registration> {

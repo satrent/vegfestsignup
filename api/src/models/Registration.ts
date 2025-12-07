@@ -86,7 +86,7 @@ export interface IRegistration extends Document {
     couponOtherInfo?: string;
 
     // Admin Fields
-    invoiceNumber?: string;
+    invoiced?: boolean;
 
     // Logistics Counts (Explicit fields for calculation)
     numTables?: number;
@@ -216,9 +216,9 @@ const registrationSchema = new Schema<IRegistration>(
         couponOtherInfo: String,
 
         // Admin Fields
-        invoiceNumber: {
-            type: String,
-            trim: true,
+        invoiced: {
+            type: Boolean,
+            default: false,
             index: true
         },
 
