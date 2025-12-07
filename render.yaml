@@ -1,0 +1,34 @@
+services:
+  # Backend API
+  - type: web
+    name: vegfest-api
+    env: node
+    rootDir: api
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        sync: false # You will enter this in the Render Dashboard
+      - key: JWT_SECRET
+        generateValue: true
+      - key: FRONTEND_URL
+        value: https://participants.tcvegfest.com # We will configure this custom domain later
+      - key: MOCK_GOOGLE_AUTH
+        value: false
+
+  # Frontend UI
+  - type: static
+    name: vegfest-ui
+    env: static
+    rootDir: ui
+    buildCommand: npm install && npm run build
+    staticPublishPath: dist/veg-fest-signup/browser
+    envVars:
+      - key: NODE_ENV
+        value: production
+    routes:
+      - type: rewrite
+        source: /**
+        destination: /index.html
