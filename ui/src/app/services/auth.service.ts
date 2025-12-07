@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { BehaviorSubject, Observable, of, tap, filter, map, switchMap, take } from 'rxjs';
 import { ApiService } from './api.service';
+import { environment } from '../../environments/environment';
 
 export type UserRole = 'PARTICIPANT' | 'ADMIN' | 'WEB_ADMIN';
 
@@ -163,6 +164,6 @@ export class AuthService {
 
     // Google OAuth login (redirects to backend)
     loginWithGoogle(): void {
-        window.location.href = 'http://localhost:3000/api/auth/google';
+        window.location.href = `${environment.apiUrl}/auth/google`;
     }
 }
