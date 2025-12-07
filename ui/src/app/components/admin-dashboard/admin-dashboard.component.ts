@@ -17,9 +17,46 @@ export class AdminDashboardComponent implements OnInit {
   private authService = inject(AuthService);
   private router = inject(Router);
 
-  registrations: Registration[] = [];
+  allRegistrations: Registration[] = [];
   loading = true;
   error = '';
+
+  // Filter Properties
+  showFilterModal = false;
+  filterName = '';
+  filterInvoiced: 'all' | 'yes' | 'no' = 'all';
+  filterWebsite: 'all' | 'pending' | 'added' = 'all';
+
+  get filteredRegistrations(): Registration[] {
+    return this.allRegistrations.filter(reg => {
+      // Name Filter (Organization or Contact Name)
+      const search = this.filterName.toLowerCase();
+      const nameMatch = !search ||
+        reg.organizationName.toLowerCase().includes(search) ||
+        reg.firstName.toLowerCase().includes(search) ||
+        reg.lastName.toLowerCase().includes(search);
+
+      // Invoiced Filter
+      const invoicedMatch = this.filterInvoiced === 'all' ||
+        (this.filterInvoiced === 'yes' && reg.invoiced) ||
+        (this.filterInvoiced === 'no' && !reg.invoiced);
+
+      // Website Filter (assuming websiteStatus exists or checking website field presence)
+      // If websiteStatus is fully implemented on backend/frontend model, use it.
+      // Falls back to checking if website string exists for 'added' logic if status not reliable, 
+      // but USER asked for "website" filter, likely meaning "Website Status".
+      // Let's stick to the websiteStatus field which is in the model.
+      const websiteMatch = this.filterWebsite === 'all' ||
+        (this.filterWebsite === 'added' && reg.websiteStatus === 'Added') ||
+        (this.filterWebsite === 'pending' && (!reg.websiteStatus || reg.websiteStatus === 'Pending'));
+
+      return nameMatch && invoicedMatch && websiteMatch;
+    });
+  }
+
+  get hasActiveFilters(): boolean {
+    return !!this.filterName || this.filterInvoiced !== 'all' || this.filterWebsite !== 'all';
+  }
 
   ngOnInit(): void {
     this.loadRegistrations();
@@ -31,7 +68,7 @@ export class AdminDashboardComponent implements OnInit {
 
     this.storageService.loadRegistrations().subscribe({
       next: (data) => {
-        this.registrations = data;
+        this.allRegistrations = data;
         this.loading = false;
       },
       error: (err) => {
@@ -51,9 +88,9 @@ export class AdminDashboardComponent implements OnInit {
     this.storageService.updateRegistrationStatus(id, status).subscribe({
       next: (updatedRegistration) => {
         // Update the local array
-        const index = this.registrations.findIndex(r => r._id === id);
+        const index = this.allRegistrations.findIndex(r => r._id === id);
         if (index !== -1) {
-          this.registrations[index] = updatedRegistration;
+          this.allRegistrations[index] = updatedRegistration;
         }
       },
       error: (err) => {
@@ -138,9 +175,9 @@ export class AdminDashboardComponent implements OnInit {
     this.storageService.updateRegistration(this.editingRegistration._id, this.editingRegistration).subscribe({
       next: (updatedReg) => {
         // Update the item in the list
-        const index = this.registrations.findIndex(r => r._id === updatedReg._id);
+        const index = this.allRegistrations.findIndex(r => r._id === updatedReg._id);
         if (index !== -1) {
-          this.registrations[index] = updatedReg;
+          this.allRegistrations[index] = updatedReg;
         }
         this.closeEditModal();
         alert('Registration updated successfully');
@@ -153,11 +190,26 @@ export class AdminDashboardComponent implements OnInit {
   }
 
   get pendingCount(): number {
-    return this.registrations.filter(r => r.status === 'Pending').length;
+    return this.allRegistrations.filter(r => r.status === 'Pending').length;
   }
 
   get approvedCount(): number {
-    return this.registrations.filter(r => r.status === 'Approved').length;
+    return this.allRegistrations.filter(r => r.status === 'Approved').length;
+  }
+
+  // Filter Modal Methods
+  openFilterModal(): void {
+    this.showFilterModal = true;
+  }
+
+  closeFilterModal(): void {
+    this.showFilterModal = false;
+  }
+
+  clearFilters(): void {
+    this.filterName = '';
+    this.filterInvoiced = 'all';
+    this.filterWebsite = 'all';
   }
 
   logout(): void {
