@@ -5,7 +5,7 @@ export interface IParticipantApprovalLog extends Document {
     adminName: string;
     registrationId: mongoose.Types.ObjectId;
     participantName: string;
-    action: 'Approve' | 'Reject' | 'Pending';
+    action: 'Approve' | 'Decline' | 'Pending';
     previousStatus: string;
     newStatus: string;
     timestamp: Date;
@@ -35,7 +35,7 @@ const participantApprovalLogSchema = new Schema<IParticipantApprovalLog>(
         },
         action: {
             type: String,
-            enum: ['Approve', 'Reject', 'Pending'],
+            enum: ['Approve', 'Decline', 'Pending'],
             required: true,
         },
         previousStatus: {

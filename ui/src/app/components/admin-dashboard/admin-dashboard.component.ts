@@ -25,7 +25,7 @@ export class AdminDashboardComponent implements OnInit {
   showFilterModal = false;
   filterName = '';
   filterInvoiced: 'all' | 'yes' | 'no' = 'all';
-  filterWebsite: 'all' | 'pending' | 'added' = 'all';
+  filterStatus: 'all' | 'In Progress' | 'Pending' | 'Approved' | 'Declined' = 'all';
 
   get filteredRegistrations(): Registration[] {
     return this.allRegistrations.filter(reg => {
@@ -41,21 +41,15 @@ export class AdminDashboardComponent implements OnInit {
         (this.filterInvoiced === 'yes' && reg.invoiced) ||
         (this.filterInvoiced === 'no' && !reg.invoiced);
 
-      // Website Filter (assuming websiteStatus exists or checking website field presence)
-      // If websiteStatus is fully implemented on backend/frontend model, use it.
-      // Falls back to checking if website string exists for 'added' logic if status not reliable, 
-      // but USER asked for "website" filter, likely meaning "Website Status".
-      // Let's stick to the websiteStatus field which is in the model.
-      const websiteMatch = this.filterWebsite === 'all' ||
-        (this.filterWebsite === 'added' && reg.websiteStatus === 'Added') ||
-        (this.filterWebsite === 'pending' && (!reg.websiteStatus || reg.websiteStatus === 'Pending'));
+      // Status Filter
+      const statusMatch = this.filterStatus === 'all' || reg.status === this.filterStatus;
 
-      return nameMatch && invoicedMatch && websiteMatch;
+      return nameMatch && invoicedMatch && statusMatch;
     });
   }
 
   get hasActiveFilters(): boolean {
-    return !!this.filterName || this.filterInvoiced !== 'all' || this.filterWebsite !== 'all';
+    return !!this.filterName || this.filterInvoiced !== 'all' || this.filterStatus !== 'all';
   }
 
   ngOnInit(): void {
@@ -79,7 +73,7 @@ export class AdminDashboardComponent implements OnInit {
     });
   }
 
-  updateStatus(id: string, status: 'Pending' | 'Approved' | 'Rejected'): void {
+  updateStatus(id: string, status: 'Pending' | 'Approved' | 'Declined'): void {
     if (!id) {
       console.error('No registration ID provided');
       return;
@@ -209,7 +203,7 @@ export class AdminDashboardComponent implements OnInit {
   clearFilters(): void {
     this.filterName = '';
     this.filterInvoiced = 'all';
-    this.filterWebsite = 'all';
+    this.filterStatus = 'all';
   }
 
   logout(): void {

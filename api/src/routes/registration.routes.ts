@@ -245,7 +245,7 @@ router.patch(
     '/:id/status',
     authenticate,
     requireAdmin,
-    [body('status').isIn(['Pending', 'Approved', 'Rejected'])],
+    [body('status').isIn(['Pending', 'Approved', 'Declined'])],
     async (req: Request, res: Response) => {
         try {
             const { id } = req.params;
@@ -276,7 +276,7 @@ router.patch(
                     adminName: adminName,
                     registrationId: registration._id,
                     participantName: `${registration.firstName} ${registration.lastName}`,
-                    action: status === 'Approved' ? 'Approve' : status === 'Rejected' ? 'Reject' : 'Pending',
+                    action: status === 'Approved' ? 'Approve' : status === 'Declined' ? 'Decline' : 'Pending',
                     previousStatus: previousStatus,
                     newStatus: status
                 }));

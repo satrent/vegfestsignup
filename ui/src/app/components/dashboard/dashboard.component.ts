@@ -65,8 +65,8 @@ export class DashboardComponent implements OnInit {
         switch (status) {
             case 'Approved':
                 return 'status-approved';
-            case 'Rejected':
-                return 'status-rejected';
+            case 'Declined':
+                return 'status-rejected'; // Keeping class name or updating? Let's generic if scss is updated.
             case 'Pending':
                 return 'status-pending';
             case 'In Progress':

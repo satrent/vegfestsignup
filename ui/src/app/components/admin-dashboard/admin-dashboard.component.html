@@ -149,7 +149,7 @@
 
             <div class="actions" *ngIf="reg.status === 'Pending'">
               <button (click)="updateStatus(reg._id!, 'Approved')" class="approve-btn">Approve</button>
-              <button (click)="updateStatus(reg._id!, 'Rejected')" class="reject-btn">Reject</button>
+              <button (click)="updateStatus(reg._id!, 'Declined')" class="reject-btn">Decline</button>
             </div>
 
             <div class="card-footer">
@@ -204,11 +204,13 @@
         </div>
 
         <div class="form-group">
-          <label>Website Status</label>
-          <select [(ngModel)]="filterWebsite">
+          <label>Registration Status</label>
+          <select [(ngModel)]="filterStatus">
             <option value="all">All</option>
-            <option value="pending">Pending</option>
-            <option value="added">Added</option>
+            <option value="In Progress">In Progress</option>
+            <option value="Pending">Pending</option>
+            <option value="Approved">Approved</option>
+            <option value="Declined">Declined</option>
           </select>
         </div>
       </div>
@@ -250,9 +252,10 @@
             <div class="form-group">
               <label>Status</label>
               <select [(ngModel)]="editingRegistration.status">
+                <option value="In Progress">In Progress</option>
                 <option value="Pending">Pending</option>
                 <option value="Approved">Approved</option>
-                <option value="Rejected">Rejected</option>
+                <option value="Declined">Declined</option>
               </select>
             </div>
           </div>

@@ -95,7 +95,7 @@ export interface Registration {
   numTents?: number;
 
   type: 'Exhibitor' | 'Sponsor' | 'Both';
-  status: 'In Progress' | 'Pending' | 'Approved' | 'Rejected';
+  status: 'In Progress' | 'Pending' | 'Approved' | 'Declined';
   websiteStatus?: 'Pending' | 'Added';
   sectionStatus?: {
     contact: boolean;
@@ -153,7 +153,7 @@ export class StorageService {
   }
 
   // Update registration status (admin only)
-  updateRegistrationStatus(id: string, status: 'Pending' | 'Approved' | 'Rejected'): Observable<Registration> {
+  updateRegistrationStatus(id: string, status: 'Pending' | 'Approved' | 'Declined'): Observable<Registration> {
     return this.api.patch<Registration>(`/registrations/${id}/status`, { status });
   }
 
