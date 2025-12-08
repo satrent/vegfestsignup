@@ -1,14 +1,14 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms'; // Added import
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { StorageService, Registration } from '../../services/storage.service';
 import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-admin-dashboard',
   standalone: true,
-  imports: [CommonModule, FormsModule], // Added FormsModule
+  imports: [CommonModule, FormsModule, RouterLink], // Added RouterLink
   templateUrl: './admin-dashboard.component.html',
   styleUrls: ['./admin-dashboard.component.scss']
 })

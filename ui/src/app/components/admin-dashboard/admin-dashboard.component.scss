@@ -717,6 +717,30 @@ a {
       background: #c53030;
     }
   }
+
+  .icon-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.6rem;
+    background-color: #f7fafc;
+    color: #4a5568;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-decoration: none;
+
+    &:hover {
+      background-color: #edf2f7;
+      border-color: #cbd5e0;
+      color: #2d3748;
+    }
+
+    svg {
+      stroke-width: 2;
+    }
+  }
 }
 
 // Filter Modal Specifics
