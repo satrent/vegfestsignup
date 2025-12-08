@@ -719,7 +719,7 @@ a {
   }
 
   .icon-btn {
-    display: flex;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
     padding: 0.6rem;
@@ -730,6 +730,9 @@ a {
     cursor: pointer;
     transition: all 0.2s;
     text-decoration: none;
+    height: 38px;
+    width: 38px;
+    margin-bottom: 0px;
 
     &:hover {
       background-color: #edf2f7;
