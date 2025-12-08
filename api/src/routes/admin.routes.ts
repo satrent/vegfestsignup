@@ -83,4 +83,132 @@ router.patch(
     }
 );
 
+// Create new user (admin only)
+router.post(
+    '/',
+    authenticate,
+    requireAdmin,
+    [
+        body('email').isEmail().normalizeEmail(),
+        body('role').isIn(['ADMIN', 'WEB_ADMIN']),
+        body('firstName').optional().trim(),
+        body('lastName').optional().trim(),
+    ],
+    async (req: Request, res: Response) => {
+        try {
+            const errors = validationResult(req);
+            if (!errors.isEmpty()) {
+                res.status(400).json({ errors: errors.array() });
+                return;
+            }
+
+            const { email, firstName, lastName, role } = req.body;
+
+            // Check if user already exists
+            const existingUser = await User.findOne({ email });
+            if (existingUser) {
+                res.status(409).json({ error: 'User with this email already exists' });
+                return;
+            }
+
+            // Create new user
+            const user = new User({
+                email,
+                firstName,
+                lastName,
+                role,
+                emailVerified: false,
+                isActive: true,
+            });
+
+            await user.save();
+
+            res.status(201).json(user);
+        } catch (error) {
+            console.error('Error creating user:', error);
+            res.status(500).json({ error: 'Failed to create user' });
+        }
+    }
+);
+
+// Update user (admin only)
+router.put(
+    '/:id',
+    authenticate,
+    requireAdmin,
+    [
+        body('email').optional().isEmail().normalizeEmail(),
+        body('firstName').optional().trim(),
+        body('lastName').optional().trim(),
+        body('role').optional().isIn(['ADMIN', 'WEB_ADMIN']),
+    ],
+    async (req: Request, res: Response) => {
+        try {
+            const errors = validationResult(req);
+            if (!errors.isEmpty()) {
+                res.status(400).json({ errors: errors.array() });
+                return;
+            }
+
+            const { id } = req.params;
+            const { email, firstName, lastName, role } = req.body;
+
+            // If email is being changed, check for conflicts
+            if (email) {
+                const existingUser = await User.findOne({ email, _id: { $ne: id } });
+                if (existingUser) {
+                    res.status(409).json({ error: 'User with this email already exists' });
+                    return;
+                }
+            }
+
+            const user = await User.findByIdAndUpdate(
+                id,
+                { email, firstName, lastName, role },
+                { new: true, runValidators: true }
+            ).select('-__v');
+
+            if (!user) {
+                res.status(404).json({ error: 'User not found' });
+                return;
+            }
+
+            res.json(user);
+        } catch (error) {
+            console.error('Error updating user:', error);
+            res.status(500).json({ error: 'Failed to update user' });
+        }
+    }
+);
+
+// Delete user (admin only)
+router.delete(
+    '/:id',
+    authenticate,
+    requireAdmin,
+    async (req: Request, res: Response) => {
+        try {
+            const { id } = req.params;
+
+            // Prevent deleting yourself
+            if (req.user && req.user.userId === id) {
+                res.status(400).json({ error: 'Cannot delete your own account' });
+                return;
+            }
+
+            const user = await User.findByIdAndDelete(id);
+
+            if (!user) {
+                res.status(404).json({ error: 'User not found' });
+                return;
+            }
+
+            res.json({ message: 'User deleted successfully', user });
+        } catch (error) {
+            console.error('Error deleting user:', error);
+            res.status(500).json({ error: 'Failed to delete user' });
+        }
+    }
+);
+
 export default router;

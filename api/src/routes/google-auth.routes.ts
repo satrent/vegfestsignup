@@ -24,36 +24,25 @@ if (config.google.clientId && config.google.clientSecret) {
                         return done(new Error('No email found in Google profile'));
                     }
 
-                    // Find or create user
-                    let user = await User.findOne({ googleId: profile.id });
+                    // Find existing user by Google ID or email
+                    let user = await User.findOne({
+                        $or: [{ googleId: profile.id }, { email }]
+                    });
 
                     if (!user) {
-                        // Check if user exists with this email
-                        user = await User.findOne({ email });
-
-                        if (user) {
-                            // Link Google account to existing user
-                            user.googleId = profile.id;
-                            user.emailVerified = true;
-                        } else {
-                            // Create new admin user
-                            user = new User({
-                                email,
-                                googleId: profile.id,
-                                firstName: profile.name?.givenName,
-                                lastName: profile.name?.familyName,
-                                emailVerified: true,
-                                role: 'ADMIN', // Default role for Google OAuth users
-                            });
-                        }
-
-                        user.lastLoginAt = new Date();
-                        await user.save();
-                    } else {
-                        // Update last login
-                        user.lastLoginAt = new Date();
-                        await user.save();
+                        // SECURITY: Reject unknown users - they must be pre-created by an admin
+                        return done(new Error('Access denied. Please contact an administrator to create your account.'));
                     }
+
+                    // Link Google ID if not already linked
+                    if (!user.googleId) {
+                        user.googleId = profile.id;
+                        user.emailVerified = true;
+                    }
+
+                    // Update last login
+                    user.lastLoginAt = new Date();
+                    await user.save();
 
                     return done(null, user);
                 } catch (error) {
