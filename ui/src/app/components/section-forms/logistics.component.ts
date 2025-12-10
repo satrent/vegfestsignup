@@ -63,15 +63,28 @@ import { StorageService } from '../../services/storage.service';
           <label for="numTents">Tents ($150 each)</label>
         </div>
 
+        <div class="form-group inline-number">
+          <input id="numWeights" type="number" formControlName="numWeights" min="0">
+          <label for="numWeights">Set of 4 Weights (50 lbs each) - ($30/set)</label>
+        </div>
+
+        <div class="form-group inline-number">
+          <input id="numExtraSpots" type="number" formControlName="numExtraSpots" min="0">
+          <label for="numExtraSpots">Extra Tent Spot (10'x20' total plot) - ($50)</label>
+        </div>
+
         <h3>Power Needs</h3>
         <div class="form-group">
           <label for="amperageDraw">Please add up all the amperage draw of the equipment you will be using and select the range you will be needing:</label>
           <select id="amperageDraw" formControlName="amperageDraw">
             <option value="">Select range</option>
-            <option value="0-5">0-5 Amps</option>
-            <option value="5-10">5-10 Amps</option>
-            <option value="10-20">10-20 Amps</option>
-            <option value="20+">20+ Amps</option>
+            <option value="1-5">1-5 Amps ($50)</option>
+            <option value="6-10">6-10 Amps ($125)</option>
+            <option value="11-15">11-15 Amps ($200)</option>
+            <option value="16-20">16-20 Amps ($275)</option>
+            <option value="21-25">21-25 Amps ($350)</option>
+            <option value="26-30">26-30 Amps ($425)</option>
+            <option value="30+">Over 30 Amps ($500)</option>
           </select>
         </div>
 
@@ -167,6 +180,8 @@ export class LogisticsComponent implements OnInit {
       numTables: [0],
       numChairs: [0],
       numTents: [0],
+      numWeights: [0],
+      numExtraSpots: [0],
       amperageDraw: [''],
       standardPower: [false],
       electricalEquipment: [''],

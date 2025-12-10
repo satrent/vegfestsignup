@@ -27,6 +27,18 @@ import { StorageService } from '../../services/storage.service';
         </div>
 
         <div class="form-group">
+          <label for="sponsorshipLevel">Sponsorship Level</label>
+          <select id="sponsorshipLevel" formControlName="sponsorshipLevel">
+             <option value="">Select Level</option>
+             <option value="Bronze">Bronze</option>
+             <option value="Silver">Silver</option>
+             <option value="Gold">Gold</option>
+             <option value="Platinum">Platinum</option>
+             <option value="Presenting">Presenting</option>
+          </select>
+        </div>
+
+        <div class="form-group">
           <label for="logoUrl">Please upload your logo (URL for now).</label>
           <input id="logoUrl" type="text" formControlName="logoUrl" placeholder="URL to logo">
         </div>
@@ -124,6 +136,7 @@ export class SponsorshipComponent implements OnInit {
     this.form = this.fb.group({
       sponsorshipInterest: [false],
       sponsorExhibiting: [false],
+      sponsorshipLevel: [''],
       logoUrl: [''],
       couponBookParticipation: [false],
       couponOffer: [''],

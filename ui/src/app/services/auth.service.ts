@@ -37,7 +37,7 @@ export class AuthService {
     }
 
     private loadUserFromToken(): void {
-        const token = localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token');
+        const token = localStorage.getItem('auth_token');
         if (token) {
             // Decode JWT to get user info
             try {
@@ -101,10 +101,10 @@ export class AuthService {
                 if (response.success && response.token && response.user) {
                     if (rememberMe) {
                         localStorage.setItem('auth_token', response.token);
-                        sessionStorage.removeItem('auth_token'); // Ensure it's not in session
+                        // sessionStorage usage removed to standardize on localStorage
                     } else {
-                        sessionStorage.setItem('auth_token', response.token);
-                        localStorage.removeItem('auth_token'); // Ensure it's not in local
+                        localStorage.setItem('auth_token', response.token);
+                        // sessionStorage usage removed to standardize on localStorage
                     }
                     this.currentUserSubject.next(response.user);
                 }
@@ -125,13 +125,13 @@ export class AuthService {
     // Logout
     logout(): void {
         localStorage.removeItem('auth_token');
-        sessionStorage.removeItem('auth_token');
+        // sessionStorage removal not needed as we don't use it anymore
         this.currentUserSubject.next(null);
     }
 
     // Check if user is authenticated (synchronous)
     isAuthenticated(): boolean {
-        const token = localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token');
+        const token = localStorage.getItem('auth_token');
         if (!token) return false;
 
         try {

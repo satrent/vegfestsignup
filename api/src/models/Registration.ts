@@ -84,6 +84,7 @@ export interface IRegistration extends Document {
     couponCode?: string;
     couponLogoUrl?: string;
     couponOtherInfo?: string;
+    sponsorshipLevel?: string;
 
     // Admin Fields
     invoiced?: boolean;
@@ -92,6 +93,8 @@ export interface IRegistration extends Document {
     numTables?: number;
     numChairs?: number;
     numTents?: number;
+    numWeights?: number;
+    numExtraSpots?: number;
 
     type: RegistrationType;
     status: RegistrationStatus;
@@ -168,6 +171,8 @@ const registrationSchema = new Schema<IRegistration>(
         numTables: { type: Number, default: 0 },
         numChairs: { type: Number, default: 0 },
         numTents: { type: Number, default: 0 },
+        numWeights: { type: Number, default: 0 },
+        numExtraSpots: { type: Number, default: 0 },
         otherEquipment: String,
         vehicleDetails: String, // Dimensions if bringing vehicle
         suppliesOrdered: [String],
@@ -214,6 +219,7 @@ const registrationSchema = new Schema<IRegistration>(
         couponCode: String,
         couponLogoUrl: String,
         couponOtherInfo: String,
+        sponsorshipLevel: String,
 
         // Admin Fields
         invoiced: {
