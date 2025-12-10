@@ -83,6 +83,11 @@
               <span class="invoiced-badge" [class.invoiced]="reg.invoiced" [class.uninvoiced]="!reg.invoiced">
                 {{ reg.invoiced ? 'Invoiced' : 'Uninvoiced' }}
               </span>
+              <!-- Website Status -->
+              <span class="website-badge" [class.added]="reg.websiteStatus === 'Added'"
+                [class.pending]="reg.websiteStatus !== 'Added'">
+                {{ reg.websiteStatus === 'Added' ? 'On Website' : 'Not Posted' }}
+              </span>
             </div>
             <span class="status-badge" [ngClass]="reg.status.toLowerCase()">{{ reg.status }}</span>
           </div>

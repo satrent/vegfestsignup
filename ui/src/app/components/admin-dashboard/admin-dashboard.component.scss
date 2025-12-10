@@ -801,8 +801,27 @@ a {
   }
 
   &.uninvoiced {
-    background: #fff5f5;
-    color: #c53030;
+    background: #edf2f7;
+    color: #718096;
+  }
+}
+
+.website-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  white-space: nowrap;
+
+  &.added {
+    background: #e6fffa;
+    color: #285e61;
+  }
+
+  &.pending {
+    background: #edf2f7;
+    color: #718096;
+    opacity: 0.7;
   }
 }
 
