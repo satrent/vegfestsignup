@@ -249,6 +249,16 @@
               <p class="help-text">Check this if the participant has been sent an invoice.</p>
             </div>
 
+            <div class="form-group checkbox-group">
+              <label class="checkbox-container">
+                <input type="checkbox" [ngModel]="editingRegistration.websiteStatus === 'Added'"
+                  (ngModelChange)="editingRegistration.websiteStatus = $event ? 'Added' : 'Pending'">
+                <span class="checkmark"></span>
+                <span class="label-text">Added to Website</span>
+              </label>
+              <p class="help-text">Check this if the participant is added to the website.</p>
+            </div>
+
             <div class="form-group">
               <label>Status</label>
               <select [(ngModel)]="editingRegistration.status">
