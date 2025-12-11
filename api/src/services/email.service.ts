@@ -1,5 +1,7 @@
 import config from '../config';
 
+import nodemailer from 'nodemailer';
+
 export interface EmailOptions {
     to: string;
     subject: string;
@@ -8,6 +10,22 @@ export interface EmailOptions {
 }
 
 export class EmailService {
+    private transporter: nodemailer.Transporter | null = null;
+
+    constructor() {
+        if (config.email.service !== 'console' && config.email.smtp.host) {
+            this.transporter = nodemailer.createTransport({
+                host: config.email.smtp.host,
+                port: config.email.smtp.port,
+                secure: config.email.smtp.secure, // true for 465, false for other ports
+                auth: {
+                    user: config.email.smtp.user,
+                    pass: config.email.smtp.pass,
+                },
+            });
+        }
+    }
+
     async sendEmail(options: EmailOptions): Promise<void> {
         if (config.email.service === 'console') {
             // For development - just log to console
@@ -19,9 +37,24 @@ export class EmailService {
             return;
         }
 
-        // TODO: Implement AWS SES or other email service
-        // For now, throw error if not in console mode
-        throw new Error('Email service not configured. Please set up AWS SES or another provider.');
+        if (this.transporter) {
+            try {
+                await this.transporter.sendMail({
+                    from: config.email.from,
+                    to: options.to,
+                    subject: options.subject,
+                    text: options.text,
+                    html: options.html,
+                });
+                console.log(`Email sent to ${options.to}`);
+            } catch (error) {
+                console.error('Error sending email:', error);
+                throw error;
+            }
+        } else {
+            console.error('Email service not configured correctly.');
+            throw new Error('Email service not configured. Please check SMTP settings.');
+        }
     }
 
     async sendVerificationCode(email: string, code: string): Promise<void> {

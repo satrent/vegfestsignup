@@ -29,6 +29,13 @@ export const config = {
     email: {
         service: process.env.EMAIL_SERVICE || 'console',
         from: process.env.EMAIL_FROM || 'noreply@vegfest.org',
+        smtp: {
+            host: process.env.SMTP_HOST,
+            port: parseInt(process.env.SMTP_PORT || '587'),
+            user: process.env.SMTP_USER,
+            pass: process.env.SMTP_PASS,
+            secure: process.env.SMTP_SECURE === 'true',
+        },
         aws: {
             region: process.env.AWS_REGION || 'us-east-1',
             accessKeyId: process.env.AWS_ACCESS_KEY_ID || '',
