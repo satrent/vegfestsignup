@@ -163,6 +163,14 @@ export class AdminDashboardComponent implements OnInit {
     this.activeTab = tab;
   }
 
+  updateDocumentStatus(doc: any, status: 'Pending' | 'Approved' | 'Rejected'): void {
+    if (!doc) return;
+    doc.status = status;
+    // We auto-save when status changes for immediate feedback? 
+    // Or just let them click "Save Changes"? 
+    // Let's let them click "Save Changes" for consistency with other tabs.
+  }
+
   saveEdit(): void {
     if (!this.editingRegistration || !this.editingRegistration._id) return;
 

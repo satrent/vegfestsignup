@@ -1033,3 +1033,79 @@ a {
     }
   }
 }
+// Document List Styles
+.no-docs {
+  text-align: center;
+  color: #718096;
+  padding: 2rem;
+  font-style: italic;
+  background: #f7fafc;
+  border-radius: 6px;
+}
+
+.document-item {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  transition: all 0.2s;
+
+  &:hover {
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  }
+
+  .doc-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+
+    .doc-type {
+      font-weight: 600;
+      color: #2d3748;
+    }
+    
+    .doc-status {
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      padding: 0.1rem 0.5rem;
+      border-radius: 12px;
+
+      &.pending { background: #fffaf0; color: #dd6b20; }
+      &.approved { background: #f0fff4; color: #38a169; }
+      &.rejected { background: #fff5f5; color: #e53e3e; }
+    }
+  }
+
+  .doc-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem;
+    font-size: 0.9rem;
+
+    .doc-link {
+      color: #3182ce;
+      text-decoration: none;
+      &:hover { text-decoration: underline; }
+    }
+
+    .doc-date {
+      color: #718096;
+      font-size: 0.8rem;
+    }
+  }
+
+  .doc-actions {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: flex-end;
+
+    button.small {
+      padding: 0.25rem 0.75rem;
+      font-size: 0.8rem;
+    }
+  }
+}

@@ -2,12 +2,13 @@ import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { StorageService } from '../../services/storage.service';
+import { StorageService, Registration } from '../../services/storage.service';
+import { FileUploadComponent } from '../shared/file-upload/file-upload.component';
 
 @Component({
   selector: 'app-documents',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, FileUploadComponent],
   template: `
     <div class="section-container">
       <h2>Licensing & Insurance (Required Documents)</h2>
@@ -17,33 +18,38 @@ import { StorageService } from '../../services/storage.service';
       <form [formGroup]="form" (ngSubmit)="onSubmit()">
         
         <div class="form-group">
-          <label for="foodLicenseUrl">Food license photo: Please upload a photo of your food license (if applicable).</label>
-          <input id="foodLicenseUrl" type="text" formControlName="foodLicenseUrl" placeholder="URL to document (upload feature coming soon)">
+          <label>Food license photo: Please upload a photo of your food license (if applicable).</label>
+          <app-file-upload 
+            documentType="Food License" 
+            [currentFile]="getDoc('Food License')"
+            [disabled]="form.disabled"
+            (uploadComplete)="onUpload($event)">
+          </app-file-upload>
         </div>
 
         <div class="form-group">
-          <label for="insuranceUrl">Liability Insurance Requirement: Please upload your Certificate of Insurance (COI).</label>
-          <input id="insuranceUrl" type="text" formControlName="insuranceUrl" placeholder="URL to document">
+          <label>Liability Insurance Requirement: Please upload your Certificate of Insurance (COI).</label>
+          <app-file-upload 
+            documentType="COI" 
+            [currentFile]="getDoc('COI')"
+            [disabled]="form.disabled"
+            (uploadComplete)="onUpload($event)">
+          </app-file-upload>
         </div>
 
         <div class="form-group">
-          <label for="st19Url">ST-19 Requirement: Please upload your ST-19 form.</label>
-          <input id="st19Url" type="text" formControlName="st19Url" placeholder="URL to document">
-        </div>
-
-        <div class="form-group">
-          <label for="st19SubmissionMethod">Which way will you get us the ST-19?</label>
-          <select id="st19SubmissionMethod" formControlName="st19SubmissionMethod">
-            <option value="">Select option</option>
-            <option value="Upload">Upload here</option>
-            <option value="Email">Email to organizer</option>
-            <option value="Mail">Mail to organizer</option>
-          </select>
+          <label>ST-19 Requirement: Please upload your ST-19 form.</label>
+          <app-file-upload 
+            documentType="ST-19" 
+            [currentFile]="getDoc('ST-19')"
+            [disabled]="form.disabled"
+            (uploadComplete)="onUpload($event)">
+          </app-file-upload>
         </div>
 
         <div class="actions">
           <button type="button" class="secondary" (click)="cancel()">Cancel</button>
-          <button type="submit" [disabled]="form.invalid || saving">
+          <button type="submit" [disabled]="form.disabled || saving">
             {{ saving ? 'Saving...' : 'Save & Complete' }}
           </button>
         </div>
@@ -61,9 +67,8 @@ import { StorageService } from '../../services/storage.service';
     }
     .alert { padding: 1rem; margin-bottom: 1rem; border-radius: 4px; }
     .alert-warning { background-color: #fff3cd; color: #856404; border: 1px solid #ffeeba; }
-    .form-group { margin-bottom: 1.5rem; }
+    .form-group { margin-bottom: 2rem; }
     label { display: block; margin-bottom: 0.5rem; font-weight: 500; }
-    input[type="text"], select { width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px; }
     .actions { display: flex; justify-content: flex-end; gap: 1rem; margin-top: 2rem; }
     button { padding: 0.5rem 1.5rem; border-radius: 4px; cursor: pointer; border: none; background: #007bff; color: white; }
     button.secondary { background: #6c757d; }
@@ -78,21 +83,17 @@ export class DocumentsComponent implements OnInit {
   form: FormGroup;
   saving = false;
   registrationId: string = '';
+  documents: NonNullable<Registration['documents']> = [];
 
   constructor() {
-    this.form = this.fb.group({
-      foodLicenseUrl: [''],
-      insuranceUrl: [''],
-      st19Url: [''],
-      st19SubmissionMethod: ['']
-    });
+    this.form = this.fb.group({});
   }
 
   ngOnInit(): void {
     this.storageService.getLatestRegistration().subscribe(reg => {
       if (reg && reg._id) {
         this.registrationId = reg._id;
-        this.form.patchValue(reg);
+        this.documents = reg.documents || [];
 
         if (reg.status !== 'In Progress') {
           this.form.disable();
@@ -102,11 +103,25 @@ export class DocumentsComponent implements OnInit {
     });
   }
 
+  getDoc(type: string) {
+    return this.documents.find(d => d.type === type);
+  }
+
+  onUpload(event: any) {
+    // Update local state so the UI reflects the new file
+    const doc = event.document;
+    const index = this.documents.findIndex(d => d.type === doc.type);
+    if (index >= 0) {
+      this.documents[index] = doc;
+    } else {
+      this.documents.push(doc);
+    }
+  }
+
   onSubmit() {
-    if (this.form.valid && this.registrationId) {
+    if (this.registrationId) {
       this.saving = true;
       const updates: any = {
-        ...this.form.value,
         'sectionStatus.documents': true
       };
 

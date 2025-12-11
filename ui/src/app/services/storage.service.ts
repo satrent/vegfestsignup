@@ -58,6 +58,14 @@ export interface Registration {
   insuranceUrl?: string;
   st19Url?: string;
   st19SubmissionMethod?: string;
+  documents?: {
+    type: string;
+    name: string;
+    key: string;
+    location: string;
+    status: 'Pending' | 'Approved' | 'Rejected';
+    uploadedAt: Date;
+  }[];
 
   // Section 5
   participatedBefore?: boolean;
@@ -158,6 +166,15 @@ export class StorageService {
   }
 
 
+
+
+  // Upload a document
+  uploadDocument(file: File, documentType: string): Observable<any> {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('documentType', documentType);
+    return this.http.post(`${this.baseUrl}/upload`, formData);
+  }
 
   // Update website status (web admin only)
   updateWebsiteStatus(id: string, websiteStatus: 'Pending' | 'Added'): Observable<Registration> {

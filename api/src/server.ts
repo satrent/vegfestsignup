@@ -7,11 +7,13 @@ import config from './config';
 import connectDatabase from './config/database';
 
 // Import routes
+import path from 'path'; // Added import
 import authRoutes from './routes/auth.routes';
 import googleAuthRoutes from './routes/google-auth.routes';
 import mockAuthRoutes from './routes/mock-auth.routes';
 import registrationRoutes from './routes/registration.routes';
 import adminRoutes from './routes/admin.routes';
+import uploadRoutes from './routes/upload.routes';
 
 const app = express();
 
@@ -24,10 +26,13 @@ app.use(
 );
 
 // Middleware
-app.use(helmet()); // Security headers
+app.use(helmet({ crossOriginResourcePolicy: false })); // Allow loading images from different origin (for local uploads)
 app.use(morgan('dev')); // Logging
 app.use(express.json({ limit: '50mb' })); // Parse JSON bodies
 app.use(express.urlencoded({ extended: true, limit: '50mb' })); // Parse URL-encoded bodies
+
+// Serve uploaded files statically in development (or locally)
+app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 
 // Initialize Passport
 app.use(passport.initialize());
@@ -52,6 +57,7 @@ if (config.mockGoogleAuth) {
 }
 app.use('/api/registrations', registrationRoutes);
 app.use('/api/admin/users', adminRoutes);
+app.use('/api/upload', uploadRoutes);
 
 // 404 handler
 app.use((_req: Request, res: Response) => {

@@ -240,9 +240,38 @@
             (click)="setActiveTab('contact')">Contact</button>
           <button class="tab-btn" [class.active]="activeTab === 'logistics'"
             (click)="setActiveTab('logistics')">Logistics</button>
+          <button class="tab-btn" [class.active]="activeTab === 'documents'"
+            (click)="setActiveTab('documents')">Documents</button>
         </div>
 
         <div class="tab-content">
+          <!-- Documents Tab -->
+          <div *ngIf="activeTab === 'documents'" class="form-section">
+            <div *ngIf="!editingRegistration.documents || editingRegistration.documents.length === 0" class="no-docs">
+              <p>No documents uploaded yet.</p>
+            </div>
+
+            <div *ngFor="let doc of editingRegistration.documents" class="document-item">
+              <div class="doc-header">
+                <span class="doc-type">{{ doc.type }}</span>
+                <span class="doc-status" [ngClass]="doc.status.toLowerCase()">{{ doc.status }}</span>
+              </div>
+              <div class="doc-info">
+                <a [href]="doc.location" target="_blank" class="doc-link">View {{ doc.name }}</a>
+                <span class="doc-date">Uploaded: {{ doc.uploadedAt | date:'short' }}</span>
+              </div>
+              <div class="doc-actions">
+                <button *ngIf="doc.status !== 'Approved'" (click)="updateDocumentStatus(doc, 'Approved')"
+                  class="approve-btn small">
+                  Approve
+                </button>
+                <button *ngIf="doc.status !== 'Rejected'" (click)="updateDocumentStatus(doc, 'Rejected')"
+                  class="reject-btn small">
+                  Reject
+                </button>
+              </div>
+            </div>
+          </div>
           <!-- Admin Tab -->
           <div *ngIf="activeTab === 'admin'" class="form-section">
             <div class="form-group checkbox-group">

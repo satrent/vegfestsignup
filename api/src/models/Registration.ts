@@ -56,7 +56,15 @@ export interface IRegistration extends Document {
     foodLicenseUrl?: string;
     insuranceUrl?: string;
     st19Url?: string;
-    st19SubmissionMethod?: string;
+    st19SubmissionMethod?: string; // @deprecated
+    documents: {
+        type: string; // 'Food License', 'COI', 'ST-19'
+        name: string;
+        key: string;
+        location: string;
+        status: 'Pending' | 'Approved' | 'Rejected';
+        uploadedAt: Date;
+    }[];
 
     // Section 5
     participatedBefore?: boolean;
@@ -188,10 +196,22 @@ const registrationSchema = new Schema<IRegistration>(
         loadOutAck: Boolean,
 
         // Section 4: Licensing & Insurance
-        foodLicenseUrl: String,
-        insuranceUrl: String,
-        st19Url: String,
-        st19SubmissionMethod: String,
+        foodLicenseUrl: String, // @deprecated
+        insuranceUrl: String, // @deprecated
+        st19Url: String, // @deprecated
+        st19SubmissionMethod: String, // @deprecated
+        documents: [{
+            type: { type: String, required: true }, // 'Food License', 'COI', 'ST-19'
+            name: { type: String, required: true },
+            key: { type: String, required: true },
+            location: { type: String, required: true },
+            status: {
+                type: String,
+                enum: ['Pending', 'Approved', 'Rejected'],
+                default: 'Pending'
+            },
+            uploadedAt: { type: Date, default: Date.now }
+        }],
 
         // Section 5: Exhibitor Profile & Event Participation
         participatedBefore: Boolean,
