@@ -34,7 +34,7 @@ export const config = {
             port: parseInt(process.env.SMTP_PORT || '587'),
             user: process.env.SMTP_USER,
             pass: process.env.SMTP_PASS,
-            secure: process.env.SMTP_SECURE === 'true',
+            secure: (process.env.SMTP_SECURE || 'false').toLowerCase() === 'true',
         },
         aws: {
             region: process.env.AWS_REGION || 'us-east-1',

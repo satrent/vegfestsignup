@@ -69,7 +69,10 @@ router.post(
             });
         } catch (error) {
             console.error('Error requesting verification code:', error);
-            res.status(500).json({ error: 'Failed to send verification code' });
+            res.status(500).json({
+                error: 'Failed to send verification code', // Keeping the generic message for UI if it relies on it? No, better to append.
+                details: error instanceof Error ? error.message : 'Unknown error'
+            });
         }
     }
 );
