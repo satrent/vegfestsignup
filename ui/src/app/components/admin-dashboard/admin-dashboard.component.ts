@@ -171,6 +171,19 @@ export class AdminDashboardComponent implements OnInit {
     // Let's let them click "Save Changes" for consistency with other tabs.
   }
 
+  viewDocument(key: string): void {
+    if (!key) return;
+    this.storageService.getDocumentUrl(key).subscribe({
+      next: (response) => {
+        window.open(response.url, '_blank');
+      },
+      error: (err) => {
+        console.error('Error fetching document URL:', err);
+        alert('Failed to open document. You may not have permission or the file may be missing.');
+      }
+    });
+  }
+
   saveEdit(): void {
     if (!this.editingRegistration || !this.editingRegistration._id) return;
 

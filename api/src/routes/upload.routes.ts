@@ -103,4 +103,53 @@ router.post(
     }
 );
 
+// GET /api/upload/url
+// Query: key (e.g., registrations/123/documents/abc.pdf)
+router.get(
+    '/url',
+    authenticate,
+    async (req: Request, res: Response): Promise<void> => {
+        try {
+            const { key } = req.query;
+            if (!key || typeof key !== 'string') {
+                res.status(400).json({ message: 'File key is required' });
+                return;
+            }
+
+            // Security Check: Extraction of Registration ID from Key
+            // Expected format: registrations/{registrationId}/documents/...
+            const match = key.match(/^registrations\/([^\/]+)\//);
+            if (!match) {
+                // If it doesn't match the expected structure, only Admins should access it, or block it.
+                // For now, let's assume all valid uploads follow this structure.
+                if (req.user!.role !== 'ADMIN') {
+                    res.status(403).json({ message: 'Access denied' });
+                    return;
+                }
+            } else {
+                const registrationId = match[1];
+
+                // If not admin, verify ownership
+                if (req.user!.role !== 'ADMIN') {
+                    const registration = await Registration.findOne({
+                        _id: registrationId,
+                        userId: req.user!.userId
+                    });
+
+                    if (!registration) {
+                        res.status(403).json({ message: 'Access denied' });
+                        return;
+                    }
+                }
+            }
+
+            const url = await storageService.getUrl(key);
+            res.json({ url });
+        } catch (error) {
+            console.error('Error generating signed URL:', error);
+            res.status(500).json({ message: 'Failed to generate access URL' });
+        }
+    }
+);
+
 export default router;

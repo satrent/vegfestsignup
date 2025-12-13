@@ -176,6 +176,11 @@ export class StorageService {
     return this.http.post(`${this.baseUrl}/upload`, formData);
   }
 
+  // Get signed URL for a document
+  getDocumentUrl(key: string): Observable<{ url: string }> {
+    return this.api.get<{ url: string }>(`/upload/url?key=${encodeURIComponent(key)}`);
+  }
+
   // Update website status (web admin only)
   updateWebsiteStatus(id: string, websiteStatus: 'Pending' | 'Added'): Observable<Registration> {
     return this.api.patch<Registration>(`/registrations/${id}/website-status`, { websiteStatus });

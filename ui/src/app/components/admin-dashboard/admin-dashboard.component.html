@@ -257,7 +257,7 @@
                 <span class="doc-status" [ngClass]="doc.status.toLowerCase()">{{ doc.status }}</span>
               </div>
               <div class="doc-info">
-                <a [href]="doc.location" target="_blank" class="doc-link">View {{ doc.name }}</a>
+                <a href="javascript:void(0)" (click)="viewDocument(doc.key)" class="doc-link">View {{ doc.name }}</a>
                 <span class="doc-date">Uploaded: {{ doc.uploadedAt | date:'short' }}</span>
               </div>
               <div class="doc-actions">
