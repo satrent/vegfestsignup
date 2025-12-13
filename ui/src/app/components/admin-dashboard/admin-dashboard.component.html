@@ -88,6 +88,10 @@
                 [class.pending]="reg.websiteStatus !== 'Added'">
                 {{ reg.websiteStatus === 'Added' ? 'On Website' : 'Not Posted' }}
               </span>
+              <!-- Pending Documents Badge -->
+              <span *ngIf="hasPendingDocuments(reg)" class="docs-status-badge">
+                Pending Docs
+              </span>
             </div>
             <span class="status-badge" [ngClass]="reg.status.toLowerCase()">{{ reg.status }}</span>
           </div>

@@ -825,6 +825,18 @@ a {
   }
 }
 
+.docs-status-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  white-space: nowrap;
+  background: #fff5f5; /* Reddish background to catch attention, or maybe orange? User liked "vibant". Let's go with a warning orange. */
+  background: #FFF4E5; 
+  color: #B76E00;
+  border: 1px solid #FFE0B2;
+}
+
 // Edit Modal specific styles
 .edit-modal {
   width: 95%;

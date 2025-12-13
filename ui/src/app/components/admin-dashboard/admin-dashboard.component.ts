@@ -231,4 +231,8 @@ export class AdminDashboardComponent implements OnInit {
     this.authService.logout();
     this.router.navigate(['/login']);
   }
+
+  hasPendingDocuments(reg: Registration): boolean {
+    return !!reg.documents?.some(doc => doc.status === 'Pending');
+  }
 }
