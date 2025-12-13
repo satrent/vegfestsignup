@@ -36,15 +36,16 @@ router.post(
             const { email } = req.body;
 
             // Check for recent code requests (rate limiting)
-            const recentCode = await VerificationCode.findOne({
+            // Allow 5 codes every 5 minutes
+            const recentCodesCount = await VerificationCode.countDocuments({
                 email,
-                createdAt: { $gte: new Date(Date.now() - 60000) }, // Within last minute
+                createdAt: { $gte: new Date(Date.now() - 5 * 60 * 1000) }, // Within last 5 minutes
             });
 
-            if (recentCode) {
+            if (recentCodesCount >= 5) {
                 res.status(429).json({
-                    error: 'Please wait before requesting another code',
-                    retryAfter: 60,
+                    error: 'Too many verification codes requested. Please wait a while before requesting another.',
+                    retryAfter: 600,
                 });
                 return;
             }
