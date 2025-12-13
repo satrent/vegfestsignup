@@ -149,7 +149,11 @@ const registrationSchema = new Schema<IRegistration>(
             lowercase: true,
             trim: true,
         },
-        phone: String,
+        phone: {
+            type: String,
+            required: true,
+            trim: true,
+        },
         website: String,
         address: String,
         city: String,

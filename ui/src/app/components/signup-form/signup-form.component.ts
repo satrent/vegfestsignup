@@ -29,7 +29,7 @@ export class SignupFormComponent implements OnInit {
       firstName: ['', Validators.required],
       lastName: ['', Validators.required],
       email: [{ value: '', disabled: true }, [Validators.required, Validators.email]],
-      phone: [''],
+      phone: ['', Validators.required],
       type: ['Exhibitor', Validators.required]
     });
   }
