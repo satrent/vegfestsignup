@@ -3,11 +3,12 @@ import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { StorageService } from '../../services/storage.service';
+import { FileUploadComponent } from '../shared/file-upload/file-upload.component';
 
 @Component({
   selector: 'app-sponsorship',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, FileUploadComponent],
   template: `
     <div class="section-container">
       <h2>Sponsorship & Marketing</h2>
@@ -39,8 +40,13 @@ import { StorageService } from '../../services/storage.service';
         </div>
 
         <div class="form-group">
-          <label for="logoUrl">Please upload your logo (URL for now).</label>
-          <input id="logoUrl" type="text" formControlName="logoUrl" placeholder="URL to logo">
+          <label>Please upload your logo.</label>
+          <app-file-upload 
+            documentType="Logo" 
+            [currentFile]="getLogoFile('logoUrl')"
+            [disabled]="form.disabled"
+            (uploadComplete)="onLogoUpload($event, 'logoUrl')">
+          </app-file-upload>
         </div>
 
         <h3>Twin Cities Veg Fest Coupon Book</h3>
@@ -78,8 +84,13 @@ import { StorageService } from '../../services/storage.service';
           </div>
 
           <div class="form-group">
-            <label for="couponLogoUrl">Logo for coupon (if different from main logo):</label>
-            <input id="couponLogoUrl" type="text" formControlName="couponLogoUrl" placeholder="URL to logo">
+            <label>Logo for coupon (if different from main logo):</label>
+             <app-file-upload 
+              documentType="Coupon Logo" 
+              [currentFile]="getLogoFile('couponLogoUrl')"
+              [disabled]="form.disabled"
+              (uploadComplete)="onLogoUpload($event, 'couponLogoUrl')">
+            </app-file-upload>
           </div>
 
           <div class="form-group">
@@ -175,6 +186,24 @@ export class SponsorshipComponent implements OnInit {
       this.form.patchValue({ couponForms: [...current, type] });
     } else {
       this.form.patchValue({ couponForms: current.filter(t => t !== type) });
+    }
+  }
+
+  getLogoFile(controlName: string) {
+    const url = this.form.get(controlName)?.value;
+    if (!url) return undefined;
+    return {
+      name: 'Current Logo',
+      location: url,
+      status: 'Saved'
+    };
+  }
+
+  onLogoUpload(event: any, controlName: string) {
+    if (event.document && event.document.location) {
+      this.form.patchValue({ [controlName]: event.document.location });
+      // Mark form as dirty so user knows to save (though upload saves file, textual reference needs saving)
+      this.form.markAsDirty();
     }
   }
 

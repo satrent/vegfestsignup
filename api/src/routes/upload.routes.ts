@@ -38,7 +38,7 @@ router.post(
                 return;
             }
 
-            const allowedTypes = ['Food License', 'COI', 'ST-19'];
+            const allowedTypes = ['Food License', 'COI', 'ST-19', 'Logo', 'Coupon Logo'];
             if (!allowedTypes.includes(documentType)) {
                 res.status(400).json({ message: 'Invalid document type' });
                 return;
