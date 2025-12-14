@@ -102,6 +102,10 @@ export interface Registration {
   numChairs?: number;
   numTents?: number;
 
+  // Billing
+  initialInvoiceAmount?: number;
+  amountPaid?: number;
+
   type: 'Exhibitor' | 'Sponsor' | 'Both';
   status: 'In Progress' | 'Pending' | 'Approved' | 'Declined';
   websiteStatus?: 'Pending' | 'Added';

@@ -107,14 +107,10 @@ router.get('/export/quickbooks', authenticate, requireAdmin, async (_req: Reques
 
         // CSV Header
         let csv = 'Organization Name,First Name,Last Name,Email,Phone,Line 1,City,State,Postal Code,Notes\n';
-        const idsToUpdate: any[] = [];
-
-        registrations.forEach(r => {
-            idsToUpdate.push(r._id);
+        // Prepare bulk write operations
+        const bulkOps = registrations.map(r => {
             // Calculate Invoice Amount
             const base = 200;
-            // "Extra Site" logic: $100 for each tent beyond the first one (assuming 1 is included)
-            // Using max(0, ...) to ensure no negative cost if 0 tents
             const extraSiteCost = Math.max(0, (r.numTents || 0) - 1) * 100;
             const tablesCost = (r.numTables || 0) * 20;
             const chairsCost = (r.numChairs || 0) * 5;
@@ -133,14 +129,23 @@ router.get('/export/quickbooks', authenticate, requireAdmin, async (_req: Reques
             };
 
             csv += `${escape(r.organizationName)},${escape(r.firstName)},${escape(r.lastName)},${escape(r.email)},${escape(r.phone)},${escape(r.address)},${escape(r.city)},${escape(r.state)},${escape(r.zip)},${escape(calculationNotes)}\n`;
+
+            return {
+                updateOne: {
+                    filter: { _id: r._id },
+                    update: {
+                        $set: {
+                            invoiced: true,
+                            initialInvoiceAmount: total
+                        }
+                    }
+                }
+            };
         });
 
-        // Mark as invoiced
-        if (idsToUpdate.length > 0) {
-            await Registration.updateMany(
-                { _id: { $in: idsToUpdate } },
-                { $set: { invoiced: true } }
-            );
+        // Perform bulk writes
+        if (bulkOps.length > 0) {
+            await Registration.bulkWrite(bulkOps);
         }
 
         res.header('Content-Type', 'text/csv');
@@ -180,6 +185,8 @@ router.patch(
             if (req.user?.role !== 'ADMIN') {
                 delete updates.status;
                 delete updates.websiteStatus;
+                delete updates.initialInvoiceAmount;
+                delete updates.amountPaid;
             }
 
             // Construct the query based on user role

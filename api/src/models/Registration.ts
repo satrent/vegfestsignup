@@ -104,6 +104,10 @@ export interface IRegistration extends Document {
     numWeights?: number;
     numExtraSpots?: number;
 
+    // Billing
+    initialInvoiceAmount?: number;
+    amountPaid?: number;
+
     type: RegistrationType;
     status: RegistrationStatus;
     websiteStatus?: WebsiteStatus;
@@ -250,6 +254,14 @@ const registrationSchema = new Schema<IRegistration>(
             type: Boolean,
             default: false,
             index: true
+        },
+        initialInvoiceAmount: {
+            type: Number,
+            default: 0
+        },
+        amountPaid: {
+            type: Number,
+            default: 0
         },
 
         type: {
