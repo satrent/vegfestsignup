@@ -202,7 +202,6 @@ export class AdminDashboardComponent implements OnInit {
           this.allRegistrations[index] = updatedReg;
         }
         this.closeEditModal();
-        alert('Registration updated successfully');
       },
       error: (err) => {
         console.error('Error updating registration:', err);
