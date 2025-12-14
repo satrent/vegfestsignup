@@ -25,7 +25,7 @@ export class AdminDashboardComponent implements OnInit {
   showFilterModal = false;
   filterName = '';
   filterInvoiced: 'all' | 'yes' | 'no' = 'all';
-  filterStatus: 'all' | 'In Progress' | 'Pending' | 'Approved' | 'Declined' = 'all';
+  filterStatus: 'all' | 'In Progress' | 'Pending' | 'Approved' | 'Declined' | 'Ready to Add' = 'all';
 
   get filteredRegistrations(): Registration[] {
     return this.allRegistrations.filter(reg => {
@@ -42,7 +42,14 @@ export class AdminDashboardComponent implements OnInit {
         (this.filterInvoiced === 'no' && !reg.invoiced);
 
       // Status Filter
-      const statusMatch = this.filterStatus === 'all' || reg.status === this.filterStatus;
+      let statusMatch = true;
+      if (this.filterStatus === 'Ready to Add') {
+        statusMatch = reg.status === 'Approved' &&
+          (reg.amountPaid || 0) > 0 &&
+          reg.websiteStatus !== 'Added';
+      } else {
+        statusMatch = this.filterStatus === 'all' || reg.status === this.filterStatus;
+      }
 
       return nameMatch && invoicedMatch && statusMatch;
     });
