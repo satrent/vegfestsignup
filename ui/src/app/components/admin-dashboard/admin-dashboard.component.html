@@ -99,12 +99,12 @@
 
         <div class="card-body">
           <div class="details">
-            <div class="info-grid">
-              <div class="info-item">
+            <div class="contact-row">
+              <div class="info-item name-col">
                 <span class="label">Contact:</span>
                 {{ reg.firstName }} {{ reg.lastName }}
               </div>
-              <div class="info-item">
+              <div class="info-item email-col">
                 <span class="label">Email:</span>
                 <a [href]="'mailto:' + reg.email">{{ reg.email }}</a>
               </div>
@@ -115,6 +115,9 @@
               <div class="info-item" *ngIf="reg.website">
                 <a [href]="reg.website" target="_blank" rel="noopener noreferrer">{{ reg.website }}</a>
               </div>
+            </div>
+
+            <div class="social-row">
               <div class="info-item">
                 <svg class="social-icon" viewBox="0 0 24 24" fill="#1877F2">
                   <path
