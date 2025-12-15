@@ -121,7 +121,7 @@ import { StorageService } from '../../services/storage.service';
 
         <div class="form-group checkbox-group">
           <input id="loadOutAck" type="checkbox" formControlName="loadOutAck">
-          <label for="loadOutAck">I understand that for safety reasons the field needs to be cleared of attendees before I can load out...</label>
+          <label for="loadOutAck">I understand that for safety reasons the field needs to be cleared of attendees before I can load out.</label>
         </div>
 
         <div class="actions">
