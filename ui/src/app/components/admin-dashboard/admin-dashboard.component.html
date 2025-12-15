@@ -385,7 +385,7 @@
 
   <!-- Log Modal -->
   <div class="modal-overlay" *ngIf="showLogModal" (click)="closeLogModal()">
-    <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-content log-modal" (click)="$event.stopPropagation()">
       <div class="modal-header">
         <h3>History: {{ selectedRegistrationName }}</h3>
         <button class="close-btn" (click)="closeLogModal()">&times;</button>
@@ -398,22 +398,25 @@
           <thead>
             <tr>
               <th>Date</th>
-              <th>Admin</th>
+              <th>Actor</th>
               <th>Action</th>
-              <th>Status Change</th>
+              <th>Details</th>
             </tr>
           </thead>
           <tbody>
             <tr *ngFor="let log of selectedLogs">
               <td>{{ log.timestamp | date:'medium' }}</td>
-              <td>{{ log.adminName }}</td>
+              <td>{{ log.actorName }}</td>
               <td>
                 <span [class]="'badge ' + log.action.toLowerCase()">{{ log.action }}</span>
               </td>
-              <td>
-                <span class="status-change">
-                  {{ log.previousStatus }} &rarr; {{ log.newStatus }}
-                </span>
+              <td class="details-cell">
+                {{ log.details }}
+                <div *ngIf="log.changes" class="changes-json">
+                  <div *ngFor="let key of log.changes | keyvalue" class="change-item">
+                    <small>{{key.key}}: {{$any(key.value).old}} &rarr; {{$any(key.value).new}}</small>
+                  </div>
+                </div>
               </td>
             </tr>
           </tbody>

@@ -3,6 +3,7 @@ import multer from 'multer';
 import { storageService } from '../services/storage.service';
 import { Registration } from '../models/Registration';
 import { authenticate } from '../middleware/auth.middleware';
+import { AuditService } from '../services/audit.service';
 
 const router = express.Router();
 
@@ -87,6 +88,27 @@ router.post(
             });
 
             await registration.save();
+
+            try {
+                // Fetch user info for logging (approximated from request user if needed, or just use what we have)
+                const actorName = user.firstName && user.lastName ? `${user.firstName} ${user.lastName}` : (user.email || 'Unknown User');
+
+                await AuditService.log({
+                    adminId: user.userId, // Can be user or admin
+                    actorName: actorName,
+                    entityId: registration._id as any,
+                    entityType: 'Registration',
+                    action: 'UPLOAD_FILE',
+                    target: documentType,
+                    details: `Uploaded ${documentType}`,
+                    changes: {
+                        field: `documents`,
+                        new: { type: documentType, name: storedFile.name }
+                    }
+                });
+            } catch (logError) {
+                console.error('Error creating upload log:', logError);
+            }
 
             res.status(200).json({
                 message: 'File uploaded successfully',

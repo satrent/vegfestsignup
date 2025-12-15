@@ -604,6 +604,11 @@ a {
     padding: 1.5rem;
     overflow-y: auto;
   }
+
+  &.log-modal {
+    max-width: 1200px;
+    width: 95%;
+  }
 }
 
 .logs-table {

@@ -2,6 +2,7 @@ import { Router, Request, Response } from 'express';
 import { body, validationResult } from 'express-validator';
 import { Registration } from '../models/Registration';
 import { authenticate, requireAdmin } from '../middleware/auth.middleware';
+import { AuditService } from '../services/audit.service';
 
 const router = Router();
 
@@ -196,6 +197,14 @@ router.patch(
                 query.userId = req.user!.userId;
             }
 
+            // 1. Fetch original document first to diff later
+            const originalRegistration = await Registration.findOne(query).lean();
+            if (!originalRegistration) {
+                res.status(404).json({ error: 'Registration not found' });
+                return;
+            }
+
+            // 2. Perform the update
             const registration = await Registration.findOneAndUpdate(
                 query,
                 { $set: updates },
@@ -205,6 +214,63 @@ router.patch(
             if (!registration) {
                 res.status(404).json({ error: 'Registration not found' });
                 return;
+            }
+
+            // 3. Log Audit Events (Admin Only)
+            if (req.user?.role === 'ADMIN') {
+                try {
+                    // Fetch admin info for logging
+                    const adminUser = await import('../models/User').then(m => m.User.findById(req.user!.userId));
+                    const adminName = adminUser ? `${adminUser.firstName} ${adminUser.lastName}` : 'Unknown Admin';
+
+                    // Check for Document Status Changes
+                    if (updates.documents) {
+                        const originalDocs = (originalRegistration as any).documents || [];
+                        const newDocs = registration.documents || [];
+
+                        // Map by key for easy comparison
+                        const oldDocsMap = new Map(originalDocs.map((d: any) => [d.key, d]));
+
+                        newDocs.forEach((newDoc: any) => {
+                            const oldDoc = oldDocsMap.get(newDoc.key) as any;
+                            if (oldDoc && oldDoc.status !== newDoc.status) {
+                                AuditService.log({
+                                    adminId: req.user!.userId,
+                                    actorName: adminName,
+                                    entityId: registration._id as any,
+                                    entityType: 'Registration',
+                                    action: newDoc.status === 'Approved' ? 'APPROVE_DOCUMENT' : 'REJECT_DOCUMENT',
+                                    target: newDoc.type,
+                                    details: `Changed ${newDoc.type} status from ${oldDoc.status} to ${newDoc.status}`,
+                                    changes: {
+                                        field: `documents.${newDoc.type}.status`,
+                                        old: oldDoc.status,
+                                        new: newDoc.status
+                                    }
+                                });
+                            }
+                        });
+                    }
+
+                    // Check for General Field Updates
+                    // We treat the "updates" object as the source of truth for what we attempted to change
+                    // We can diff against originalRegistration for verification
+                    const diff = AuditService.diff(originalRegistration, registration.toObject(), ['documents', 'sectionStatus']);
+                    if (diff) {
+                        AuditService.log({
+                            adminId: req.user!.userId,
+                            actorName: adminName,
+                            entityId: registration._id as any,
+                            entityType: 'Registration',
+                            action: 'UPDATE_REGISTRATION',
+                            details: 'Updated registration details',
+                            changes: diff
+                        });
+                    }
+
+                } catch (logError) {
+                    console.error('Error creating audit logs:', logError);
+                }
             }
 
             res.json(registration);
@@ -272,21 +338,25 @@ router.patch(
             registration.status = status;
             await registration.save();
 
-            // Log the action
+            // Log the action using AuditService
             try {
                 // Fetch admin user to get their name
                 const adminUser = await import('../models/User').then(m => m.User.findById(req.user!.userId));
-                const adminName = adminUser ? (adminUser.firstName && adminUser.lastName ? `${adminUser.firstName} ${adminUser.lastName}` : adminUser.firstName || adminUser.email) : 'Unknown Admin';
+                const adminName = adminUser ? `${adminUser.firstName} ${adminUser.lastName}` : 'Unknown Admin';
 
-                await import('../models/ParticipantApprovalLog').then(m => m.ParticipantApprovalLog.create({
+                await AuditService.log({
                     adminId: req.user!.userId,
-                    adminName: adminName,
-                    registrationId: registration._id,
-                    participantName: `${registration.firstName} ${registration.lastName}`,
-                    action: status === 'Approved' ? 'Approve' : status === 'Declined' ? 'Decline' : 'Pending',
-                    previousStatus: previousStatus,
-                    newStatus: status
-                }));
+                    actorName: adminName,
+                    entityId: registration._id as any,
+                    entityType: 'Registration',
+                    action: status === 'Approved' ? 'APPROVE_REGISTRATION' : status === 'Declined' ? 'DECLINE_REGISTRATION' : 'UPDATE_STATUS',
+                    details: `Changed status from ${previousStatus} to ${status}`,
+                    changes: {
+                        field: 'status',
+                        old: previousStatus,
+                        new: status
+                    }
+                });
             } catch (logError) {
                 console.error('Error creating approval log:', logError);
                 // Don't fail the request if logging fails
@@ -339,10 +409,11 @@ router.get(
         try {
             const { id } = req.params;
 
-            // Dynamic import to avoid circular dependency issues if any, though not strictly needed here
-            const { ParticipantApprovalLog } = await import('../models/ParticipantApprovalLog');
+            // Use the new AuditLog model
+            const { AuditLog } = await import('../models/AuditLog');
 
-            const logs = await ParticipantApprovalLog.find({ registrationId: id })
+            // Find logs for this entity
+            const logs = await AuditLog.find({ entityId: id })
                 .sort({ timestamp: -1 });
 
             res.json(logs);
