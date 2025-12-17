@@ -26,10 +26,15 @@ app.use(
 );
 
 // Middleware
+import cookieParser from 'cookie-parser'; // Added import
+
+// ... imports
+
 app.use(helmet({ crossOriginResourcePolicy: false })); // Allow loading images from different origin (for local uploads)
 app.use(morgan('dev')); // Logging
 app.use(express.json({ limit: '50mb' })); // Parse JSON bodies
 app.use(express.urlencoded({ extended: true, limit: '50mb' })); // Parse URL-encoded bodies
+app.use(cookieParser()); // Added cookie-parser
 
 // Serve uploaded files statically in development (or locally)
 app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));

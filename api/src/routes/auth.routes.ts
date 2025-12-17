@@ -154,9 +154,20 @@ router.post(
                 role: user.role,
             });
 
+            // Set secure cookie
+            const config = (await import('../config')).default; // Import config locally to avoid circular dep if any (or just standard import)
+
+            res.cookie('token', token, {
+                httpOnly: true,
+                secure: config.nodeEnv === 'production',
+                sameSite: 'strict', // or 'lax'
+                maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days (match JWT expiry)
+                path: '/'
+            });
+
             res.json({
                 success: true,
-                token,
+                // token, // Don't send token in body anymore
                 user: {
                     id: user._id,
                     email: user.email,
@@ -200,10 +211,14 @@ router.get('/me', authenticate, async (req: Request, res: Response) => {
     }
 });
 
-// Logout (client-side token removal, but we can track it here)
+// Logout
 router.post('/logout', authenticate, async (_req: Request, res: Response) => {
-    // In a more complex system, you might invalidate the token here
-    // For now, client will just remove the token
+    res.clearCookie('token', {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        path: '/'
+    });
     res.json({ success: true, message: 'Logged out successfully' });
 });
 

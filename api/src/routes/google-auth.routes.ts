@@ -87,8 +87,17 @@ if (config.google.clientId && config.google.clientSecret) {
                     role: user.role,
                 });
 
-                // Redirect to frontend with token
-                res.redirect(`${config.frontend.url}/auth/google/callback?token=${token}`);
+                // Set secure cookie
+                res.cookie('token', token, {
+                    httpOnly: true,
+                    secure: config.nodeEnv === 'production',
+                    sameSite: 'strict',
+                    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+                    path: '/'
+                });
+
+                // Redirect to frontend callback (which will just redirect to dashboard)
+                res.redirect(`${config.frontend.url}/auth/google/callback`);
             } catch (error) {
                 console.error('Google OAuth callback error:', error);
                 res.redirect(`${config.frontend.url}/login?error=auth_failed`);

@@ -19,14 +19,13 @@ export const authenticate = (
     next: NextFunction
 ): void => {
     try {
-        const authHeader = req.headers.authorization;
+        const token = req.cookies?.token;
 
-        if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        if (!token) {
             res.status(401).json({ error: 'No token provided' });
             return;
         }
 
-        const token = authHeader.substring(7); // Remove 'Bearer ' prefix
         const payload = verifyToken(token);
 
         req.user = payload;

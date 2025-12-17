@@ -32,61 +32,22 @@ export class AuthService {
     public initialized$ = this.initialized.asObservable();
 
     constructor() {
-        // Check if user is already logged in
-        this.loadUserFromToken();
+        // Check if user is already logged in by calling the API
+        // The cookie will be sent automatically
+        this.checkAuthStatus();
     }
 
-    private loadUserFromToken(): void {
-        const token = localStorage.getItem('auth_token');
-        if (token) {
-            // Decode JWT to get user info
-            try {
-                const payload = this.decodeToken(token);
-                if (payload && !this.isTokenExpired(payload)) {
-                    // Fetch full user details from backend
-                    this.getCurrentUser().subscribe({
-                        next: (user) => {
-                            this.currentUserSubject.next(user);
-                            this.initialized.next(true);
-                        },
-                        error: () => {
-                            this.logout();
-                            this.initialized.next(true);
-                        }
-                    });
-                } else {
-                    this.logout();
-                    this.initialized.next(true);
-                }
-            } catch (error) {
-                this.logout();
+    private checkAuthStatus(): void {
+        this.getCurrentUser().subscribe({
+            next: (user) => {
+                this.currentUserSubject.next(user);
+                this.initialized.next(true);
+            },
+            error: () => {
+                this.currentUserSubject.next(null);
                 this.initialized.next(true);
             }
-        } else {
-            this.initialized.next(true);
-        }
-    }
-
-    private decodeToken(token: string): any {
-        try {
-            const base64Url = token.split('.')[1];
-            const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-            const jsonPayload = decodeURIComponent(
-                atob(base64)
-                    .split('')
-                    .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
-                    .join('')
-            );
-            return JSON.parse(jsonPayload);
-        } catch (error) {
-            return null;
-        }
-    }
-
-    private isTokenExpired(payload: any): boolean {
-        if (!payload.exp) return false;
-        const expirationDate = new Date(payload.exp * 1000);
-        return expirationDate < new Date();
+        });
     }
 
     // Request verification code for email login
@@ -98,14 +59,8 @@ export class AuthService {
     verifyCode(email: string, code: string, rememberMe: boolean = false): Observable<AuthResponse> {
         return this.api.post<AuthResponse>('/auth/verify-code', { email, code }).pipe(
             tap((response) => {
-                if (response.success && response.token && response.user) {
-                    if (rememberMe) {
-                        localStorage.setItem('auth_token', response.token);
-                        // sessionStorage usage removed to standardize on localStorage
-                    } else {
-                        localStorage.setItem('auth_token', response.token);
-                        // sessionStorage usage removed to standardize on localStorage
-                    }
+                if (response.success && response.user) {
+                    // Token is now handled via httpOnly cookie
                     this.currentUserSubject.next(response.user);
                 }
             })
@@ -116,7 +71,6 @@ export class AuthService {
     getCurrentUser(): Observable<User> {
         return this.api.get<User>('/auth/me').pipe(
             tap((user) => {
-                console.log('Setting currentUserSubject:', user);
                 this.currentUserSubject.next(user);
             })
         );
@@ -124,22 +78,21 @@ export class AuthService {
 
     // Logout
     logout(): void {
-        localStorage.removeItem('auth_token');
-        // sessionStorage removal not needed as we don't use it anymore
-        this.currentUserSubject.next(null);
+        this.api.post('/auth/logout', {}).subscribe({
+            next: () => {
+                this.currentUserSubject.next(null);
+                // Optional: Redirect to login or home
+            },
+            error: () => {
+                // Even if logout fails server-side, clear local state
+                this.currentUserSubject.next(null);
+            }
+        });
     }
 
-    // Check if user is authenticated (synchronous)
+    // Check if user is authenticated (synchronous - based on last known state)
     isAuthenticated(): boolean {
-        const token = localStorage.getItem('auth_token');
-        if (!token) return false;
-
-        try {
-            const payload = this.decodeToken(token);
-            return payload && !this.isTokenExpired(payload);
-        } catch {
-            return false;
-        }
+        return !!this.currentUserSubject.value;
     }
 
     // Check auth status asynchronously, waiting for initialization
