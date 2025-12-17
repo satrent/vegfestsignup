@@ -19,7 +19,8 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
 
                 // Handle 401 Unauthorized - redirect to login
                 if (error.status === 401) {
-                    localStorage.removeItem('auth_token');
+                    // Token cookie is likely expired or invalid
+                    // Just redirect to login
                     router.navigate(['/login']);
                 }
             }

@@ -17,13 +17,9 @@ export class AdminLoginComponent implements OnInit {
     error = '';
 
     ngOnInit(): void {
-        // Check if we're coming back from OAuth callback with a token
+        // Check if we're coming back from OAuth callback with an error
         this.route.queryParams.subscribe(params => {
-            if (params['token']) {
-                // Store token and navigate to admin dashboard
-                localStorage.setItem('auth_token', params['token']);
-                this.router.navigate(['/admin']);
-            } else if (params['error']) {
+            if (params['error']) {
                 this.error = params['error'];
             }
         });
