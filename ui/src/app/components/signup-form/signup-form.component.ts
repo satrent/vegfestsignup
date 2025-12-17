@@ -6,11 +6,10 @@ import { StorageService } from '../../services/storage.service';
 import { AuthService } from '../../services/auth.service';
 
 @Component({
-  selector: 'app-signup-form',
-  standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
-  templateUrl: './signup-form.component.html',
-  styleUrls: ['./signup-form.component.scss']
+    selector: 'app-signup-form',
+    imports: [CommonModule, ReactiveFormsModule],
+    templateUrl: './signup-form.component.html',
+    styleUrls: ['./signup-form.component.scss']
 })
 export class SignupFormComponent implements OnInit {
   private authService = inject(AuthService);

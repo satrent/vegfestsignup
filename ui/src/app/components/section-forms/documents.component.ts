@@ -6,10 +6,9 @@ import { StorageService, Registration } from '../../services/storage.service';
 import { FileUploadComponent } from '../shared/file-upload/file-upload.component';
 
 @Component({
-  selector: 'app-documents',
-  standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FileUploadComponent],
-  template: `
+    selector: 'app-documents',
+    imports: [CommonModule, ReactiveFormsModule, FileUploadComponent],
+    template: `
     <div class="section-container">
       <h2>Licensing & Insurance (Required Documents)</h2>
       <div *ngIf="form.disabled" class="alert alert-warning">
@@ -56,7 +55,7 @@ import { FileUploadComponent } from '../shared/file-upload/file-upload.component
       </form>
     </div>
   `,
-  styles: [`
+    styles: [`
     .section-container {
       max-width: 800px;
       margin: 2rem auto;

@@ -11,11 +11,10 @@ interface AdminUser extends User {
 }
 
 @Component({
-  selector: 'app-user-management',
-  standalone: true,
-  imports: [CommonModule, FormsModule],
-  templateUrl: './user-management.component.html',
-  styleUrl: './user-management.component.css'
+    selector: 'app-user-management',
+    imports: [CommonModule, FormsModule],
+    templateUrl: './user-management.component.html',
+    styleUrl: './user-management.component.css'
 })
 export class UserManagementComponent implements OnInit {
   private api = inject(ApiService);

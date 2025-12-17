@@ -5,10 +5,9 @@ import { Router } from '@angular/router';
 import { StorageService } from '../../services/storage.service';
 
 @Component({
-  selector: 'app-logistics',
-  standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
-  template: `
+    selector: 'app-logistics',
+    imports: [CommonModule, ReactiveFormsModule],
+    template: `
     <div class="section-container">
       <h2>Logistics & Equipment</h2>
       <div *ngIf="form.disabled" class="alert alert-warning">
@@ -133,7 +132,7 @@ import { StorageService } from '../../services/storage.service';
       </form>
     </div>
   `,
-  styles: [`
+    styles: [`
     .section-container {
       max-width: 800px;
       margin: 2rem auto;

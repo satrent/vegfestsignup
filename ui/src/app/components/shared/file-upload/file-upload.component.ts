@@ -4,7 +4,6 @@ import { StorageService } from '../../../services/storage.service';
 
 @Component({
     selector: 'app-file-upload',
-    standalone: true,
     imports: [CommonModule],
     template: `
     <div class="file-upload-container">

@@ -6,11 +6,10 @@ import { UserService } from '../../services/user.service';
 import { AuthService, User } from '../../services/auth.service';
 
 @Component({
-  selector: 'app-web-admin-dashboard',
-  standalone: true,
-  imports: [CommonModule],
-  templateUrl: './web-admin-dashboard.component.html',
-  styleUrls: ['./web-admin-dashboard.component.scss']
+    selector: 'app-web-admin-dashboard',
+    imports: [CommonModule],
+    templateUrl: './web-admin-dashboard.component.html',
+    styleUrls: ['./web-admin-dashboard.component.scss']
 })
 export class WebAdminDashboardComponent implements OnInit {
   private storageService = inject(StorageService);

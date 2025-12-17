@@ -6,11 +6,10 @@ import { StorageService, Registration } from '../../services/storage.service';
 import { AuthService } from '../../services/auth.service';
 
 @Component({
-  selector: 'app-admin-dashboard',
-  standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink], // Added RouterLink
-  templateUrl: './admin-dashboard.component.html',
-  styleUrls: ['./admin-dashboard.component.scss']
+    selector: 'app-admin-dashboard',
+    imports: [CommonModule, FormsModule, RouterLink], // Added RouterLink
+    templateUrl: './admin-dashboard.component.html',
+    styleUrls: ['./admin-dashboard.component.scss']
 })
 export class AdminDashboardComponent implements OnInit {
   private storageService = inject(StorageService);

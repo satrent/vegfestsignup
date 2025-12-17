@@ -6,10 +6,9 @@ import { StorageService } from '../../services/storage.service';
 import { FileUploadComponent } from '../shared/file-upload/file-upload.component';
 
 @Component({
-  selector: 'app-sponsorship',
-  standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FileUploadComponent],
-  template: `
+    selector: 'app-sponsorship',
+    imports: [CommonModule, ReactiveFormsModule, FileUploadComponent],
+    template: `
     <div class="section-container">
       <h2>Sponsorship & Marketing</h2>
       <div *ngIf="form.disabled" class="alert alert-warning">
@@ -108,7 +107,7 @@ import { FileUploadComponent } from '../shared/file-upload/file-upload.component
       </form>
     </div>
   `,
-  styles: [`
+    styles: [`
     .section-container {
       max-width: 800px;
       margin: 2rem auto;

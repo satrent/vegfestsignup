@@ -5,7 +5,6 @@ import { CommonModule } from '@angular/common';
 
 @Component({
     selector: 'app-google-auth-callback',
-    standalone: true,
     template: `
         <div style="display: flex; justify-content: center; align-items: center; height: 100vh;">
             <div style="text-align: center;">
