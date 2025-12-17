@@ -1,5 +1,5 @@
 import { Component, OnInit, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { ApiService } from '../../services/api.service';
 import { AuthService, User, UserRole } from '../../services/auth.service';
@@ -12,7 +12,7 @@ interface AdminUser extends User {
 
 @Component({
     selector: 'app-user-management',
-    imports: [CommonModule, FormsModule],
+    imports: [FormsModule],
     templateUrl: './user-management.component.html',
     styleUrl: './user-management.component.css'
 })

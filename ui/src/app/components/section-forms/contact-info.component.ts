@@ -1,50 +1,52 @@
 import { Component, OnInit, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { StorageService } from '../../services/storage.service';
 
 @Component({
     selector: 'app-contact-info',
-    imports: [CommonModule, ReactiveFormsModule],
+    imports: [ReactiveFormsModule],
     template: `
     <div class="section-container">
       <h2>Contact & Basic Information</h2>
-      <div *ngIf="form.disabled" class="alert alert-warning">
-        This application has been submitted and is currently locked.
-      </div>
+      @if (form.disabled) {
+        <div class="alert alert-warning">
+          This application has been submitted and is currently locked.
+        </div>
+      }
       <form [formGroup]="form" (ngSubmit)="onSubmit()">
-        
+    
         <div class="form-group">
           <label for="firstName">First Name</label>
           <input id="firstName" type="text" formControlName="firstName">
         </div>
-
+    
         <div class="form-group">
           <label for="lastName">Last Name</label>
           <input id="lastName" type="text" formControlName="lastName">
         </div>
-
+    
         <div class="form-group">
           <label for="organizationName">Organization Name</label>
           <input id="organizationName" type="text" formControlName="organizationName">
         </div>
-
+    
         <div class="form-group">
           <label for="website">Website</label>
           <input id="website" type="url" formControlName="website" placeholder="https://">
         </div>
-
+    
         <div class="form-group">
           <label for="phone">Phone Number</label>
           <input id="phone" type="tel" formControlName="phone">
         </div>
-
+    
         <div class="form-group">
           <label for="address">Street Address</label>
           <input id="address" type="text" formControlName="address">
         </div>
-
+    
         <div class="row">
           <div class="form-group third">
             <label for="city">City</label>
@@ -59,28 +61,28 @@ import { StorageService } from '../../services/storage.service';
             <input id="zip" type="text" formControlName="zip">
           </div>
         </div>
-
+    
         <h3>Social Media</h3>
         <div class="form-group">
           <label for="facebookPage">Facebook Page</label>
           <input id="facebookPage" type="text" formControlName="facebookPage" placeholder="@tcvegfest">
         </div>
-
+    
         <div class="form-group">
           <label for="instagramPage">Instagram Page</label>
           <input id="instagramPage" type="text" formControlName="instagramPage" placeholder="@tcvegfest">
         </div>
-
+    
         <div class="form-group">
           <label for="tiktokPage">TikTok Page</label>
           <input id="tiktokPage" type="text" formControlName="tiktokPage" placeholder="@exploreveg">
         </div>
-
+    
         <div class="form-group">
           <label for="otherSocials">Other Socials / Info</label>
           <textarea id="otherSocials" formControlName="otherSocials" rows="3"></textarea>
         </div>
-
+    
         <div class="actions">
           <button type="button" class="secondary" (click)="cancel()">Cancel</button>
           <button type="submit" [disabled]="form.invalid || saving">
@@ -89,7 +91,7 @@ import { StorageService } from '../../services/storage.service';
         </div>
       </form>
     </div>
-  `,
+    `,
     styles: [`
     .section-container {
       max-width: 800px;

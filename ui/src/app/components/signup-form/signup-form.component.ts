@@ -1,5 +1,5 @@
 import { Component, OnInit, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { StorageService } from '../../services/storage.service';
@@ -7,7 +7,7 @@ import { AuthService } from '../../services/auth.service';
 
 @Component({
     selector: 'app-signup-form',
-    imports: [CommonModule, ReactiveFormsModule],
+    imports: [ReactiveFormsModule],
     templateUrl: './signup-form.component.html',
     styleUrls: ['./signup-form.component.scss']
 })

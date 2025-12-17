@@ -7,40 +7,50 @@ import { StorageService } from '../../../services/storage.service';
     imports: [CommonModule],
     template: `
     <div class="file-upload-container">
-      <div 
-        class="drop-zone" 
+      <div
+        class="drop-zone"
         [class.dragging]="isDragging"
-        (dragover)="onDragOver($event)" 
-        (dragleave)="onDragLeave($event)" 
+        (dragover)="onDragOver($event)"
+        (dragleave)="onDragLeave($event)"
         (drop)="onDrop($event)"
         (click)="fileInput.click()"
-      >
+        >
         <input #fileInput type="file" (change)="onFileSelected($event)" style="display: none">
-        
-        <div *ngIf="!currentFile && !isUploading">
-          <p>Drag & Drop your file here or <span>click to upload</span></p>
-          <small>Supported formats: PDF, JPG, PNG (Max 5MB)</small>
-        </div>
-
-        <div *ngIf="isUploading">
-          <p>Uploading {{ selectedFile?.name }}...</p>
-          <div class="spinner"></div>
-        </div>
-
-        <div *ngIf="currentFile" class="file-info">
-          <div class="status-badge" [ngClass]="currentFile.status.toLowerCase()">
-            {{ currentFile.status }}
+    
+        @if (!currentFile && !isUploading) {
+          <div>
+            <p>Drag & Drop your file here or <span>click to upload</span></p>
+            <small>Supported formats: PDF, JPG, PNG (Max 5MB)</small>
           </div>
-          <p class="filename">{{ currentFile.name }}</p>
-          <a [href]="currentFile.location" target="_blank" (click)="$event.stopPropagation()">View Document</a>
-          <button *ngIf="!disabled" class="change-btn" (click)="fileInput.click(); $event.stopPropagation()">Change</button>
+        }
+    
+        @if (isUploading) {
+          <div>
+            <p>Uploading {{ selectedFile?.name }}...</p>
+            <div class="spinner"></div>
+          </div>
+        }
+    
+        @if (currentFile) {
+          <div class="file-info">
+            <div class="status-badge" [ngClass]="currentFile.status.toLowerCase()">
+              {{ currentFile.status }}
+            </div>
+            <p class="filename">{{ currentFile.name }}</p>
+            <a [href]="currentFile.location" target="_blank" (click)="$event.stopPropagation()">View Document</a>
+            @if (!disabled) {
+              <button class="change-btn" (click)="fileInput.click(); $event.stopPropagation()">Change</button>
+            }
+          </div>
+        }
+      </div>
+      @if (errorMessage) {
+        <div class="error-message">
+          {{ errorMessage }}
         </div>
-      </div>
-      <div *ngIf="errorMessage" class="error-message">
-        {{ errorMessage }}
-      </div>
+      }
     </div>
-  `,
+    `,
     styles: [`
     .file-upload-container {
       margin-bottom: 1rem;

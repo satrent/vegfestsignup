@@ -1,5 +1,5 @@
 import { Component, OnInit, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { StorageService, Registration } from '../../services/storage.service';
@@ -7,45 +7,47 @@ import { FileUploadComponent } from '../shared/file-upload/file-upload.component
 
 @Component({
     selector: 'app-documents',
-    imports: [CommonModule, ReactiveFormsModule, FileUploadComponent],
+    imports: [ReactiveFormsModule, FileUploadComponent],
     template: `
     <div class="section-container">
       <h2>Licensing & Insurance (Required Documents)</h2>
-      <div *ngIf="form.disabled" class="alert alert-warning">
-        This application has been submitted and is currently locked.
-      </div>
+      @if (form.disabled) {
+        <div class="alert alert-warning">
+          This application has been submitted and is currently locked.
+        </div>
+      }
       <form [formGroup]="form" (ngSubmit)="onSubmit()">
-        
+    
         <div class="form-group">
           <label>Food license photo: Please upload a photo of your food license (if applicable).</label>
-          <app-file-upload 
-            documentType="Food License" 
+          <app-file-upload
+            documentType="Food License"
             [currentFile]="getDoc('Food License')"
             [disabled]="form.disabled"
             (uploadComplete)="onUpload($event)">
           </app-file-upload>
         </div>
-
+    
         <div class="form-group">
           <label>Liability Insurance Requirement: Please upload your Certificate of Insurance (COI).</label>
-          <app-file-upload 
-            documentType="COI" 
+          <app-file-upload
+            documentType="COI"
             [currentFile]="getDoc('COI')"
             [disabled]="form.disabled"
             (uploadComplete)="onUpload($event)">
           </app-file-upload>
         </div>
-
+    
         <div class="form-group">
           <label>ST-19 Requirement: Please upload your ST-19 form.</label>
-          <app-file-upload 
-            documentType="ST-19" 
+          <app-file-upload
+            documentType="ST-19"
             [currentFile]="getDoc('ST-19')"
             [disabled]="form.disabled"
             (uploadComplete)="onUpload($event)">
           </app-file-upload>
         </div>
-
+    
         <div class="actions">
           <button type="button" class="secondary" (click)="cancel()">Cancel</button>
           <button type="submit" [disabled]="form.disabled || saving">
@@ -54,7 +56,7 @@ import { FileUploadComponent } from '../shared/file-upload/file-upload.component
         </div>
       </form>
     </div>
-  `,
+    `,
     styles: [`
     .section-container {
       max-width: 800px;

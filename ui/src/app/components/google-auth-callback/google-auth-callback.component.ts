@@ -1,19 +1,21 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
-import { CommonModule } from '@angular/common';
+
 
 @Component({
     selector: 'app-google-auth-callback',
     template: `
         <div style="display: flex; justify-content: center; align-items: center; height: 100vh;">
-            <div style="text-align: center;">
-                <h2>Signing you in...</h2>
-                <p *ngIf="error" style="color: red;">{{ error }}</p>
-            </div>
+          <div style="text-align: center;">
+            <h2>Signing you in...</h2>
+            @if (error) {
+              <p style="color: red;">{{ error }}</p>
+            }
+          </div>
         </div>
-    `,
-    imports: [CommonModule]
+        `,
+    imports: []
 })
 export class GoogleAuthCallbackComponent implements OnInit {
     private router = inject(Router);

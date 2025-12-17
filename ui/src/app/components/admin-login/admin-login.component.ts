@@ -1,11 +1,11 @@
 import { Component, inject, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { Router, ActivatedRoute } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 
 @Component({
     selector: 'app-admin-login',
-    imports: [CommonModule],
+    imports: [],
     templateUrl: './admin-login.component.html',
     styleUrls: ['./admin-login.component.scss']
 })

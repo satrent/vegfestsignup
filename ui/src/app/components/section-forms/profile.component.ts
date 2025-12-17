@@ -1,25 +1,27 @@
 import { Component, OnInit, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { StorageService } from '../../services/storage.service';
 
 @Component({
     selector: 'app-profile',
-    imports: [CommonModule, ReactiveFormsModule],
+    imports: [ReactiveFormsModule],
     template: `
     <div class="section-container">
       <h2>Exhibitor Profile & Event Participation</h2>
-      <div *ngIf="form.disabled" class="alert alert-warning">
-        This application has been submitted and is currently locked.
-      </div>
+      @if (form.disabled) {
+        <div class="alert alert-warning">
+          This application has been submitted and is currently locked.
+        </div>
+      }
       <form [formGroup]="form" (ngSubmit)="onSubmit()">
-        
+    
         <div class="form-group checkbox-group">
           <input id="participatedBefore" type="checkbox" formControlName="participatedBefore">
           <label for="participatedBefore">Have you participated in Twin Cities Veg Fest before?</label>
         </div>
-
+    
         <div class="form-group">
           <label for="organizationCategory">Which category best describes your organization?</label>
           <select id="organizationCategory" formControlName="organizationCategory">
@@ -30,67 +32,69 @@ import { StorageService } from '../../services/storage.service';
             <option value="Other">Other</option>
           </select>
         </div>
-
+    
         <div class="form-group">
           <label for="organizationYear">What year did your organization begin?</label>
           <input id="organizationYear" type="text" formControlName="organizationYear">
         </div>
-
+    
         <div class="form-group">
           <label>Does your organization actively promote...</label>
           <div class="checkbox-list">
-            <div *ngFor="let val of promoteValues">
-              <input type="checkbox" [value]="val" (change)="onValuesChange($event, val)" [checked]="isValueSelected(val)">
-              <label>{{ val }}</label>
-            </div>
+            @for (val of promoteValues; track val) {
+              <div>
+                <input type="checkbox" [value]="val" (change)="onValuesChange($event, val)" [checked]="isValueSelected(val)">
+                <label>{{ val }}</label>
+              </div>
+            }
           </div>
         </div>
-
+    
         <div class="form-group">
           <label for="valuesEmbodiment">How does your organization encourage or embody the values listed above?</label>
           <textarea id="valuesEmbodiment" formControlName="valuesEmbodiment" rows="3"></textarea>
         </div>
-
+    
         <div class="form-group">
           <label for="slidingScaleDiscount">If your organization started in 2023 or later, what level of sliding scale discount on the base exhibitor fee (up to 50%) would you like?</label>
           <input id="slidingScaleDiscount" type="text" formControlName="slidingScaleDiscount">
         </div>
-
+    
         <div class="form-group checkbox-group">
           <input id="bipgmOwned" type="checkbox" formControlName="bipgmOwned">
           <label for="bipgmOwned">Is your organization owned by someone who identifies as Black, Indigenous, or a Person of the Global Majority (BIPGM)?</label>
         </div>
-
+    
         <div class="form-group">
           <label for="culturalIdentity">Please specify your cultural identity or identities.</label>
           <input id="culturalIdentity" type="text" formControlName="culturalIdentity">
         </div>
-
+    
         <div class="form-group">
           <label for="adaNeeds">If you have ADA or other special needs, please describe them here.</label>
           <textarea id="adaNeeds" formControlName="adaNeeds" rows="2"></textarea>
         </div>
-
+    
         <div class="form-group checkbox-group">
           <input id="travelingOver100Miles" type="checkbox" formControlName="travelingOver100Miles">
           <label for="travelingOver100Miles">Will you be travelling more than 100 miles to attend the festival?</label>
         </div>
-
+    
         <div class="form-group">
           <label for="soldElsewhere">Have you sold your products elsewhere? Where?</label>
           <textarea id="soldElsewhere" formControlName="soldElsewhere" rows="2"></textarea>
         </div>
-
+    
         <div class="form-group checkbox-group">
           <input id="cookingDemo" type="checkbox" formControlName="cookingDemo">
           <label for="cookingDemo">Would you be willing to do a cooking demonstration on television?</label>
         </div>
-
+    
         <div class="form-group">
           <label for="otherInfo">Anything else we should know?</label>
           <textarea id="otherInfo" formControlName="otherInfo" rows="2"></textarea>
         </div>
-
+    
         <div class="actions">
           <button type="button" class="secondary" (click)="cancel()">Cancel</button>
           <button type="submit" [disabled]="form.invalid || saving">
@@ -99,7 +103,7 @@ import { StorageService } from '../../services/storage.service';
         </div>
       </form>
     </div>
-  `,
+    `,
     styles: [`
     .section-container {
       max-width: 800px;

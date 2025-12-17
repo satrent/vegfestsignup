@@ -1,5 +1,5 @@
 import { Component, OnInit, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { StorageService } from '../../services/storage.service';
@@ -7,97 +7,98 @@ import { FileUploadComponent } from '../shared/file-upload/file-upload.component
 
 @Component({
     selector: 'app-sponsorship',
-    imports: [CommonModule, ReactiveFormsModule, FileUploadComponent],
+    imports: [ReactiveFormsModule, FileUploadComponent],
     template: `
     <div class="section-container">
       <h2>Sponsorship & Marketing</h2>
-      <div *ngIf="form.disabled" class="alert alert-warning">
-        This application has been submitted and is currently locked.
-      </div>
+      @if (form.disabled) {
+        <div class="alert alert-warning">
+          This application has been submitted and is currently locked.
+        </div>
+      }
       <form [formGroup]="form" (ngSubmit)="onSubmit()">
-        
+    
         <div class="form-group checkbox-group">
           <input id="sponsorshipInterest" type="checkbox" formControlName="sponsorshipInterest">
           <label for="sponsorshipInterest">Are you interested in becoming a sponsor?</label>
         </div>
-
+    
         <div class="form-group checkbox-group">
           <input id="sponsorExhibiting" type="checkbox" formControlName="sponsorExhibiting">
           <label for="sponsorExhibiting">If you are a sponsor, will you be exhibiting at the festival?</label>
         </div>
-
+    
         <div class="form-group">
           <label for="sponsorshipLevel">Sponsorship Level</label>
           <select id="sponsorshipLevel" formControlName="sponsorshipLevel">
-             <option value="">Select Level</option>
-             <option value="Bronze">Bronze</option>
-             <option value="Silver">Silver</option>
-             <option value="Gold">Gold</option>
-             <option value="Platinum">Platinum</option>
-             <option value="Presenting">Presenting</option>
+            <option value="">Select Level</option>
+            <option value="Bronze">Bronze</option>
+            <option value="Silver">Silver</option>
+            <option value="Gold">Gold</option>
+            <option value="Platinum">Platinum</option>
+            <option value="Presenting">Presenting</option>
           </select>
         </div>
-
+    
         <div class="form-group">
           <label>Please upload your logo.</label>
-          <app-file-upload 
-            documentType="Logo" 
+          <app-file-upload
+            documentType="Logo"
             [currentFile]="getLogoFile('logoUrl')"
             [disabled]="form.disabled"
             (uploadComplete)="onLogoUpload($event, 'logoUrl')">
           </app-file-upload>
         </div>
-
+    
         <h3>Twin Cities Veg Fest Coupon Book</h3>
         <p>We are creating a digital coupon book to be distributed to all attendees. Would you like to participate?</p>
-
+    
         <div class="form-group checkbox-group">
           <input id="couponBookParticipation" type="checkbox" formControlName="couponBookParticipation">
           <label for="couponBookParticipation">Yes, I want to participate in the coupon book.</label>
         </div>
-
-        <div *ngIf="form.get('couponBookParticipation')?.value">
-          <div class="form-group">
-            <label for="couponOffer">What is your offer? (e.g. BOGO, 20% off, Free item with purchase)</label>
-            <input id="couponOffer" type="text" formControlName="couponOffer">
-          </div>
-
-          <div class="form-group">
-            <label for="couponValidity">Valid dates for the coupon:</label>
-            <input id="couponValidity" type="text" formControlName="couponValidity" placeholder="e.g. Sept 1 - Oct 31">
-          </div>
-
-          <div class="form-group">
-            <label>What forms of the coupon will you accept?</label>
-            <div class="checkbox-list">
-              <div *ngFor="let type of couponTypes">
-                <input type="checkbox" [value]="type" (change)="onCouponTypeChange($event, type)" [checked]="isCouponTypeSelected(type)">
-                <label>{{ type }}</label>
+    
+        @if (form.get('couponBookParticipation')?.value) {
+          <div>
+            <div class="form-group">
+              <label for="couponOffer">What is your offer? (e.g. BOGO, 20% off, Free item with purchase)</label>
+              <input id="couponOffer" type="text" formControlName="couponOffer">
+            </div>
+            <div class="form-group">
+              <label for="couponValidity">Valid dates for the coupon:</label>
+              <input id="couponValidity" type="text" formControlName="couponValidity" placeholder="e.g. Sept 1 - Oct 31">
+            </div>
+            <div class="form-group">
+              <label>What forms of the coupon will you accept?</label>
+              <div class="checkbox-list">
+                @for (type of couponTypes; track type) {
+                  <div>
+                    <input type="checkbox" [value]="type" (change)="onCouponTypeChange($event, type)" [checked]="isCouponTypeSelected(type)">
+                    <label>{{ type }}</label>
+                  </div>
+                }
               </div>
             </div>
+            <div class="form-group">
+              <label for="couponCode">If online, what is the coupon code?</label>
+              <input id="couponCode" type="text" formControlName="couponCode">
+            </div>
+            <div class="form-group">
+              <label>Logo for coupon (if different from main logo):</label>
+              <app-file-upload
+                documentType="Coupon Logo"
+                [currentFile]="getLogoFile('couponLogoUrl')"
+                [disabled]="form.disabled"
+                (uploadComplete)="onLogoUpload($event, 'couponLogoUrl')">
+              </app-file-upload>
+            </div>
+            <div class="form-group">
+              <label for="couponOtherInfo">Any other info for the coupon?</label>
+              <textarea id="couponOtherInfo" formControlName="couponOtherInfo" rows="2"></textarea>
+            </div>
           </div>
-
-          <div class="form-group">
-            <label for="couponCode">If online, what is the coupon code?</label>
-            <input id="couponCode" type="text" formControlName="couponCode">
-          </div>
-
-          <div class="form-group">
-            <label>Logo for coupon (if different from main logo):</label>
-             <app-file-upload 
-              documentType="Coupon Logo" 
-              [currentFile]="getLogoFile('couponLogoUrl')"
-              [disabled]="form.disabled"
-              (uploadComplete)="onLogoUpload($event, 'couponLogoUrl')">
-            </app-file-upload>
-          </div>
-
-          <div class="form-group">
-            <label for="couponOtherInfo">Any other info for the coupon?</label>
-            <textarea id="couponOtherInfo" formControlName="couponOtherInfo" rows="2"></textarea>
-          </div>
-        </div>
-
+        }
+    
         <div class="actions">
           <button type="button" class="secondary" (click)="cancel()">Cancel</button>
           <button type="submit" [disabled]="form.invalid || saving">
@@ -106,7 +107,7 @@ import { FileUploadComponent } from '../shared/file-upload/file-upload.component
         </div>
       </form>
     </div>
-  `,
+    `,
     styles: [`
     .section-container {
       max-width: 800px;

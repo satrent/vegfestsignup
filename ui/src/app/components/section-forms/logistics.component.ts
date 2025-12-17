@@ -1,20 +1,22 @@
 import { Component, OnInit, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { StorageService } from '../../services/storage.service';
 
 @Component({
     selector: 'app-logistics',
-    imports: [CommonModule, ReactiveFormsModule],
+    imports: [ReactiveFormsModule],
     template: `
     <div class="section-container">
       <h2>Logistics & Equipment</h2>
-      <div *ngIf="form.disabled" class="alert alert-warning">
-        This application has been submitted and is currently locked.
-      </div>
+      @if (form.disabled) {
+        <div class="alert alert-warning">
+          This application has been submitted and is currently locked.
+        </div>
+      }
       <form [formGroup]="form" (ngSubmit)="onSubmit()">
-        
+    
         <div class="form-group">
           <label for="loadInDay">Please select your preferred day for loading supplies onto the field.</label>
           <select id="loadInDay" formControlName="loadInDay">
@@ -23,55 +25,57 @@ import { StorageService } from '../../services/storage.service';
             <option value="Sunday">Sunday</option>
           </select>
         </div>
-
+    
         <div class="form-group">
           <label>Please check off items you will have in your 10x10 space.</label>
           <div class="checkbox-list">
-            <div *ngFor="let item of equipmentOptions">
-              <input type="checkbox" [value]="item" (change)="onEquipmentChange($event, item)" [checked]="isEquipmentSelected(item)">
-              <label>{{ item }}</label>
-            </div>
+            @for (item of equipmentOptions; track item) {
+              <div>
+                <input type="checkbox" [value]="item" (change)="onEquipmentChange($event, item)" [checked]="isEquipmentSelected(item)">
+                <label>{{ item }}</label>
+              </div>
+            }
           </div>
         </div>
-
+    
         <div class="form-group">
           <label for="otherEquipment">If you will have other equipment that needs more space, please explain what you plan to bring and how much space you'll need.</label>
           <textarea id="otherEquipment" formControlName="otherEquipment" rows="2"></textarea>
         </div>
-
+    
         <div class="form-group">
           <label for="vehicleDetails">Are you bringing a food truck, truck, van, or trailer? If yes, please provide the length, width, and height of your vehicle.</label>
           <textarea id="vehicleDetails" formControlName="vehicleDetails" rows="2"></textarea>
         </div>
-
+    
         <h3>Supplies Order</h3>
         <p>All exhibitors are required to have a 10x10 tent. Please indicate how many of each supply you'd like to order:</p>
-        
+    
         <div class="form-group inline-number">
           <input id="numTables" type="number" formControlName="numTables" min="0">
           <label for="numTables">Tables ($15 each)</label>
         </div>
-
+    
         <div class="form-group inline-number">
           <input id="numChairs" type="number" formControlName="numChairs" min="0">
           <label for="numChairs">Chairs ($5 each)</label>
         </div>
-
+    
         <div class="form-group inline-number">
           <input id="numTents" type="number" formControlName="numTents" min="0">
           <label for="numTents">Tents ($150 each)</label>
         </div>
-
+    
         <div class="form-group inline-number">
           <input id="numWeights" type="number" formControlName="numWeights" min="0">
           <label for="numWeights">Set of 4 Weights (50 lbs each) - ($30/set)</label>
         </div>
-
+    
         <div class="form-group inline-number">
           <input id="numExtraSpots" type="number" formControlName="numExtraSpots" min="0">
           <label for="numExtraSpots">Extra Tent Spot (10'x20' total plot) - ($50)</label>
         </div>
-
+    
         <h3>Power Needs</h3>
         <div class="form-group">
           <label for="amperageDraw">Please add up all the amperage draw of the equipment you will be using and select the range you will be needing:</label>
@@ -86,43 +90,43 @@ import { StorageService } from '../../services/storage.service';
             <option value="30+">Over 30 Amps ($500)</option>
           </select>
         </div>
-
+    
         <div class="form-group checkbox-group">
           <input id="standardPower" type="checkbox" formControlName="standardPower">
           <label for="standardPower">Will standard home 120V power outlets be sufficient for you?</label>
         </div>
-
+    
         <div class="form-group">
           <label for="electricalEquipment">Please list all the equipment that draws electricity you will be using. If you need power different than standard home 120V power, please explain what type of power you need.</label>
           <textarea id="electricalEquipment" formControlName="electricalEquipment" rows="2"></textarea>
         </div>
-
+    
         <div class="form-group">
           <label for="propaneAmount">If you are bringing propane, how much, in pounds, will you bring?</label>
           <input id="propaneAmount" type="text" formControlName="propaneAmount">
         </div>
-
+    
         <div class="form-group">
           <label for="sunlightProtection">Are you selling a product that needs protection from direct sunlight? If yes, please tell us more.</label>
           <textarea id="sunlightProtection" formControlName="sunlightProtection" rows="2"></textarea>
         </div>
-
+    
         <h3>Safety Acknowledgements</h3>
         <div class="form-group checkbox-group">
           <input id="fireExtinguisherAck" type="checkbox" formControlName="fireExtinguisherAck">
           <label for="fireExtinguisherAck">Please acknowledge that if you will be cooking with oil, you will need a K-class fire extinguisher.</label>
         </div>
-
+    
         <div class="form-group checkbox-group">
           <input id="propaneFireExtinguisherAck" type="checkbox" formControlName="propaneFireExtinguisherAck">
           <label for="propaneFireExtinguisherAck">Please acknowledge that if you bring propane, you will need a 2A-10 BC fire extinguisher.</label>
         </div>
-
+    
         <div class="form-group checkbox-group">
           <input id="loadOutAck" type="checkbox" formControlName="loadOutAck">
           <label for="loadOutAck">I understand that for safety reasons the field needs to be cleared of attendees before I can load out.</label>
         </div>
-
+    
         <div class="actions">
           <button type="button" class="secondary" (click)="cancel()">Cancel</button>
           <button type="submit" [disabled]="form.invalid || saving">
@@ -131,7 +135,7 @@ import { StorageService } from '../../services/storage.service';
         </div>
       </form>
     </div>
-  `,
+    `,
     styles: [`
     .section-container {
       max-width: 800px;

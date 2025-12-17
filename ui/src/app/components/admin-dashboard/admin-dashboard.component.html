@@ -10,14 +10,16 @@
         Filter
       </button>
 
-      <button *ngIf="hasActiveFilters" class="clear-filter-btn" (click)="clearFilters()">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
-          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <line x1="18" y1="6" x2="6" y2="18"></line>
-          <line x1="6" y1="6" x2="18" y2="18"></line>
-        </svg>
-        Clear
-      </button>
+      @if (hasActiveFilters) {
+        <button class="clear-filter-btn" (click)="clearFilters()">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+          Clear
+        </button>
+      }
 
       <a routerLink="/admin/users" class="icon-btn" title="Manage Users">
         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
@@ -35,393 +37,433 @@
   </div>
 
   <!-- Loading State -->
-  <div *ngIf="loading" class="loading">
-    Loading registrations...
-  </div>
+  @if (loading) {
+    <div class="loading">
+      Loading registrations...
+    </div>
+  }
 
   <!-- Error State -->
-  <div *ngIf="error" class="error-message">
-    {{ error }}
-  </div>
+  @if (error) {
+    <div class="error-message">
+      {{ error }}
+    </div>
+  }
 
   <!-- Dashboard Content -->
-  <div *ngIf="!loading && !error">
-    <div class="stats">
-      <div class="stat-card">
-        <h3>Total</h3>
-        <div class="value">{{ allRegistrations.length }}</div>
-      </div>
-      <div class="stat-card">
-        <h3>Pending</h3>
-        <div class="value">{{ pendingCount }}</div>
-      </div>
-      <div class="stat-card">
-        <h3>Approved</h3>
-        <div class="value">{{ approvedCount }}</div>
-      </div>
-    </div>
-
-    <div class="registrations-list">
-      <div *ngIf="filteredRegistrations.length === 0" class="empty-state">
-        <p>No registrations found matching your filters.</p>
-        <button (click)="clearFilters()">Clear Filters</button>
-      </div>
-
-      <div *ngFor="let reg of filteredRegistrations" class="registration-card"
-        [class.approved]="reg.status === 'Approved'">
-        <div class="card-header">
-          <div class="header-left">
-            <h3>{{ reg.organizationName }}</h3>
-            <span class="type-badge" [class.sponsor]="reg.type === 'Sponsor'" [class.both]="reg.type === 'Both'">
-              {{ reg.type }}
-            </span>
-          </div>
-
-          <div class="header-right">
-            <div class="invoice-section">
-              <!-- Invoiced Status -->
-              <span class="invoiced-badge" [class.invoiced]="reg.invoiced" [class.uninvoiced]="!reg.invoiced">
-                {{ reg.invoiced ? 'Invoiced' : 'Uninvoiced' }}
-              </span>
-              <!-- Website Status -->
-              <span class="website-badge" [class.added]="reg.websiteStatus === 'Added'"
-                [class.pending]="reg.websiteStatus !== 'Added'">
-                {{ reg.websiteStatus === 'Added' ? 'On Website' : 'Not Posted' }}
-              </span>
-              <!-- Pending Documents Badge -->
-              <span *ngIf="hasPendingDocuments(reg)" class="docs-status-badge">
-                Pending Docs
-              </span>
-            </div>
-            <span class="status-badge" [ngClass]="reg.status.toLowerCase()">{{ reg.status }}</span>
-          </div>
+  @if (!loading && !error) {
+    <div>
+      <div class="stats">
+        <div class="stat-card">
+          <h3>Total</h3>
+          <div class="value">{{ allRegistrations.length }}</div>
         </div>
-
-        <div class="card-body">
-          <div class="details">
-            <div class="contact-row">
-              <div class="info-item name-col">
-                <span class="label">Contact:</span>
-                {{ reg.firstName }} {{ reg.lastName }}
-              </div>
-              <div class="info-item email-col">
-                <span class="label">Email:</span>
-                <a [href]="'mailto:' + reg.email">{{ reg.email }}</a>
-              </div>
-              <div class="info-item" *ngIf="reg.phone">
-                <span class="label">Phone:</span>
-                {{ reg.phone }}
-              </div>
-              <div class="info-item" *ngIf="reg.website">
-                <a [href]="reg.website" target="_blank" rel="noopener noreferrer">{{ reg.website }}</a>
-              </div>
-            </div>
-
-            <div class="social-row">
-              <div class="info-item">
-                <svg class="social-icon" viewBox="0 0 24 24" fill="#1877F2">
-                  <path
-                    d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
-                </svg>
-                <span>{{ reg.facebookPage || '-' }}</span>
-              </div>
-              <div class="info-item">
-                <svg class="social-icon" viewBox="0 0 24 24">
-                  <defs>
-                    <linearGradient id="ig-grad" x1="0%" y1="100%" x2="100%" y2="0%">
-                      <stop offset="0%" style="stop-color:#FED576" />
-                      <stop offset="25%" style="stop-color:#F47133" />
-                      <stop offset="50%" style="stop-color:#BC3081" />
-                      <stop offset="100%" style="stop-color:#4C63D2" />
-                    </linearGradient>
-                  </defs>
-                  <path fill="url(#ig-grad)"
-                    d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z" />
-                </svg>
-                <span>{{ reg.instagramPage || '-' }}</span>
-              </div>
-              <div class="info-item">
-                <svg class="social-icon" viewBox="0 0 24 24" fill="#000000">
-                  <path
-                    d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-5.2 1.74 2.89 2.89 0 012.31-4.64 2.93 2.93 0 01.88.13V9.4a6.84 6.84 0 00-1-.05A6.33 6.33 0 005 20.1a6.34 6.34 0 0010.86-4.43v-7a8.16 8.16 0 004.77 1.52v-3.4a4.85 4.85 0 01-1-.1z" />
-                </svg>
-                <span>{{ reg.tiktokPage || '-' }}</span>
-              </div>
-              <div class="info-item">
-                <span class="label">Other:</span>
-                <span>{{ reg.otherSocials || '-' }}</span>
-              </div>
-            </div>
-
-            <!-- Products Description -->
-            <div class="info-item full-width" *ngIf="reg.productsDescription">
-              <div><span class="label">Products:</span></div>
-              <div class="products-description">{{ reg.productsDescription }}</div>
-            </div>
-
-            <div class="actions" *ngIf="reg.status === 'Pending'">
-              <button (click)="updateStatus(reg._id!, 'Approved')" class="approve-btn">Approve</button>
-              <button (click)="updateStatus(reg._id!, 'Declined')" class="reject-btn">Decline</button>
-            </div>
-
-            <div class="card-footer">
-              <p class="registration-date" *ngIf="reg.createdAt">
-                <span class="label">Registered:</span> {{ reg.createdAt | date:'medium' }}
-              </p>
-
-              <div class="history-action">
-                <button class="btn-icon" (click)="openEditModal(reg)" title="Edit Registration">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-                  </svg>
-                </button>
-                <button class="btn-icon" (click)="viewLogs(reg)" title="View History">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="12" cy="12" r="10"></circle>
-                    <polyline points="12 6 12 12 16 14"></polyline>
-                  </svg>
-                </button>
-              </div>
-            </div>
-          </div>
+        <div class="stat-card">
+          <h3>Pending</h3>
+          <div class="value">{{ pendingCount }}</div>
+        </div>
+        <div class="stat-card">
+          <h3>Approved</h3>
+          <div class="value">{{ approvedCount }}</div>
         </div>
       </div>
-    </div>
-  </div>
-
-  <!-- Filter Modal -->
-  <div class="modal-overlay" *ngIf="showFilterModal" (click)="closeFilterModal()">
-    <div class="modal-content filter-modal" (click)="$event.stopPropagation()">
-      <div class="modal-header">
-        <h3>Filter Registrations</h3>
-        <button class="close-btn" (click)="closeFilterModal()">&times;</button>
-      </div>
-      <div class="modal-body">
-        <div class="form-group">
-          <label>Search Name</label>
-          <input type="text" [(ngModel)]="filterName" (keyup.enter)="closeFilterModal()"
-            placeholder="Organization, First, or Last Name">
-        </div>
-
-        <div class="form-group">
-          <label>Invoiced Status</label>
-          <select [(ngModel)]="filterInvoiced">
-            <option value="all">All</option>
-            <option value="yes">Invoiced</option>
-            <option value="no">Uninvoiced</option>
-          </select>
-        </div>
-
-        <div class="form-group">
-          <label>Registration Status</label>
-          <select [(ngModel)]="filterStatus">
-            <option value="all">All</option>
-            <option value="In Progress">In Progress</option>
-            <option value="Pending">Pending</option>
-            <option value="Approved">Approved</option>
-            <option value="Declined">Declined</option>
-            <option value="Ready to Add">Ready to Add to Website</option>
-          </select>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button class="cancel-btn" (click)="clearFilters()">Clear Filters</button>
-        <button class="save-btn" (click)="closeFilterModal()">Apply Filters</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Edit Modal -->
-  <div class="modal-overlay" *ngIf="showEditModal" (click)="closeEditModal()">
-    <div class="modal-content edit-modal" (click)="$event.stopPropagation()">
-      <div class="modal-header">
-        <h3>Edit Registration: {{ editingRegistration?.organizationName }}</h3>
-        <button class="close-btn" (click)="closeEditModal()">&times;</button>
-      </div>
-      <div class="modal-body" *ngIf="editingRegistration">
-        <div class="tabs">
-          <button class="tab-btn" [class.active]="activeTab === 'admin'" (click)="setActiveTab('admin')">Admin</button>
-          <button class="tab-btn" [class.active]="activeTab === 'contact'"
-            (click)="setActiveTab('contact')">Contact</button>
-          <button class="tab-btn" [class.active]="activeTab === 'logistics'"
-            (click)="setActiveTab('logistics')">Logistics</button>
-          <button class="tab-btn" [class.active]="activeTab === 'documents'"
-            (click)="setActiveTab('documents')">Documents</button>
-          <button class="tab-btn" [class.active]="activeTab === 'billing'"
-            (click)="setActiveTab('billing')">Billing</button>
-        </div>
-
-        <div class="tab-content">
-          <!-- Billing Tab -->
-          <div *ngIf="activeTab === 'billing'" class="form-section">
-            <div class="form-group">
-              <label>Initial Invoice Amount</label>
-              <div class="currency-input">
-                <span class="currency-symbol">$</span>
-                <input type="number" [(ngModel)]="editingRegistration.initialInvoiceAmount" placeholder="0.00" readonly>
-              </div>
-              <p class="help-text">Amount calculated during QuickBooks export.</p>
-            </div>
-
-            <div class="form-group">
-              <label>Amount Paid</label>
-              <div class="currency-input">
-                <span class="currency-symbol">$</span>
-                <input type="number" [(ngModel)]="editingRegistration.amountPaid" placeholder="0.00">
-              </div>
-            </div>
+      <div class="registrations-list">
+        @if (filteredRegistrations.length === 0) {
+          <div class="empty-state">
+            <p>No registrations found matching your filters.</p>
+            <button (click)="clearFilters()">Clear Filters</button>
           </div>
-          <!-- Documents Tab -->
-          <div *ngIf="activeTab === 'documents'" class="form-section">
-            <div *ngIf="!editingRegistration.documents || editingRegistration.documents.length === 0" class="no-docs">
-              <p>No documents uploaded yet.</p>
-            </div>
-
-            <div *ngFor="let doc of editingRegistration.documents" class="document-item">
-              <div class="doc-header">
-                <span class="doc-type">{{ doc.type }}</span>
-                <span class="doc-status" [ngClass]="doc.status.toLowerCase()">{{ doc.status }}</span>
+        }
+        @for (reg of filteredRegistrations; track reg) {
+          <div class="registration-card"
+            [class.approved]="reg.status === 'Approved'">
+            <div class="card-header">
+              <div class="header-left">
+                <h3>{{ reg.organizationName }}</h3>
+                <span class="type-badge" [class.sponsor]="reg.type === 'Sponsor'" [class.both]="reg.type === 'Both'">
+                  {{ reg.type }}
+                </span>
               </div>
-              <div class="doc-info">
-                <a href="javascript:void(0)" (click)="viewDocument(doc.key)" class="doc-link">View {{ doc.name }}</a>
-                <span class="doc-date">Uploaded: {{ doc.uploadedAt | date:'short' }}</span>
-              </div>
-              <div class="doc-actions">
-                <button *ngIf="doc.status !== 'Approved'" (click)="updateDocumentStatus(doc, 'Approved')"
-                  class="approve-btn small">
-                  Approve
-                </button>
-                <button *ngIf="doc.status !== 'Rejected'" (click)="updateDocumentStatus(doc, 'Rejected')"
-                  class="reject-btn small">
-                  Reject
-                </button>
-              </div>
-            </div>
-          </div>
-          <!-- Admin Tab -->
-          <div *ngIf="activeTab === 'admin'" class="form-section">
-            <div class="form-group checkbox-group">
-              <label class="checkbox-container">
-                <input type="checkbox" [(ngModel)]="editingRegistration.invoiced">
-                <span class="checkmark"></span>
-                <span class="label-text">Invoiced</span>
-              </label>
-              <p class="help-text">Check this if the participant has been sent an invoice.</p>
-            </div>
-
-            <div class="form-group checkbox-group">
-              <label class="checkbox-container">
-                <input type="checkbox" [ngModel]="editingRegistration.websiteStatus === 'Added'"
-                  (ngModelChange)="editingRegistration.websiteStatus = $event ? 'Added' : 'Pending'">
-                <span class="checkmark"></span>
-                <span class="label-text">Added to Website</span>
-              </label>
-              <p class="help-text">Check this if the participant is added to the website.</p>
-            </div>
-
-            <div class="form-group">
-              <label>Status</label>
-              <select [(ngModel)]="editingRegistration.status">
-                <option value="In Progress">In Progress</option>
-                <option value="Pending">Pending</option>
-                <option value="Approved">Approved</option>
-                <option value="Declined">Declined</option>
-              </select>
-            </div>
-          </div>
-
-          <!-- Contact Tab -->
-          <div *ngIf="activeTab === 'contact'" class="form-section">
-            <div class="form-group">
-              <label>Organization Name</label>
-              <input type="text" [(ngModel)]="editingRegistration.organizationName">
-            </div>
-            <div class="form-group two-col">
-              <div>
-                <label>First Name</label>
-                <input type="text" [(ngModel)]="editingRegistration.firstName">
-              </div>
-              <div>
-                <label>Last Name</label>
-                <input type="text" [(ngModel)]="editingRegistration.lastName">
+              <div class="header-right">
+                <div class="invoice-section">
+                  <!-- Invoiced Status -->
+                  <span class="invoiced-badge" [class.invoiced]="reg.invoiced" [class.uninvoiced]="!reg.invoiced">
+                    {{ reg.invoiced ? 'Invoiced' : 'Uninvoiced' }}
+                  </span>
+                  <!-- Website Status -->
+                  <span class="website-badge" [class.added]="reg.websiteStatus === 'Added'"
+                    [class.pending]="reg.websiteStatus !== 'Added'">
+                    {{ reg.websiteStatus === 'Added' ? 'On Website' : 'Not Posted' }}
+                  </span>
+                  <!-- Pending Documents Badge -->
+                  @if (hasPendingDocuments(reg)) {
+                    <span class="docs-status-badge">
+                      Pending Docs
+                    </span>
+                  }
+                </div>
+                <span class="status-badge" [ngClass]="reg.status.toLowerCase()">{{ reg.status }}</span>
               </div>
             </div>
-            <div class="form-group">
-              <label>Email</label>
-              <input type="email" [(ngModel)]="editingRegistration.email">
-            </div>
-            <div class="form-group">
-              <label>Phone</label>
-              <input type="text" [(ngModel)]="editingRegistration.phone">
-            </div>
-          </div>
-
-          <!-- Logistics Tab -->
-          <div *ngIf="activeTab === 'logistics'" class="form-section">
-            <div class="form-group">
-              <label>Number of Tables ($20/ea)</label>
-              <input type="number" [(ngModel)]="editingRegistration.numTables">
-            </div>
-            <div class="form-group">
-              <label>Number of Chairs ($5/ea)</label>
-              <input type="number" [(ngModel)]="editingRegistration.numChairs">
-            </div>
-            <div class="form-group">
-              <label>Number of Tents (1st Free, $100/ea extra)</label>
-              <input type="number" [(ngModel)]="editingRegistration.numTents">
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button class="cancel-btn" (click)="closeEditModal()">Cancel</button>
-        <button class="save-btn" (click)="saveEdit()">Save Changes</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Log Modal -->
-  <div class="modal-overlay" *ngIf="showLogModal" (click)="closeLogModal()">
-    <div class="modal-content log-modal" (click)="$event.stopPropagation()">
-      <div class="modal-header">
-        <h3>History: {{ selectedRegistrationName }}</h3>
-        <button class="close-btn" (click)="closeLogModal()">&times;</button>
-      </div>
-      <div class="modal-body">
-        <div *ngIf="selectedLogs.length === 0" class="no-logs">
-          No history found for this participant.
-        </div>
-        <table *ngIf="selectedLogs.length > 0" class="logs-table">
-          <thead>
-            <tr>
-              <th>Date</th>
-              <th>Actor</th>
-              <th>Action</th>
-              <th>Details</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let log of selectedLogs">
-              <td>{{ log.timestamp | date:'medium' }}</td>
-              <td>{{ log.actorName }}</td>
-              <td>
-                <span [class]="'badge ' + log.action.toLowerCase()">{{ log.action }}</span>
-              </td>
-              <td class="details-cell">
-                {{ log.details }}
-                <div *ngIf="log.changes" class="changes-json">
-                  <div *ngFor="let key of log.changes | keyvalue" class="change-item">
-                    <small>{{key.key}}: {{$any(key.value).old}} &rarr; {{$any(key.value).new}}</small>
+            <div class="card-body">
+              <div class="details">
+                <div class="contact-row">
+                  <div class="info-item name-col">
+                    <span class="label">Contact:</span>
+                    {{ reg.firstName }} {{ reg.lastName }}
+                  </div>
+                  <div class="info-item email-col">
+                    <span class="label">Email:</span>
+                    <a [href]="'mailto:' + reg.email">{{ reg.email }}</a>
+                  </div>
+                  @if (reg.phone) {
+                    <div class="info-item">
+                      <span class="label">Phone:</span>
+                      {{ reg.phone }}
+                    </div>
+                  }
+                  @if (reg.website) {
+                    <div class="info-item">
+                      <a [href]="reg.website" target="_blank" rel="noopener noreferrer">{{ reg.website }}</a>
+                    </div>
+                  }
+                </div>
+                <div class="social-row">
+                  <div class="info-item">
+                    <svg class="social-icon" viewBox="0 0 24 24" fill="#1877F2">
+                      <path
+                        d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
+                      </svg>
+                      <span>{{ reg.facebookPage || '-' }}</span>
+                    </div>
+                    <div class="info-item">
+                      <svg class="social-icon" viewBox="0 0 24 24">
+                        <defs>
+                          <linearGradient id="ig-grad" x1="0%" y1="100%" x2="100%" y2="0%">
+                            <stop offset="0%" style="stop-color:#FED576" />
+                            <stop offset="25%" style="stop-color:#F47133" />
+                            <stop offset="50%" style="stop-color:#BC3081" />
+                            <stop offset="100%" style="stop-color:#4C63D2" />
+                          </linearGradient>
+                        </defs>
+                        <path fill="url(#ig-grad)"
+                          d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z" />
+                        </svg>
+                        <span>{{ reg.instagramPage || '-' }}</span>
+                      </div>
+                      <div class="info-item">
+                        <svg class="social-icon" viewBox="0 0 24 24" fill="#000000">
+                          <path
+                            d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-5.2 1.74 2.89 2.89 0 012.31-4.64 2.93 2.93 0 01.88.13V9.4a6.84 6.84 0 00-1-.05A6.33 6.33 0 005 20.1a6.34 6.34 0 0010.86-4.43v-7a8.16 8.16 0 004.77 1.52v-3.4a4.85 4.85 0 01-1-.1z" />
+                          </svg>
+                          <span>{{ reg.tiktokPage || '-' }}</span>
+                        </div>
+                        <div class="info-item">
+                          <span class="label">Other:</span>
+                          <span>{{ reg.otherSocials || '-' }}</span>
+                        </div>
+                      </div>
+                      <!-- Products Description -->
+                      @if (reg.productsDescription) {
+                        <div class="info-item full-width">
+                          <div><span class="label">Products:</span></div>
+                          <div class="products-description">{{ reg.productsDescription }}</div>
+                        </div>
+                      }
+                      @if (reg.status === 'Pending') {
+                        <div class="actions">
+                          <button (click)="updateStatus(reg._id!, 'Approved')" class="approve-btn">Approve</button>
+                          <button (click)="updateStatus(reg._id!, 'Declined')" class="reject-btn">Decline</button>
+                        </div>
+                      }
+                      <div class="card-footer">
+                        @if (reg.createdAt) {
+                          <p class="registration-date">
+                            <span class="label">Registered:</span> {{ reg.createdAt | date:'medium' }}
+                          </p>
+                        }
+                        <div class="history-action">
+                          <button class="btn-icon" (click)="openEditModal(reg)" title="Edit Registration">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                            </svg>
+                          </button>
+                          <button class="btn-icon" (click)="viewLogs(reg)" title="View History">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                              <circle cx="12" cy="12" r="10"></circle>
+                              <polyline points="12 6 12 12 16 14"></polyline>
+                            </svg>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-</div>
+              }
+            </div>
+          </div>
+        }
+
+        <!-- Filter Modal -->
+        @if (showFilterModal) {
+          <div class="modal-overlay" (click)="closeFilterModal()">
+            <div class="modal-content filter-modal" (click)="$event.stopPropagation()">
+              <div class="modal-header">
+                <h3>Filter Registrations</h3>
+                <button class="close-btn" (click)="closeFilterModal()">&times;</button>
+              </div>
+              <div class="modal-body">
+                <div class="form-group">
+                  <label>Search Name</label>
+                  <input type="text" [(ngModel)]="filterName" (keyup.enter)="closeFilterModal()"
+                    placeholder="Organization, First, or Last Name">
+                  </div>
+                  <div class="form-group">
+                    <label>Invoiced Status</label>
+                    <select [(ngModel)]="filterInvoiced">
+                      <option value="all">All</option>
+                      <option value="yes">Invoiced</option>
+                      <option value="no">Uninvoiced</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label>Registration Status</label>
+                    <select [(ngModel)]="filterStatus">
+                      <option value="all">All</option>
+                      <option value="In Progress">In Progress</option>
+                      <option value="Pending">Pending</option>
+                      <option value="Approved">Approved</option>
+                      <option value="Declined">Declined</option>
+                      <option value="Ready to Add">Ready to Add to Website</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="modal-footer">
+                  <button class="cancel-btn" (click)="clearFilters()">Clear Filters</button>
+                  <button class="save-btn" (click)="closeFilterModal()">Apply Filters</button>
+                </div>
+              </div>
+            </div>
+          }
+
+          <!-- Edit Modal -->
+          @if (showEditModal) {
+            <div class="modal-overlay" (click)="closeEditModal()">
+              <div class="modal-content edit-modal" (click)="$event.stopPropagation()">
+                <div class="modal-header">
+                  <h3>Edit Registration: {{ editingRegistration?.organizationName }}</h3>
+                  <button class="close-btn" (click)="closeEditModal()">&times;</button>
+                </div>
+                @if (editingRegistration) {
+                  <div class="modal-body">
+                    <div class="tabs">
+                      <button class="tab-btn" [class.active]="activeTab === 'admin'" (click)="setActiveTab('admin')">Admin</button>
+                      <button class="tab-btn" [class.active]="activeTab === 'contact'"
+                      (click)="setActiveTab('contact')">Contact</button>
+                      <button class="tab-btn" [class.active]="activeTab === 'logistics'"
+                      (click)="setActiveTab('logistics')">Logistics</button>
+                      <button class="tab-btn" [class.active]="activeTab === 'documents'"
+                      (click)="setActiveTab('documents')">Documents</button>
+                      <button class="tab-btn" [class.active]="activeTab === 'billing'"
+                      (click)="setActiveTab('billing')">Billing</button>
+                    </div>
+                    <div class="tab-content">
+                      <!-- Billing Tab -->
+                      @if (activeTab === 'billing') {
+                        <div class="form-section">
+                          <div class="form-group">
+                            <label>Initial Invoice Amount</label>
+                            <div class="currency-input">
+                              <span class="currency-symbol">$</span>
+                              <input type="number" [(ngModel)]="editingRegistration.initialInvoiceAmount" placeholder="0.00" readonly>
+                            </div>
+                            <p class="help-text">Amount calculated during QuickBooks export.</p>
+                          </div>
+                          <div class="form-group">
+                            <label>Amount Paid</label>
+                            <div class="currency-input">
+                              <span class="currency-symbol">$</span>
+                              <input type="number" [(ngModel)]="editingRegistration.amountPaid" placeholder="0.00">
+                            </div>
+                          </div>
+                        </div>
+                      }
+                      <!-- Documents Tab -->
+                      @if (activeTab === 'documents') {
+                        <div class="form-section">
+                          @if (!editingRegistration.documents || editingRegistration.documents.length === 0) {
+                            <div class="no-docs">
+                              <p>No documents uploaded yet.</p>
+                            </div>
+                          }
+                          @for (doc of editingRegistration.documents; track doc) {
+                            <div class="document-item">
+                              <div class="doc-header">
+                                <span class="doc-type">{{ doc.type }}</span>
+                                <span class="doc-status" [ngClass]="doc.status.toLowerCase()">{{ doc.status }}</span>
+                              </div>
+                              <div class="doc-info">
+                                <a href="javascript:void(0)" (click)="viewDocument(doc.key)" class="doc-link">View {{ doc.name }}</a>
+                                <span class="doc-date">Uploaded: {{ doc.uploadedAt | date:'short' }}</span>
+                              </div>
+                              <div class="doc-actions">
+                                @if (doc.status !== 'Approved') {
+                                  <button (click)="updateDocumentStatus(doc, 'Approved')"
+                                    class="approve-btn small">
+                                    Approve
+                                  </button>
+                                }
+                                @if (doc.status !== 'Rejected') {
+                                  <button (click)="updateDocumentStatus(doc, 'Rejected')"
+                                    class="reject-btn small">
+                                    Reject
+                                  </button>
+                                }
+                              </div>
+                            </div>
+                          }
+                        </div>
+                      }
+                      <!-- Admin Tab -->
+                      @if (activeTab === 'admin') {
+                        <div class="form-section">
+                          <div class="form-group checkbox-group">
+                            <label class="checkbox-container">
+                              <input type="checkbox" [(ngModel)]="editingRegistration.invoiced">
+                              <span class="checkmark"></span>
+                              <span class="label-text">Invoiced</span>
+                            </label>
+                            <p class="help-text">Check this if the participant has been sent an invoice.</p>
+                          </div>
+                          <div class="form-group checkbox-group">
+                            <label class="checkbox-container">
+                              <input type="checkbox" [ngModel]="editingRegistration.websiteStatus === 'Added'"
+                                (ngModelChange)="editingRegistration.websiteStatus = $event ? 'Added' : 'Pending'">
+                                <span class="checkmark"></span>
+                                <span class="label-text">Added to Website</span>
+                              </label>
+                              <p class="help-text">Check this if the participant is added to the website.</p>
+                            </div>
+                            <div class="form-group">
+                              <label>Status</label>
+                              <select [(ngModel)]="editingRegistration.status">
+                                <option value="In Progress">In Progress</option>
+                                <option value="Pending">Pending</option>
+                                <option value="Approved">Approved</option>
+                                <option value="Declined">Declined</option>
+                              </select>
+                            </div>
+                          </div>
+                        }
+                        <!-- Contact Tab -->
+                        @if (activeTab === 'contact') {
+                          <div class="form-section">
+                            <div class="form-group">
+                              <label>Organization Name</label>
+                              <input type="text" [(ngModel)]="editingRegistration.organizationName">
+                            </div>
+                            <div class="form-group two-col">
+                              <div>
+                                <label>First Name</label>
+                                <input type="text" [(ngModel)]="editingRegistration.firstName">
+                              </div>
+                              <div>
+                                <label>Last Name</label>
+                                <input type="text" [(ngModel)]="editingRegistration.lastName">
+                              </div>
+                            </div>
+                            <div class="form-group">
+                              <label>Email</label>
+                              <input type="email" [(ngModel)]="editingRegistration.email">
+                            </div>
+                            <div class="form-group">
+                              <label>Phone</label>
+                              <input type="text" [(ngModel)]="editingRegistration.phone">
+                            </div>
+                          </div>
+                        }
+                        <!-- Logistics Tab -->
+                        @if (activeTab === 'logistics') {
+                          <div class="form-section">
+                            <div class="form-group">
+                              <label>Number of Tables ($20/ea)</label>
+                              <input type="number" [(ngModel)]="editingRegistration.numTables">
+                            </div>
+                            <div class="form-group">
+                              <label>Number of Chairs ($5/ea)</label>
+                              <input type="number" [(ngModel)]="editingRegistration.numChairs">
+                            </div>
+                            <div class="form-group">
+                              <label>Number of Tents (1st Free, $100/ea extra)</label>
+                              <input type="number" [(ngModel)]="editingRegistration.numTents">
+                            </div>
+                          </div>
+                        }
+                      </div>
+                    </div>
+                  }
+                  <div class="modal-footer">
+                    <button class="cancel-btn" (click)="closeEditModal()">Cancel</button>
+                    <button class="save-btn" (click)="saveEdit()">Save Changes</button>
+                  </div>
+                </div>
+              </div>
+            }
+
+            <!-- Log Modal -->
+            @if (showLogModal) {
+              <div class="modal-overlay" (click)="closeLogModal()">
+                <div class="modal-content log-modal" (click)="$event.stopPropagation()">
+                  <div class="modal-header">
+                    <h3>History: {{ selectedRegistrationName }}</h3>
+                    <button class="close-btn" (click)="closeLogModal()">&times;</button>
+                  </div>
+                  <div class="modal-body">
+                    @if (selectedLogs.length === 0) {
+                      <div class="no-logs">
+                        No history found for this participant.
+                      </div>
+                    }
+                    @if (selectedLogs.length > 0) {
+                      <table class="logs-table">
+                        <thead>
+                          <tr>
+                            <th>Date</th>
+                            <th>Actor</th>
+                            <th>Action</th>
+                            <th>Details</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          @for (log of selectedLogs; track log) {
+                            <tr>
+                              <td>{{ log.timestamp | date:'medium' }}</td>
+                              <td>{{ log.actorName }}</td>
+                              <td>
+                                <span [class]="'badge ' + log.action.toLowerCase()">{{ log.action }}</span>
+                              </td>
+                              <td class="details-cell">
+                                {{ log.details }}
+                                @if (log.changes) {
+                                  <div class="changes-json">
+                                    @for (key of log.changes | keyvalue; track key) {
+                                      <div class="change-item">
+                                        <small>{{key.key}}: {{$any(key.value).old}} &rarr; {{$any(key.value).new}}</small>
+                                      </div>
+                                    }
+                                  </div>
+                                }
+                              </td>
+                            </tr>
+                          }
+                        </tbody>
+                      </table>
+                    }
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
