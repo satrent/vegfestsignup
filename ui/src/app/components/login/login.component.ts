@@ -1,7 +1,6 @@
-import { Component, inject } from '@angular/core';
-
+import { Component, inject, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { StorageService } from '../../services/storage.service';
 
@@ -11,10 +10,11 @@ import { StorageService } from '../../services/storage.service';
     templateUrl: './login.component.html',
     styleUrls: ['./login.component.scss']
 })
-export class LoginComponent {
+export class LoginComponent implements OnInit {
     private authService = inject(AuthService);
     private storageService = inject(StorageService);
     private router = inject(Router);
+    private route = inject(ActivatedRoute);
 
     email = '';
     code = '';
@@ -23,6 +23,17 @@ export class LoginComponent {
     loading = false;
     error = '';
     success = '';
+
+    ngOnInit(): void {
+        this.route.queryParams.subscribe(params => {
+            if (params['email'] && params['code']) {
+                this.email = params['email'];
+                this.code = params['code'];
+                this.codeSent = true;
+                this.success = 'Verification code auto-filled from link.';
+            }
+        });
+    }
 
     requestCode(): void {
         if (!this.email) {

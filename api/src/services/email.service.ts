@@ -67,7 +67,7 @@ This code will expire in 10 minutes.
 If you didn't request this code, please ignore this email.
 
 This is an automated message, please do not reply to this email.
-You can return to the site at: ${config.frontend.url}
+You can return to the site at: ${config.frontend.url}?email=${encodeURIComponent(email)}&code=${code}
 
 Thank you,
 VegFest Team
@@ -108,7 +108,7 @@ VegFest Team
       <p>If you didn't request this code, please ignore this email.</p>
     </div>
     <div class="btn-container">
-      <a href="${config.frontend.url}" class="button">Return to Signup Site</a>
+      <a href="${config.frontend.url}?email=${encodeURIComponent(email)}&code=${code}" class="button">Return to Signup Site</a>
     </div>
     <p class="warning">This is an automated message, please do not reply to this email.</p>
     <div class="footer">
