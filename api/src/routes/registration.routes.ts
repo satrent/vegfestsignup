@@ -3,6 +3,7 @@ import { body, validationResult } from 'express-validator';
 import { Registration } from '../models/Registration';
 import { authenticate, requireAdmin } from '../middleware/auth.middleware';
 import { AuditService } from '../services/audit.service';
+import { DistanceService } from '../services/distance.service';
 
 const router = Router();
 
@@ -106,18 +107,48 @@ router.get('/export/quickbooks', authenticate, requireAdmin, async (_req: Reques
             invoiced: { $ne: true }
         }).sort({ createdAt: -1 });
 
+        // Create bulk operations array
+        const bulkOps = [];
+
         // CSV Header
         let csv = 'Organization Name,First Name,Last Name,Email,Phone,Line 1,City,State,Postal Code,Notes\n';
-        // Prepare bulk write operations
-        const bulkOps = registrations.map(r => {
+
+        // Process registrations sequentially to respect API rate limits
+        for (const r of registrations) {
+            // Determine distance
+            // We default to the checkbox if we can't calculate, or prioritize calculation?
+            // User asked to "determine if the address... is 100 miles or more".
+            // We'll try to calculate logic.
+
+            let isOver100 = r.travelingOver100Miles || false;
+            let distanceNote = '';
+
+            // Attempt to verify distance if address is present
+            if (r.address && r.city && r.state && r.zip) {
+                // Rate limit: OpenStreetMap Nominatim requires 1 second between requests
+                await new Promise(resolve => setTimeout(resolve, 1100));
+
+                const distance = await DistanceService.getDistanceInMiles(r.address, r.city, r.state, r.zip);
+
+                if (distance !== null) {
+                    isOver100 = distance >= 100;
+                    distanceNote = ` (Dist: ${distance.toFixed(1)} mi)`;
+                }
+            }
+
             // Calculate Invoice Amount
-            const base = 200;
+            let base = 200;
+            if (isOver100) {
+                base = base * 0.5; // 50% Discount
+            }
+
             const extraSiteCost = Math.max(0, (r.numTents || 0) - 1) * 100;
             const tablesCost = (r.numTables || 0) * 20;
             const chairsCost = (r.numChairs || 0) * 5;
             const total = base + extraSiteCost + tablesCost + chairsCost;
 
-            const calculationNotes = `Total: $${total} (Base: $200, Extra Sites: $${extraSiteCost}, Tables: $${tablesCost}, Chairs: $${chairsCost})`;
+            const baseNote = isOver100 ? 'Base: $100 (50% Dist Disc)' : 'Base: $200';
+            const calculationNotes = `Total: $${total} (${baseNote}, Extra Sites: $${extraSiteCost}, Tables: $${tablesCost}, Chairs: $${chairsCost})${distanceNote}`;
 
             // Escape fields for CSV
             const escape = (field: string | undefined) => {
@@ -131,18 +162,19 @@ router.get('/export/quickbooks', authenticate, requireAdmin, async (_req: Reques
 
             csv += `${escape(r.organizationName)},${escape(r.firstName)},${escape(r.lastName)},${escape(r.email)},${escape(r.phone)},${escape(r.address)},${escape(r.city)},${escape(r.state)},${escape(r.zip)},${escape(calculationNotes)}\n`;
 
-            return {
+            bulkOps.push({
                 updateOne: {
                     filter: { _id: r._id },
                     update: {
                         $set: {
                             invoiced: true,
-                            initialInvoiceAmount: total
+                            initialInvoiceAmount: total,
+                            travelingOver100Miles: isOver100 // Optionally update the record with the verified status
                         }
                     }
                 }
-            };
-        });
+            });
+        }
 
         // Perform bulk writes
         if (bulkOps.length > 0) {
