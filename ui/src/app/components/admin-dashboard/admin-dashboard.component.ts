@@ -6,10 +6,10 @@ import { StorageService, Registration } from '../../services/storage.service';
 import { AuthService } from '../../services/auth.service';
 
 @Component({
-    selector: 'app-admin-dashboard',
-    imports: [CommonModule, FormsModule, RouterLink], // Added RouterLink
-    templateUrl: './admin-dashboard.component.html',
-    styleUrls: ['./admin-dashboard.component.scss']
+  selector: 'app-admin-dashboard',
+  imports: [CommonModule, FormsModule, RouterLink], // Added RouterLink
+  templateUrl: './admin-dashboard.component.html',
+  styleUrls: ['./admin-dashboard.component.scss']
 })
 export class AdminDashboardComponent implements OnInit {
   private storageService = inject(StorageService);
@@ -17,6 +17,9 @@ export class AdminDashboardComponent implements OnInit {
   private router = inject(Router);
 
   allRegistrations: Registration[] = [];
+  cachedAllRegistrations: Registration[] = [];
+
+  currentUserId: string | undefined;
   loading = true;
   error = '';
 
@@ -59,6 +62,11 @@ export class AdminDashboardComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.authService.currentUser$.subscribe(user => {
+      if (user) {
+        this.currentUserId = user.id;
+      }
+    });
     this.loadRegistrations();
   }
 
@@ -239,5 +247,56 @@ export class AdminDashboardComponent implements OnInit {
 
   hasPendingDocuments(reg: Registration): boolean {
     return !!reg.documents?.some(doc => doc.status === 'Pending');
+  }
+
+  // Reject Modal
+  showRejectModal = false;
+  rejectionTargetId: string | null = null;
+
+  hasApproved(reg: Registration): boolean {
+    if (!reg.approvedBy || !this.currentUserId) return false;
+    return reg.approvedBy.includes(this.currentUserId);
+  }
+
+  canApprove(reg: Registration): boolean {
+    if (reg.status === 'Approved' || reg.status === 'Declined' || reg.status === 'In Progress') {
+      return false;
+    }
+    // If Waiting for Approval, can only approve if haven't already
+    if (reg.status === 'Waiting for Approval') {
+      return !this.hasApproved(reg);
+    }
+    // If Pending, can approve
+    return true;
+  }
+
+  openRejectModal(id: string): void {
+    console.log('Opening Reject Modal for ID:', id);
+    if (!id) {
+      console.error('No ID provided to openRejectModal');
+      return;
+    }
+    this.rejectionTargetId = id;
+    this.showRejectModal = true;
+  }
+
+  closeRejectModal(): void {
+    this.showRejectModal = false;
+    this.rejectionTargetId = null;
+  }
+
+  confirmReject(): void {
+    if (this.rejectionTargetId) {
+      const id = this.rejectionTargetId;
+      console.log('Confirming rejection for ID:', id);
+
+      this.closeRejectModal();
+      this.updateStatus(id, 'Declined');
+
+      // If we are currently editing this registration, update the local copy too
+      if (this.editingRegistration && this.editingRegistration._id === id) {
+        this.editingRegistration.status = 'Declined';
+      }
+    }
   }
 }

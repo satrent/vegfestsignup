@@ -350,13 +350,14 @@ router.patch(
     '/:id/status',
     authenticate,
     requireAdmin,
-    [body('status').isIn(['Pending', 'Approved', 'Declined'])],
+    [body('status').isIn(['Pending', 'Approved', 'Declined', 'Waiting for Approval'])],
     async (req: Request, res: Response) => {
         try {
             const { id } = req.params;
             const { status } = req.body;
+            const adminId = req.user!.userId;
 
-            // Find the registration first to get previous status
+            // Find the registration
             const registration = await Registration.findById(id);
 
             if (!registration) {
@@ -365,39 +366,85 @@ router.patch(
             }
 
             const previousStatus = registration.status;
+            let newStatus = status;
+            let actionDetails = '';
+
+            // Approval Logic
+            if (status === 'Approved') {
+                // Initialize array if missing
+                if (!registration.approvedBy) {
+                    registration.approvedBy = [];
+                }
+
+                // Check if already approved by this admin
+                // Convert ObjectIds to strings for comparison
+                const alreadyApproved = registration.approvedBy.some(id => id.toString() === adminId);
+
+                if (alreadyApproved) {
+                    // If previously declined or pending, maybe they want to re-approve?
+                    // But if currently Waiting for Approval, they can't double vote.
+                    if (registration.status === 'Waiting for Approval' || registration.status === 'Approved') {
+                        return res.status(400).json({ error: 'You have already approved this registration.' });
+                    }
+                    // If it was somehow reset but their ID stuck ( shouldn't happen if we clean up), let them proceed?
+                    // Let's assume strict check.
+                }
+
+                if (!alreadyApproved) {
+                    registration.approvedBy.push(adminId as any);
+                }
+
+                // Determine Status
+                if (registration.approvedBy.length >= 2) {
+                    newStatus = 'Approved';
+                    actionDetails = 'Final Approval (2/2)';
+                } else {
+                    newStatus = 'Waiting for Approval';
+                    actionDetails = 'Partial Approval (1/2)';
+                }
+            } else if (status === 'Pending') {
+                // Reset approvals if moving back to Pending
+                registration.approvedBy = [];
+                newStatus = 'Pending';
+                actionDetails = 'Reset to Pending';
+            } else if (status === 'Declined') {
+                newStatus = 'Declined';
+                actionDetails = 'Registration Declined';
+                // We don't necessarily clear approvals, so we know who might have vouched for it before rejection.
+            }
 
             // Update the status
-            registration.status = status;
+            registration.status = newStatus;
             await registration.save();
 
-            // Log the action using AuditService
+            // Log the action
             try {
                 // Fetch admin user to get their name
-                const adminUser = await import('../models/User').then(m => m.User.findById(req.user!.userId));
+                const adminUser = await import('../models/User').then(m => m.User.findById(adminId));
                 const adminName = adminUser ? `${adminUser.firstName} ${adminUser.lastName}` : 'Unknown Admin';
 
                 await AuditService.log({
-                    adminId: req.user!.userId,
+                    adminId: adminId,
                     actorName: adminName,
                     entityId: registration._id as any,
                     entityType: 'Registration',
                     action: status === 'Approved' ? 'APPROVE_REGISTRATION' : status === 'Declined' ? 'DECLINE_REGISTRATION' : 'UPDATE_STATUS',
-                    details: `Changed status from ${previousStatus} to ${status}`,
+                    details: `${actionDetails}. Changed status from ${previousStatus} to ${newStatus}`,
                     changes: {
                         field: 'status',
                         old: previousStatus,
-                        new: status
+                        new: newStatus
                     }
                 });
             } catch (logError) {
                 console.error('Error creating approval log:', logError);
-                // Don't fail the request if logging fails
             }
 
-            res.json(registration);
+            return res.json(registration);
         } catch (error) {
             console.error('Error updating registration status:', error);
             res.status(500).json({ error: 'Failed to update status' });
+            return;
         }
     }
 );

@@ -98,6 +98,7 @@ export interface Registration {
 
   // Admin Fields
   invoiced?: boolean;
+  approvedBy?: string[];
 
   // Logistics Counts
   numTables?: number;
@@ -109,7 +110,7 @@ export interface Registration {
   amountPaid?: number;
 
   type: 'Exhibitor' | 'Sponsor' | 'Both';
-  status: 'In Progress' | 'Pending' | 'Approved' | 'Declined';
+  status: 'In Progress' | 'Pending' | 'Waiting for Approval' | 'Approved' | 'Declined';
   websiteStatus?: 'Pending' | 'Added';
   sectionStatus?: {
     contact: boolean;
