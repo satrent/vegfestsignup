@@ -58,13 +58,16 @@ export class EmailService {
     }
 
     async sendVerificationCode(email: string, code: string): Promise<void> {
-        const subject = 'VegFest Signup - Verification Code';
+        const subject = 'Veg Fest Signup - Verification Code';
         const text = `
-Your VegFest verification code is: ${code}
+Your Veg Fest verification code is: ${code}
 
 This code will expire in 10 minutes.
 
 If you didn't request this code, please ignore this email.
+
+This is an automated message, please do not reply to this email.
+You can return to the site at: ${config.frontend.url}
 
 Thank you,
 VegFest Team
@@ -75,21 +78,41 @@ VegFest Team
 <html>
 <head>
   <style>
-    body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
-    .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-    .code { font-size: 32px; font-weight: bold; color: #4CAF50; letter-spacing: 5px; text-align: center; padding: 20px; background: #f5f5f5; border-radius: 8px; margin: 20px 0; }
-    .footer { margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd; font-size: 12px; color: #666; }
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; background-color: #f9f9f9; padding: 20px; }
+    .container { max-width: 600px; margin: 0 auto; background: #ffffff; padding: 40px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+    .header { text-align: center; margin-bottom: 30px; }
+    .header h2 { color: #2e7d32; margin: 0; font-size: 24px; }
+    .code-container { text-align: center; margin: 30px 0; }
+    .code { font-size: 36px; font-weight: bold; color: #4CAF50; letter-spacing: 8px; padding: 20px; background: #f1f8e9; border-radius: 8px; display: inline-block; border: 2px solid #c8e6c9; }
+    .info { color: #666; font-size: 14px; text-align: center; }
+    .warning { color: #999; font-style: italic; font-size: 12px; margin-top: 30px; text-align: center; border-top: 1px solid #eee; padding-top: 20px; }
+    .btn-container { text-align: center; margin-top: 30px; }
+    .button { background-color: #4CAF50; color: white !important; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block; transition: background-color 0.3s; }
+    .footer { margin-top: 40px; text-align: center; font-size: 14px; color: #888; }
   </style>
 </head>
 <body>
   <div class="container">
-    <h2>VegFest Signup - Verification Code</h2>
-    <p>Your verification code is:</p>
-    <div class="code">${code}</div>
-    <p>This code will expire in 10 minutes.</p>
-    <p>If you didn't request this code, please ignore this email.</p>
+    <div class="header">
+      <h2>Veg Fest Signup</h2>
+    </div>
+    <div class="info">
+      <p>Hello,</p>
+      <p>Your verification code for the Veg Fest Signup portal is:</p>
+    </div>
+    <div class="code-container">
+      <div class="code">${code}</div>
+    </div>
+    <div class="info">
+      <p>This code will expire in <strong>10 minutes</strong>.</p>
+      <p>If you didn't request this code, please ignore this email.</p>
+    </div>
+    <div class="btn-container">
+      <a href="${config.frontend.url}" class="button">Return to Signup Site</a>
+    </div>
+    <p class="warning">This is an automated message, please do not reply to this email.</p>
     <div class="footer">
-      <p>Thank you,<br>VegFest Team</p>
+      <p>Thank you,<br><strong>Veg Fest Team</strong></p>
     </div>
   </div>
 </body>
@@ -106,17 +129,17 @@ VegFest Team
 
     async sendWelcomeEmail(email: string, firstName?: string): Promise<void> {
         const name = firstName || 'there';
-        const subject = 'Welcome to VegFest!';
+        const subject = 'Welcome to Veg Fest!';
         const text = `
 Hi ${name},
 
-Welcome to VegFest! Your account has been successfully created.
+Welcome to Veg Fest! Your account has been successfully created.
 
 You can now log in and manage your registrations.
 
 Thank you for joining us!
 
-VegFest Team
+Veg Fest Team
     `.trim();
 
         await this.sendEmail({

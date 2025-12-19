@@ -1,4 +1,4 @@
-# VegFest Signup System
+# Veg Fest Signup System
 
 A comprehensive registration system for VegFest exhibitors and sponsors with dual authentication.
 

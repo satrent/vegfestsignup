@@ -1,7 +1,7 @@
 {
   "name": "vegfest-signup-monorepo",
   "version": "1.0.0",
-  "description": "VegFest Signup System - Monorepo",
+  "description": "Veg Fest Signup System - Monorepo",
   "scripts": {
     "install:all": "npm install && cd ui && npm install && cd ../api && npm install",
     "dev:api": "cd api && npm run dev",
