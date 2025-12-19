@@ -19,7 +19,7 @@ export class DashboardComponent implements OnInit {
     loading = true;
     error = '';
 
-    sections = [
+    private readonly allSections = [
         { id: 'contact', title: 'Contact & Basic Information', route: 'contact' },
         { id: 'products', title: 'Products & Festival Guidelines', route: 'products' },
         { id: 'logistics', title: 'Logistics & Equipment', route: 'logistics' },
@@ -27,6 +27,14 @@ export class DashboardComponent implements OnInit {
         { id: 'profile', title: 'Exhibitor Profile', route: 'profile' },
         { id: 'sponsorship', title: 'Sponsorship & Marketing', route: 'sponsorship' }
     ];
+
+    get sections() {
+        if (this.registration && this.registration.type === 'Sponsor') {
+            return this.allSections.filter(s => ['contact', 'sponsorship'].includes(s.id));
+        }
+
+        return this.allSections;
+    }
 
     ngOnInit(): void {
         this.loadRegistration();
@@ -65,7 +73,7 @@ export class DashboardComponent implements OnInit {
             case 'Approved':
                 return 'status-approved';
             case 'Declined':
-                return 'status-rejected'; // Keeping class name or updating? Let's generic if scss is updated.
+                return 'status-rejected';
             case 'Pending':
                 return 'status-pending';
             case 'In Progress':
@@ -78,6 +86,11 @@ export class DashboardComponent implements OnInit {
     get canSubmit(): boolean {
         if (!this.registration || !this.registration.sectionStatus) return false;
         const s = this.registration.sectionStatus;
+
+        if (this.registration.type === 'Sponsor') {
+            return s.contact && s.sponsorship;
+        }
+
         return s.contact && s.products && s.logistics && s.documents && s.profile;
     }
 

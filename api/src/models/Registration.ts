@@ -84,6 +84,8 @@ export interface IRegistration extends Document {
     // Section 6
     sponsorshipInterest?: boolean;
     sponsorExhibiting?: boolean;
+    isProductSponsor?: boolean;
+    productSponsorDetails?: string;
     logoUrl?: string;
     couponBookParticipation?: boolean;
     couponOffer?: string;
@@ -239,6 +241,8 @@ const registrationSchema = new Schema<IRegistration>(
         // Section 6: Sponsorship & Marketing
         sponsorshipInterest: Boolean,
         sponsorExhibiting: Boolean,
+        isProductSponsor: Boolean,
+        productSponsorDetails: String,
         logoUrl: String,
         couponBookParticipation: Boolean,
         couponOffer: String,

@@ -6,9 +6,9 @@ import { StorageService } from '../../services/storage.service';
 import { FileUploadComponent } from '../shared/file-upload/file-upload.component';
 
 @Component({
-    selector: 'app-sponsorship',
-    imports: [ReactiveFormsModule, FileUploadComponent],
-    template: `
+  selector: 'app-sponsorship',
+  imports: [ReactiveFormsModule, FileUploadComponent],
+  template: `
     <div class="section-container">
       <h2>Sponsorship & Marketing</h2>
       @if (form.disabled) {
@@ -18,15 +18,29 @@ import { FileUploadComponent } from '../shared/file-upload/file-upload.component
       }
       <form [formGroup]="form" (ngSubmit)="onSubmit()">
     
-        <div class="form-group checkbox-group">
-          <input id="sponsorshipInterest" type="checkbox" formControlName="sponsorshipInterest">
-          <label for="sponsorshipInterest">Are you interested in becoming a sponsor?</label>
-        </div>
+        @if (registrationType !== 'Sponsor' && registrationType !== 'Both') {
+          <div class="form-group checkbox-group">
+            <input id="sponsorshipInterest" type="checkbox" formControlName="sponsorshipInterest">
+            <label for="sponsorshipInterest">Are you interested in becoming a sponsor?</label>
+          </div>
+        }
     
         <div class="form-group checkbox-group">
           <input id="sponsorExhibiting" type="checkbox" formControlName="sponsorExhibiting">
           <label for="sponsorExhibiting">If you are a sponsor, will you be exhibiting at the festival?</label>
         </div>
+
+        <div class="form-group checkbox-group">
+          <input id="isProductSponsor" type="checkbox" formControlName="isProductSponsor">
+          <label for="isProductSponsor">Are you a product sponsor?</label>
+        </div>
+
+        @if (form.get('isProductSponsor')?.value) {
+          <div class="form-group">
+            <label for="productSponsorDetails">Please describe the product you are contributing:</label>
+            <textarea id="productSponsorDetails" formControlName="productSponsorDetails" rows="3"></textarea>
+          </div>
+        }
     
         <div class="form-group">
           <label for="sponsorshipLevel">Sponsorship Level</label>
@@ -108,7 +122,7 @@ import { FileUploadComponent } from '../shared/file-upload/file-upload.component
       </form>
     </div>
     `,
-    styles: [`
+  styles: [`
     .section-container {
       max-width: 800px;
       margin: 2rem auto;
@@ -147,6 +161,8 @@ export class SponsorshipComponent implements OnInit {
     this.form = this.fb.group({
       sponsorshipInterest: [false],
       sponsorExhibiting: [false],
+      isProductSponsor: [false],
+      productSponsorDetails: [''],
       sponsorshipLevel: [''],
       logoUrl: [''],
       couponBookParticipation: [false],
@@ -159,10 +175,19 @@ export class SponsorshipComponent implements OnInit {
     });
   }
 
+  registrationType: string = 'Exhibitor';
+
   ngOnInit(): void {
     this.storageService.getLatestRegistration().subscribe(reg => {
       if (reg && reg._id) {
         this.registrationId = reg._id;
+        this.registrationType = reg.type;
+
+        // If they are signing up as a sponsor, assume interest is true
+        if (this.registrationType === 'Sponsor' || this.registrationType === 'Both') {
+          this.form.patchValue({ sponsorshipInterest: true });
+        }
+
         this.form.patchValue(reg);
 
         if (reg.status !== 'In Progress') {

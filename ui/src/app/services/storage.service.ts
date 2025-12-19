@@ -85,6 +85,8 @@ export interface Registration {
   // Section 6
   sponsorshipInterest?: boolean;
   sponsorExhibiting?: boolean;
+  isProductSponsor?: boolean;
+  productSponsorDetails?: string;
   logoUrl?: string;
   couponBookParticipation?: boolean;
   couponOffer?: string;
