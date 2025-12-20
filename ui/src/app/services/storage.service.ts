@@ -77,10 +77,12 @@ export interface Registration {
   vehicleDimensions?: string;
   loadInAvailability?: string;
 
-  // Section 4
+  // Section 4 (Documents)
   foodLicenseUrl?: string;
   insuranceUrl?: string;
+  coiOption?: 'upload_now' | 'later';
   st19Url?: string;
+  st19Option?: 'upload_now' | 'later';
   st19SubmissionMethod?: string;
   documents?: {
     type: string;

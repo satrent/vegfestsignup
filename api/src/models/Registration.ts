@@ -74,10 +74,12 @@ export interface IRegistration extends Document {
     vehicleDimensions?: string;
     loadInAvailability?: string;
 
-    // Section 4
-    foodLicenseUrl?: string;
+    // Section 4 (Documents)
+    foodLicenseUrl?: string; // @deprecated
     insuranceUrl?: string;
+    coiOption?: 'upload_now' | 'later';
     st19Url?: string;
+    st19Option?: 'upload_now' | 'later';
     st19SubmissionMethod?: string; // @deprecated
     documents: {
         type: string; // 'Food License', 'COI', 'ST-19'
@@ -267,8 +269,18 @@ const registrationSchema = new Schema<IRegistration>(
 
         // Section 4: Licensing & Insurance
         foodLicenseUrl: String, // @deprecated
-        insuranceUrl: String, // @deprecated
-        st19Url: String, // @deprecated
+        insuranceUrl: String,
+        coiOption: {
+            type: String,
+            enum: ['upload_now', 'later'],
+            default: 'upload_now' // Default to upload now for existing data compatibility or strictness
+        },
+        st19Url: String,
+        st19Option: {
+            type: String,
+            enum: ['upload_now', 'later'],
+            default: 'upload_now'
+        },
         st19SubmissionMethod: String, // @deprecated
         documents: [{
             type: { type: String, required: true }, // 'Food License', 'COI', 'ST-19'

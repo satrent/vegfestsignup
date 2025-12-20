@@ -1,0 +1,76 @@
+<div class="section-container">
+    <h2>Section 6 — Documents</h2>
+
+    @if (form.disabled) {
+    <div class="alert alert-warning">
+        This application has been submitted and is currently locked.
+    </div>
+    }
+
+    <form [formGroup]="form" (ngSubmit)="onSubmit()">
+
+        <!-- ST-19 Section (Conditional) -->
+        @if (onSiteSales) {
+        <div class="document-section">
+            <h3>ST-19 (MN sales tax) <span class="required">[Required]</span></h3>
+            <p class="description">Required for all vendors making taxable sales on-site.</p>
+
+            <div class="form-group">
+                <div class="radio-list">
+                    <div class="radio-item">
+                        <input type="radio" id="st19-now" formControlName="st19Option" value="upload_now">
+                        <label for="st19-now">Upload now</label>
+                    </div>
+                    <div class="radio-item">
+                        <input type="radio" id="st19-later" formControlName="st19Option" value="later">
+                        <label for="st19-later">Will provide by August 10</label>
+                    </div>
+                </div>
+            </div>
+
+            @if (form.get('st19Option')?.value === 'upload_now') {
+            <div class="upload-area">
+                <app-file-upload documentType="ST-19" [currentFile]="getDoc('ST-19')" [disabled]="form.disabled"
+                    (uploadComplete)="onUpload($event)">
+                </app-file-upload>
+            </div>
+            }
+        </div>
+        }
+
+        <!-- COI Section (Always Required) -->
+        <div class="document-section">
+            <h3>Certificate of Insurance (COI) <span class="required">[Required]</span></h3>
+            <p class="description">Proof of general liability insurance naming Companion Action for Animals as
+                additional insured.</p>
+
+            <div class="form-group">
+                <div class="radio-list">
+                    <div class="radio-item">
+                        <input type="radio" id="coi-now" formControlName="coiOption" value="upload_now">
+                        <label for="coi-now">Upload now</label>
+                    </div>
+                    <div class="radio-item">
+                        <input type="radio" id="coi-later" formControlName="coiOption" value="later">
+                        <label for="coi-later">Will provide by August 10</label>
+                    </div>
+                </div>
+            </div>
+
+            @if (form.get('coiOption')?.value === 'upload_now') {
+            <div class="upload-area">
+                <app-file-upload documentType="COI" [currentFile]="getDoc('COI')" [disabled]="form.disabled"
+                    (uploadComplete)="onUpload($event)">
+                </app-file-upload>
+            </div>
+            }
+        </div>
+
+        <div class="actions">
+            <button type="button" class="secondary" (click)="cancel()">Cancel</button>
+            <button type="submit" [disabled]="form.disabled || saving">
+                {{ saving ? 'Saving...' : 'Save & Complete' }}
+            </button>
+        </div>
+    </form>
+</div>

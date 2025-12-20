@@ -1,80 +1,15 @@
 import { Component, OnInit, inject } from '@angular/core';
-
+import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { StorageService, Registration } from '../../services/storage.service';
 import { FileUploadComponent } from '../shared/file-upload/file-upload.component';
 
 @Component({
-    selector: 'app-documents',
-    imports: [ReactiveFormsModule, FileUploadComponent],
-    template: `
-    <div class="section-container">
-      <h2>Licensing & Insurance (Required Documents)</h2>
-      @if (form.disabled) {
-        <div class="alert alert-warning">
-          This application has been submitted and is currently locked.
-        </div>
-      }
-      <form [formGroup]="form" (ngSubmit)="onSubmit()">
-    
-        <div class="form-group">
-          <label>Food license photo: Please upload a photo of your food license (if applicable).</label>
-          <app-file-upload
-            documentType="Food License"
-            [currentFile]="getDoc('Food License')"
-            [disabled]="form.disabled"
-            (uploadComplete)="onUpload($event)">
-          </app-file-upload>
-        </div>
-    
-        <div class="form-group">
-          <label>Liability Insurance Requirement: Please upload your Certificate of Insurance (COI).</label>
-          <app-file-upload
-            documentType="COI"
-            [currentFile]="getDoc('COI')"
-            [disabled]="form.disabled"
-            (uploadComplete)="onUpload($event)">
-          </app-file-upload>
-        </div>
-    
-        <div class="form-group">
-          <label>ST-19 Requirement: Please upload your ST-19 form.</label>
-          <app-file-upload
-            documentType="ST-19"
-            [currentFile]="getDoc('ST-19')"
-            [disabled]="form.disabled"
-            (uploadComplete)="onUpload($event)">
-          </app-file-upload>
-        </div>
-    
-        <div class="actions">
-          <button type="button" class="secondary" (click)="cancel()">Cancel</button>
-          <button type="submit" [disabled]="form.disabled || saving">
-            {{ saving ? 'Saving...' : 'Save & Complete' }}
-          </button>
-        </div>
-      </form>
-    </div>
-    `,
-    styles: [`
-    .section-container {
-      max-width: 800px;
-      margin: 2rem auto;
-      padding: 2rem;
-      background: white;
-      border-radius: 8px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-    .alert { padding: 1rem; margin-bottom: 1rem; border-radius: 4px; }
-    .alert-warning { background-color: #fff3cd; color: #856404; border: 1px solid #ffeeba; }
-    .form-group { margin-bottom: 2rem; }
-    label { display: block; margin-bottom: 0.5rem; font-weight: 500; }
-    .actions { display: flex; justify-content: flex-end; gap: 1rem; margin-top: 2rem; }
-    button { padding: 0.5rem 1.5rem; border-radius: 4px; cursor: pointer; border: none; background: #007bff; color: white; }
-    button.secondary { background: #6c757d; }
-    button:disabled { opacity: 0.7; cursor: not-allowed; }
-  `]
+  selector: 'app-documents',
+  imports: [CommonModule, ReactiveFormsModule, FileUploadComponent],
+  templateUrl: './documents.component.html',
+  styleUrls: ['./documents.component.scss']
 })
 export class DocumentsComponent implements OnInit {
   private fb = inject(FormBuilder);
@@ -86,8 +21,17 @@ export class DocumentsComponent implements OnInit {
   registrationId: string = '';
   documents: NonNullable<Registration['documents']> = [];
 
+  // State for conditional visibility
+  onSiteSales = false;
+
   constructor() {
-    this.form = this.fb.group({});
+    this.form = this.fb.group({
+      // COI
+      coiOption: ['upload_now', Validators.required],
+
+      // ST-19
+      st19Option: ['upload_now'] // Validator added dynamically
+    });
   }
 
   ngOnInit(): void {
@@ -95,6 +39,15 @@ export class DocumentsComponent implements OnInit {
       if (reg && reg._id) {
         this.registrationId = reg._id;
         this.documents = reg.documents || [];
+        this.onSiteSales = !!reg.onSiteSales;
+
+        this.form.patchValue({
+          coiOption: reg.coiOption || 'upload_now',
+          st19Option: reg.st19Option || 'upload_now'
+        });
+
+        // Setup ST-19 validators based on Sales status
+        this.updateValidators();
 
         if (reg.status !== 'In Progress') {
           this.form.disable();
@@ -104,8 +57,23 @@ export class DocumentsComponent implements OnInit {
     });
   }
 
+  updateValidators() {
+    const st19Ctrl = this.form.get('st19Option');
+    if (this.onSiteSales) {
+      st19Ctrl?.setValidators(Validators.required);
+    } else {
+      st19Ctrl?.clearValidators();
+    }
+    st19Ctrl?.updateValueAndValidity();
+  }
+
   getDoc(type: string) {
     return this.documents.find(d => d.type === type);
+  }
+
+  // Check if file is uploaded for a given type
+  hasDoc(type: string): boolean {
+    return !!this.getDoc(type);
   }
 
   onUpload(event: any) {
@@ -120,9 +88,26 @@ export class DocumentsComponent implements OnInit {
   }
 
   onSubmit() {
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
+      return;
+    }
+
+    // Validate Files exist if "upload_now" is selected
+    if (this.form.get('coiOption')?.value === 'upload_now' && !this.hasDoc('COI')) {
+      alert('Please upload your Certificate of Insurance.');
+      return;
+    }
+
+    if (this.onSiteSales && this.form.get('st19Option')?.value === 'upload_now' && !this.hasDoc('ST-19')) {
+      alert('Please upload your ST-19 form.');
+      return;
+    }
+
     if (this.registrationId) {
       this.saving = true;
       const updates: any = {
+        ...this.form.value,
         'sectionStatus.documents': true
       };
 

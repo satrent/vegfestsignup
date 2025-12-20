@@ -24,7 +24,7 @@ export class DashboardComponent implements OnInit {
         { id: 'products', title: 'Category & offering', route: 'products' },
         { id: 'values', title: 'Values', route: 'values' },
         { id: 'logistics', title: 'Booth & logistics', route: 'logistics' },
-        { id: 'documents', title: 'Licensing & Insurance', route: 'documents' },
+        { id: 'documents', title: 'Documents', route: 'documents' },
         { id: 'profile', title: 'Exhibitor Profile', route: 'profile' },
         { id: 'sponsorship', title: 'Sponsorship & Marketing', route: 'sponsorship' }
     ];
