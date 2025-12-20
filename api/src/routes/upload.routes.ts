@@ -25,8 +25,24 @@ interface MulterRequest extends Request {
 router.post(
     '/',
     authenticate,
-    upload.single('file'),
+    (req: Request, res: Response, next: any) => {
+        upload.single('file')(req, res, (err: any) => {
+            if (err instanceof multer.MulterError) {
+                if (err.code === 'LIMIT_FILE_SIZE') {
+                    res.status(400).json({ message: 'File is too large. Maximum size is 5MB.' });
+                    return;
+                }
+                res.status(400).json({ message: err.message });
+                return;
+            } else if (err) {
+                res.status(500).json({ message: 'File upload failed' });
+                return;
+            }
+            next();
+        });
+    },
     async (req: MulterRequest, res: Response): Promise<void> => {
+
         try {
             if (!req.file) {
                 res.status(400).json({ message: 'No file uploaded' });
@@ -39,7 +55,8 @@ router.post(
                 return;
             }
 
-            const allowedTypes = ['Food License', 'COI', 'ST-19', 'Logo', 'Coupon Logo'];
+            const allowedTypes = ['Food License', 'COI', 'ST-19', 'Logo', 'Coupon Logo', 'product-photo'];
+
             if (!allowedTypes.includes(documentType)) {
                 res.status(400).json({ message: 'Invalid document type' });
                 return;

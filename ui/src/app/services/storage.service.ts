@@ -40,7 +40,10 @@ export interface Registration {
 
 
   // Section 2
+  organizationCategory?: string;
   productsDescription?: string;
+  productPhotos?: string[];
+
   cbdThcProducts?: string;
   sellingDrinks?: boolean;
   distributingSamples?: boolean;
@@ -91,7 +94,8 @@ export interface Registration {
   isVeganOwners?: boolean;
   isVeganProducts?: boolean;
 
-  organizationCategory?: string;
+  // organizationCategory moved to Section 2
+
   organizationYear?: string;
   promotesValues?: string[];
   valuesEmbodiment?: string;

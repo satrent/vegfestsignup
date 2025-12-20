@@ -1,0 +1,155 @@
+<div class="section-container">
+    <h2>Section 2 — Category & offering</h2>
+
+    @if (form.disabled) {
+    <div class="alert alert-warning">
+        This application has been submitted and is currently locked.
+    </div>
+    }
+
+    <form [formGroup]="form" (ngSubmit)="onSubmit()">
+
+        <!-- Organization Type -->
+        <div class="form-group">
+            <label>Organization type: this is your base rate<span class="required">*</span></label>
+            <div class="radio-list">
+                <label class="radio-item">
+                    <input type="radio" formControlName="organizationCategory" value="On-site food prep & sales $600">
+                    <span>On-site food prep & sales $600</span>
+                </label>
+                <div class="sub-options">
+                    <div class="bullet-item">Food truck</div>
+                    <div class="bullet-item">Restaurant doing on site food sales</div>
+                </div>
+
+                <label class="radio-item">
+                    <input type="radio" formControlName="organizationCategory"
+                        value="On-site food prep & sales — pop-up or cottage food $350">
+                    <span>On-site food prep & sales — pop-up or cottage food $350</span>
+                </label>
+
+                <label class="radio-item">
+                    <input type="radio" formControlName="organizationCategory"
+                        value="THC product vendor (exclusively THC products)- $300">
+                    <span>THC product vendor (exclusively THC products)- $300</span>
+                </label>
+
+                <label class="radio-item">
+                    <input type="radio" formControlName="organizationCategory"
+                        value="For-profit business (if food, prepackaged only; no on-site prep) $200">
+                    <span>For-profit business (if food, prepackaged only; no on-site prep) $200</span>
+                </label>
+
+                <label class="radio-item">
+                    <input type="radio" formControlName="organizationCategory" value="Nonprofit organization- $150">
+                    <span>Nonprofit organization- $150</span>
+                </label>
+
+                <label class="radio-item">
+                    <input type="radio" formControlName="organizationCategory"
+                        value="Animal-focused organization (advocacy, sanctuary) $100">
+                    <span>Animal-focused organization (advocacy, sanctuary) $100</span>
+                </label>
+
+                <label class="radio-item">
+                    <input type="radio" formControlName="organizationCategory"
+                        value="Bookseller, artist, or student group $100">
+                    <span>Bookseller, artist, or student group $100</span>
+                </label>
+
+                <label class="radio-item">
+                    <input type="radio" formControlName="organizationCategory"
+                        value="Nonprofit with annual expenses $50,000 or less (half table) $50">
+                    <span>Nonprofit with annual expenses $50,000 or less (half table) $50</span>
+                </label>
+            </div>
+            @if (form.get('organizationCategory')?.touched && form.get('organizationCategory')?.invalid) {
+            <div class="error">Organization type is required</div>
+            }
+        </div>
+
+        <!-- Description -->
+        <div class="form-group">
+            <label for="productsDescription">1–2 sentence description of your offering<span
+                    class="required">*</span></label>
+            <textarea id="productsDescription" formControlName="productsDescription" rows="4"></textarea>
+            @if (form.get('productsDescription')?.touched && form.get('productsDescription')?.invalid) {
+            <div class="error">Description is required</div>
+            }
+        </div>
+
+        <!-- Photo Upload -->
+        <div class="form-group">
+            <label>Upload 1–2 photos (booth or products; JPG/PNG) <span class="hint">(Max 5MB per file)</span><span
+                    class="required">*</span></label>
+
+            <div class="upload-zone" (click)="fileInput.click()" (drop)="onFileDrop($event)"
+                (dragover)="onDragOver($event)">
+                <input #fileInput type="file" (change)="onFileSelected($event)" accept="image/jpeg,image/png" hidden
+                    multiple>
+
+                @if (productPhotos.length === 0) {
+                <div class="upload-placeholder">
+                    <span class="icon">📷</span>
+                    <p>Click or drag to upload photos</p>
+                </div>
+                }
+
+                <div class="preview-grid">
+                    @for (photo of productPhotos; track photo; let i = $index) {
+                    <div class="preview-container">
+                        <img [src]="getPhotoUrl(photo)" alt="Product preview">
+                        <button type="button" class="remove-btn" (click)="removePhoto(i, $event)">×</button>
+                    </div>
+                    }
+                </div>
+            </div>
+            @if (uploadingPhoto) {
+            <div class="uploading-indicator">Uploading...</div>
+            }
+            @if (productPhotos.length === 0 && (form.touched || form.dirty)) {
+            <!-- Custom validation message if needed, or rely on form valid state -->
+            <div class="error">At least one photo is required</div>
+            }
+        </div>
+
+        <!-- Logo Upload -->
+        <div class="form-group">
+            <label>Logo upload (JPG/PNG for web; optional vector .AI/.EPS for print) [Optional] <span class="hint">(Max
+                    5MB)</span></label>
+
+            <div class="upload-zone" (click)="logoInput.click()" (drop)="onLogoDrop($event)"
+                (dragover)="onDragOver($event)">
+                <input #logoInput type="file" (change)="onLogoSelected($event)"
+                    accept="image/jpeg,image/png,image/svg+xml,.ai,.eps,.pdf" hidden>
+
+                @if (!logoUrl) {
+                <div class="upload-placeholder">
+                    <span class="icon">🖼️</span>
+                    <p>Click or drag to upload logo</p>
+                </div>
+                } @else {
+                <div class="preview-container">
+                    <!-- If it's an image, show it. If likely vector/pdf, show icon -->
+                    @if (isImage(logoUrl)) {
+                    <img [src]="getPhotoUrl(logoUrl)" alt="Logo preview">
+                    } @else {
+                    <div class="file-icon">📄 {{ getFileName(logoUrl) }}</div>
+                    }
+                    <button type="button" class="remove-btn" (click)="removeLogo($event)">×</button>
+                </div>
+                }
+            </div>
+            @if (uploadingLogo) {
+            <div class="uploading-indicator">Uploading...</div>
+            }
+        </div>
+
+        <div class="actions">
+            <button type="button" class="secondary" (click)="cancel()">Cancel</button>
+            <button type="submit" [disabled]="form.invalid || saving || productPhotos.length === 0">
+                {{ saving ? 'Saving...' : 'Save & Complete' }}
+            </button>
+        </div>
+    </form>
+</div>

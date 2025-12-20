@@ -37,7 +37,10 @@ export interface IRegistration extends Document {
 
 
     // Section 2
+    organizationCategory?: string;
     productsDescription?: string;
+    productPhotos?: string[];
+
     cbdThcProducts?: string;
     sellingDrinks?: boolean;
     distributingSamples?: boolean;
@@ -82,7 +85,8 @@ export interface IRegistration extends Document {
 
     // Section 5
     // participatedBefore moved to Section 1
-    organizationCategory?: string;
+    // organizationCategory moved to Section 2
+
     organizationYear?: string;
     promotesValues?: string[];
     valuesEmbodiment?: string;
@@ -215,7 +219,11 @@ const registrationSchema = new Schema<IRegistration>(
 
 
         // Section 2: Products & Festival Guidelines
+        organizationCategory: String, // Moved/Centralized here
         productsDescription: String,
+        productPhotos: [String], // URL(s) of uploaded photos
+        // Legacy/Removed from UI but keeping in schema for safety if needed, or user said they'd clear DB
+
         cbdThcProducts: String,
         sellingDrinks: Boolean,
         distributingSamples: Boolean,
@@ -270,7 +278,8 @@ const registrationSchema = new Schema<IRegistration>(
         // Section 5: Exhibitor Profile & Event Participation
         // Section 5: Exhibitor Profile & Event Participation
         // participatedBefore: Boolean, // Moved
-        organizationCategory: String,
+        // organizationCategory moved to Section 2 group above
+
         organizationYear: String,
         promotesValues: [String], // Grouped values
         valuesEmbodiment: String,

@@ -21,7 +21,7 @@ export class DashboardComponent implements OnInit {
 
     private readonly allSections = [
         { id: 'contact', title: 'Contact & Basic Information', route: 'contact' },
-        { id: 'products', title: 'Products & Festival Guidelines', route: 'products' },
+        { id: 'products', title: 'Category & offering', route: 'products' },
         { id: 'logistics', title: 'Logistics & Equipment', route: 'logistics' },
         { id: 'documents', title: 'Licensing & Insurance', route: 'documents' },
         { id: 'profile', title: 'Exhibitor Profile', route: 'profile' },
