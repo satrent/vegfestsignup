@@ -12,16 +12,32 @@ export interface Registration {
   firstName: string;
   lastName: string;
   email: string;
-  phone?: string;
+  phone: string;
+
+  onSite?: 'yes' | 'no' | 'unsure';
+  onSiteContact?: {
+    firstName: string;
+    lastName: string;
+    phone: string;
+    email: string;
+  };
+  establishedDate?: string;
+
   website?: string;
+  instagram?: string; // or instagramPage
+  facebook?: string; // or facebookPage
+
   address?: string;
   city?: string;
   state?: string;
   zip?: string;
+
+  // social/legacy mapped to above or kept optional
   facebookPage?: string;
   instagramPage?: string;
   tiktokPage?: string;
   otherSocials?: string;
+
 
   // Section 2
   productsDescription?: string;
@@ -69,6 +85,12 @@ export interface Registration {
 
   // Section 5
   participatedBefore?: boolean;
+  soldElsewhere?: string; // Moved/Shared
+
+  ownerDemographics?: string[];
+  isVeganOwners?: boolean;
+  isVeganProducts?: boolean;
+
   organizationCategory?: string;
   organizationYear?: string;
   promotesValues?: string[];
@@ -78,9 +100,10 @@ export interface Registration {
   culturalIdentity?: string;
   adaNeeds?: string;
   travelingOver100Miles?: boolean;
-  soldElsewhere?: string;
+  // soldElsewhere used to be here
   cookingDemo?: boolean;
   otherInfo?: string;
+
 
   // Section 6
   sponsorshipInterest?: boolean;

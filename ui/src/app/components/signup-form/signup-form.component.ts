@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core'; // Force Rebuild
 
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -6,27 +6,27 @@ import { StorageService } from '../../services/storage.service';
 import { AuthService } from '../../services/auth.service';
 
 @Component({
-    selector: 'app-signup-form',
-    imports: [ReactiveFormsModule],
-    templateUrl: './signup-form.component.html',
-    styleUrls: ['./signup-form.component.scss']
+  selector: 'app-signup-form',
+  standalone: true,
+  imports: [ReactiveFormsModule],
+  templateUrl: './signup-form.component.html',
+  styleUrls: ['./signup-form.component.scss']
 })
 export class SignupFormComponent implements OnInit {
   private authService = inject(AuthService);
   private router = inject(Router);
+  private fb = inject(FormBuilder);
+  private storageService = inject(StorageService);
 
   signupForm: FormGroup;
   submitted = false;
   userEmail: string = '';
 
-  constructor(
-    private fb: FormBuilder,
-    private storageService: StorageService
-  ) {
+  constructor() {
     this.signupForm = this.fb.group({
-      organizationName: ['', Validators.required],
       firstName: ['', Validators.required],
       lastName: ['', Validators.required],
+      organizationName: ['', Validators.required],
       email: [{ value: '', disabled: true }, [Validators.required, Validators.email]],
       phone: ['', Validators.required],
       type: ['Exhibitor', Validators.required]
@@ -45,29 +45,25 @@ export class SignupFormComponent implements OnInit {
 
   onSubmit() {
     if (this.signupForm.valid) {
-      // Use getRawValue() to include disabled fields (email)
       const registrationData = {
         ...this.signupForm.getRawValue(),
         status: 'In Progress' as const
       };
 
       this.signupForm.disable();
+      this.submitted = true;
 
       this.storageService.saveRegistration(registrationData).subscribe({
         next: (response) => {
-          this.submitted = true;
-
-          // Redirect to dashboard after 1.5 seconds
-          setTimeout(() => {
-            this.router.navigate(['/dashboard']);
-          }, 1500);
+          // Redirect to dashboard immediately or after short delay
+          this.router.navigate(['/dashboard']);
         },
         error: (error) => {
           console.error('Error saving registration:', error);
-          alert('Failed to save registration. Please try again.');
+          alert('Failed to start registration. Please try again.');
           this.signupForm.enable();
-          // Re-disable email field
           this.signupForm.get('email')?.disable();
+          this.submitted = false;
         }
       });
     }

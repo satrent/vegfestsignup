@@ -1,0 +1,139 @@
+    .section-container {
+      max-width: 800px;
+      margin: 2rem auto;
+      padding: 2rem;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .alert {
+      padding: 1rem;
+      margin-bottom: 1rem;
+      border-radius: 4px;
+    }
+
+    .alert-warning {
+      background-color: #fff3cd;
+      color: #856404;
+      border: 1px solid #ffeeba;
+    }
+
+    .alert-info {
+      background-color: #d1ecf1;
+      color: #0c5460;
+      border: 1px solid #bee5eb;
+    }
+
+    .form-group {
+      margin-bottom: 1rem;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+
+      .required {
+        color: #e53e3e;
+        margin-left: 0.25rem;
+      }
+    }
+
+    input,
+    textarea,
+    select {
+      width: 100%;
+      padding: 0.5rem;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+
+    .row {
+      display: flex;
+      gap: 1rem;
+    }
+
+    .half {
+      flex: 0 0 48%;
+    }
+
+    .third {
+      flex: 1;
+    }
+
+    .actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 1rem;
+      margin-top: 2rem;
+    }
+
+    button {
+      padding: 0.5rem 1.5rem;
+      border-radius: 4px;
+      cursor: pointer;
+      border: none;
+      background: #007bff;
+      color: white;
+    }
+
+    button.secondary {
+      background: #6c757d;
+    }
+
+    button:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+    }
+
+    .radio-group,
+    .checkbox-group {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .radio-group label,
+    .checkbox-group label {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+      font-weight: normal;
+      margin-bottom: 0.5rem;
+      line-height: 1.4;
+      cursor: pointer;
+    }
+
+    .radio-group input,
+    .checkbox-group input {
+      margin-top: 0.2rem;
+      /* Align close to the first line of text */
+      width: 1.2rem;
+      height: 1.2rem;
+      flex-shrink: 0;
+      /* Prevent shrinking */
+    }
+
+
+    .error {
+      color: red;
+      font-size: 0.875rem;
+      margin-top: 0.25rem;
+    }
+
+    .section-box {
+      padding: 1rem;
+      background: #f8f9fa;
+      border: 1px solid #e9ecef;
+      border-radius: 4px;
+      margin-top: 0.5rem;
+    }
+
+    .section-title {
+      font-weight: bold;
+      margin-top: 1.5rem;
+      margin-bottom: 0.5rem;
+      border-bottom: 1px solid #eee;
+      padding-bottom: 0.5rem;
+    }

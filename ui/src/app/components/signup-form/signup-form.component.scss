@@ -52,7 +52,13 @@ label {
     color: #4a5568;
     font-weight: 500;
     font-size: 0.95rem;
+
+    .required {
+        color: #e53e3e;
+        margin-left: 0.25rem;
+    }
 }
+
 
 input[type="text"],
 input[type="email"],

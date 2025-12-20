@@ -1,0 +1,189 @@
+<div class="section-container">
+    <h2>Section 1 — Basics</h2>
+    @if (form.disabled) {
+    <div class="alert alert-warning">
+        This application has been submitted and is currently locked.
+    </div>
+    } @else {
+    <div class="alert alert-info">
+        Please verify and complete your contact information.
+    </div>
+    }
+
+    <form [formGroup]="form" (ngSubmit)="onSubmit()">
+
+        <!-- Contact Name -->
+        <div class="row">
+            <div class="form-group half">
+                <label for="firstName">Contact Name (First)<span class="required">*</span></label>
+                <input id="firstName" type="text" formControlName="firstName" placeholder="First Name">
+                @if (form.get('firstName')?.touched && form.get('firstName')?.invalid) {
+                <div class="error">First name is required</div>
+                }
+            </div>
+            <div class="form-group half">
+                <label for="lastName">Contact Name (Last)<span class="required">*</span></label>
+                <input id="lastName" type="text" formControlName="lastName" placeholder="Last Name">
+                @if (form.get('lastName')?.touched && form.get('lastName')?.invalid) {
+                <div class="error">Last name is required</div>
+                }
+            </div>
+        </div>
+
+        <!-- On Site -->
+        <div class="form-group">
+            <label>Will you be on site on the day of the festival?<span class="required">*</span></label>
+            <div class="radio-group">
+                <label><input type="radio" value="yes" formControlName="onSite"> Yes</label>
+                <label><input type="radio" value="no" formControlName="onSite"> No</label>
+                <label><input type="radio" value="unsure" formControlName="onSite"> Unsure</label>
+            </div>
+        </div>
+
+        <!-- On Site Contact (Conditional) -->
+        @if (form.get('onSite')?.value === 'no' || form.get('onSite')?.value === 'unsure') {
+        <div class="section-box" formGroupName="onSiteContact">
+            <p>If no or unsure, we will want an on-site contact by August 31.</p>
+            <div class="row">
+                <div class="form-group half">
+                    <label>On site first name</label>
+                    <input type="text" formControlName="firstName">
+                </div>
+                <div class="form-group half">
+                    <label>On site last name</label>
+                    <input type="text" formControlName="lastName">
+                </div>
+            </div>
+            <div class="row">
+                <div class="form-group half">
+                    <label>On site phone</label>
+                    <input type="text" formControlName="phone">
+                </div>
+                <div class="form-group half">
+                    <label>On site email</label>
+                    <input type="email" formControlName="email">
+                </div>
+            </div>
+            @if (form.errors?.['onSiteContactRequired']) {
+            <div class="error">All on-site contact fields are required if you are not on site.</div>
+            }
+        </div>
+        }
+
+        <!-- Org/Brand -->
+        <div class="form-group">
+            <label for="orgName">Organization/brand name<span class="required">*</span></label>
+            <input id="orgName" type="text" formControlName="organizationName">
+        </div>
+
+        <!-- Established -->
+        <div class="form-group">
+            <label for="establishedDate">What month and year was your business established?</label>
+            <input id="establishedDate" type="text" formControlName="establishedDate" placeholder="e.g. May 2020">
+        </div>
+
+        <!-- Email & Phone -->
+        <div class="row">
+            <div class="form-group half">
+                <label for="email">Email<span class="required">*</span></label>
+                <input id="email" type="email" formControlName="email">
+            </div>
+            <div class="form-group half">
+                <label for="phone">Mobile phone (format: 612-555-1234)<span class="required">*</span></label>
+                <input id="phone" type="tel" formControlName="phone">
+            </div>
+        </div>
+
+        <!-- Website/Socials -->
+        <div class="section-title">Website or social (URL and/or @handle) [One Required]</div>
+        <div class="form-group">
+            <label>Website</label>
+            <input type="text" formControlName="website" placeholder="https://...">
+        </div>
+        <div class="form-group">
+            <label>Instagram</label>
+            <input type="text" formControlName="instagram" placeholder="@handle">
+        </div>
+        <div class="form-group">
+            <label>Facebook</label>
+            <input type="text" formControlName="facebook" placeholder="Page URL or Name">
+        </div>
+        @if (form.errors?.['websiteOrSocialRequired'] && (form.touched || form.dirty)) {
+        <div class="error">At least one website or social media link is required.</div>
+        }
+
+        <!-- Address -->
+        <div class="form-group">
+            <label>Street address<span class="required">*</span></label>
+            <input type="text" formControlName="address">
+        </div>
+        <div class="row">
+            <div class="form-group third">
+                <label>City<span class="required">*</span></label>
+                <input type="text" formControlName="city">
+            </div>
+            <div class="form-group third">
+                <label>State<span class="required">*</span></label>
+                <input type="text" formControlName="state">
+            </div>
+            <div class="form-group third">
+                <label>ZIP<span class="required">*</span></label>
+                <input type="text" formControlName="zip">
+            </div>
+        </div>
+
+        <!-- History -->
+        <div class="form-group">
+            <label>Have you participated in Twin Cities Veg Fest before? [Yes/No]<span class="required">*</span></label>
+            <div class="radio-group">
+                <label><input type="radio" [value]="true" formControlName="participatedBefore"> Yes</label>
+                <label><input type="radio" [value]="false" formControlName="participatedBefore"> No</label>
+            </div>
+        </div>
+
+        @if (form.get('participatedBefore')?.value === false) {
+        <div class="form-group">
+            <label>Have you sold products at other events or festivals?</label>
+            <input type="text" formControlName="soldElsewhere">
+        </div>
+        }
+
+        <!-- Demographics -->
+        <div class="form-group">
+            <label>We want to showcase food and products from a wide range of cultures at the festival. Please share the
+                owner(s) races or ethnicities (check all that apply):</label>
+            <select multiple formControlName="ownerDemographics" class="multi-select">
+                <option value="African or Black">African or Black</option>
+                <option value="Asian">Asian</option>
+                <option value="Hispanic/Latinx">Hispanic/Latinx</option>
+                <option value="Indigenous">Indigenous</option>
+                <option value="White">White</option>
+                <option value="Other">Other</option>
+            </select>
+            <small>(Hold Ctrl/Cmd to select multiple)</small>
+        </div>
+
+        <!-- Vegan Checks -->
+        <div class="form-group">
+            <label>We are a vegan festival. Please check all that apply to your business when not at Twin Cities Veg
+                Fest:</label>
+            <div class="checkbox-group">
+                <label>
+                    <input type="checkbox" formControlName="isVeganOwners">
+                    The owners of this business or organization are vegan
+                </label>
+                <label>
+                    <input type="checkbox" formControlName="isVeganProducts">
+                    All products sold by the business or organization are vegan
+                </label>
+            </div>
+        </div>
+
+        <div class="actions">
+            <button type="button" class="secondary" (click)="cancel()">Cancel</button>
+            <button type="submit" [disabled]="form.invalid || saving">
+                {{ saving ? 'Saving...' : 'Save & Complete Section' }}
+            </button>
+        </div>
+    </form>
+</div>

@@ -7,20 +7,34 @@ export type WebsiteStatus = 'Pending' | 'Added';
 export interface IRegistration extends Document {
     userId: mongoose.Types.ObjectId;
     // Section 1
-    organizationName: string;
+    // Section 1 - Basics
     firstName: string;
     lastName: string;
+    onSite?: 'yes' | 'no' | 'unsure';
+    onSiteContact?: {
+        firstName: string;
+        lastName: string;
+        phone: string;
+        email: string;
+    };
+    organizationName: string;
+    establishedDate?: string;
     email: string;
-    phone?: string;
+    phone: string;
     website?: string;
+    instagram?: string;
+    facebook?: string;
     address?: string;
     city?: string;
     state?: string;
     zip?: string;
-    facebookPage?: string;
-    instagramPage?: string;
-    tiktokPage?: string;
-    otherSocials?: string;
+
+    participatedBefore?: boolean;
+    soldElsewhere?: string;
+    ownerDemographics?: string[];
+    isVeganOwners?: boolean;
+    isVeganProducts?: boolean;
+
 
     // Section 2
     productsDescription?: string;
@@ -67,7 +81,7 @@ export interface IRegistration extends Document {
     }[];
 
     // Section 5
-    participatedBefore?: boolean;
+    // participatedBefore moved to Section 1
     organizationCategory?: string;
     organizationYear?: string;
     promotesValues?: string[];
@@ -77,9 +91,10 @@ export interface IRegistration extends Document {
     culturalIdentity?: string;
     adaNeeds?: string;
     travelingOver100Miles?: boolean;
-    soldElsewhere?: string;
+    // soldElsewhere moved to Section 1
     cookingDemo?: boolean;
     otherInfo?: string;
+
 
     // Section 6
     sponsorshipInterest?: boolean;
@@ -134,12 +149,8 @@ const registrationSchema = new Schema<IRegistration>(
             required: true,
             index: true,
         },
-        // Section 1: Contact & Basic Info
-        organizationName: {
-            type: String,
-            required: true,
-            trim: true,
-        },
+        // Section 1: Bascis & Contact
+        // Contact Name
         firstName: {
             type: String,
             required: true,
@@ -150,6 +161,25 @@ const registrationSchema = new Schema<IRegistration>(
             required: true,
             trim: true,
         },
+        // On Site
+        onSite: {
+            type: String,
+            enum: ['yes', 'no', 'unsure'],
+            // required: true, // Making optional for now to avoid breaking existing drafts if any, but UI will enforce
+        },
+        onSiteContact: {
+            firstName: String,
+            lastName: String,
+            phone: String,
+            email: String,
+        },
+        // Org Info
+        organizationName: {
+            type: String,
+            required: true,
+            trim: true,
+        },
+        establishedDate: String,
         email: {
             type: String,
             required: true,
@@ -161,15 +191,28 @@ const registrationSchema = new Schema<IRegistration>(
             required: true,
             trim: true,
         },
+        // Website/Socials
         website: String,
+        instagram: String, // Renaming or mapping 'instagramPage' to 'instagram' for consistency if easier, or keeping 'instagramPage'
+        facebook: String, // Renaming 'facebookPage' to 'facebook'
+
+        // Address
         address: String,
         city: String,
         state: String,
         zip: String,
-        facebookPage: String,
-        instagramPage: String,
-        tiktokPage: String,
-        otherSocials: String,
+
+        // History
+        participatedBefore: Boolean, // Moved from Section 5
+        soldElsewhere: String, // Moved from Section 5 (only if no on TCVF)
+
+        // Demographics
+        ownerDemographics: [String], // African or Black, Asian, etc.
+
+        // Vegan Status
+        isVeganOwners: Boolean,
+        isVeganProducts: Boolean,
+
 
         // Section 2: Products & Festival Guidelines
         productsDescription: String,
@@ -225,7 +268,8 @@ const registrationSchema = new Schema<IRegistration>(
         }],
 
         // Section 5: Exhibitor Profile & Event Participation
-        participatedBefore: Boolean,
+        // Section 5: Exhibitor Profile & Event Participation
+        // participatedBefore: Boolean, // Moved
         organizationCategory: String,
         organizationYear: String,
         promotesValues: [String], // Grouped values
@@ -235,9 +279,10 @@ const registrationSchema = new Schema<IRegistration>(
         culturalIdentity: String,
         adaNeeds: String,
         travelingOver100Miles: Boolean,
-        soldElsewhere: String,
+        // soldElsewhere: String, // Moved
         cookingDemo: Boolean,
         otherInfo: String,
+
 
         // Section 6: Sponsorship & Marketing
         sponsorshipInterest: Boolean,

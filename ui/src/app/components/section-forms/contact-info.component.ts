@@ -1,118 +1,14 @@
 import { Component, OnInit, inject } from '@angular/core';
-
-import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { Router } from '@angular/router';
 import { StorageService } from '../../services/storage.service';
 
 @Component({
-    selector: 'app-contact-info',
-    imports: [ReactiveFormsModule],
-    template: `
-    <div class="section-container">
-      <h2>Contact & Basic Information</h2>
-      @if (form.disabled) {
-        <div class="alert alert-warning">
-          This application has been submitted and is currently locked.
-        </div>
-      }
-      <form [formGroup]="form" (ngSubmit)="onSubmit()">
-    
-        <div class="form-group">
-          <label for="firstName">First Name</label>
-          <input id="firstName" type="text" formControlName="firstName">
-        </div>
-    
-        <div class="form-group">
-          <label for="lastName">Last Name</label>
-          <input id="lastName" type="text" formControlName="lastName">
-        </div>
-    
-        <div class="form-group">
-          <label for="organizationName">Organization Name</label>
-          <input id="organizationName" type="text" formControlName="organizationName">
-        </div>
-    
-        <div class="form-group">
-          <label for="website">Website</label>
-          <input id="website" type="url" formControlName="website" placeholder="https://">
-        </div>
-    
-        <div class="form-group">
-          <label for="phone">Phone Number</label>
-          <input id="phone" type="tel" formControlName="phone">
-        </div>
-    
-        <div class="form-group">
-          <label for="address">Street Address</label>
-          <input id="address" type="text" formControlName="address">
-        </div>
-    
-        <div class="row">
-          <div class="form-group third">
-            <label for="city">City</label>
-            <input id="city" type="text" formControlName="city">
-          </div>
-          <div class="form-group third">
-            <label for="state">State</label>
-            <input id="state" type="text" formControlName="state">
-          </div>
-          <div class="form-group third">
-            <label for="zip">Zip Code</label>
-            <input id="zip" type="text" formControlName="zip">
-          </div>
-        </div>
-    
-        <h3>Social Media</h3>
-        <div class="form-group">
-          <label for="facebookPage">Facebook Page</label>
-          <input id="facebookPage" type="text" formControlName="facebookPage" placeholder="@tcvegfest">
-        </div>
-    
-        <div class="form-group">
-          <label for="instagramPage">Instagram Page</label>
-          <input id="instagramPage" type="text" formControlName="instagramPage" placeholder="@tcvegfest">
-        </div>
-    
-        <div class="form-group">
-          <label for="tiktokPage">TikTok Page</label>
-          <input id="tiktokPage" type="text" formControlName="tiktokPage" placeholder="@exploreveg">
-        </div>
-    
-        <div class="form-group">
-          <label for="otherSocials">Other Socials / Info</label>
-          <textarea id="otherSocials" formControlName="otherSocials" rows="3"></textarea>
-        </div>
-    
-        <div class="actions">
-          <button type="button" class="secondary" (click)="cancel()">Cancel</button>
-          <button type="submit" [disabled]="form.invalid || saving">
-            {{ saving ? 'Saving...' : 'Save & Complete' }}
-          </button>
-        </div>
-      </form>
-    </div>
-    `,
-    styles: [`
-    .section-container {
-      max-width: 800px;
-      margin: 2rem auto;
-      padding: 2rem;
-      background: white;
-      border-radius: 8px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-    .alert { padding: 1rem; margin-bottom: 1rem; border-radius: 4px; }
-    .alert-warning { background-color: #fff3cd; color: #856404; border: 1px solid #ffeeba; }
-    .form-group { margin-bottom: 1rem; }
-    label { display: block; margin-bottom: 0.5rem; font-weight: 500; }
-    input, textarea { width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px; }
-    .row { display: flex; gap: 1rem; }
-    .third { flex: 1; }
-    .actions { display: flex; justify-content: flex-end; gap: 1rem; margin-top: 2rem; }
-    button { padding: 0.5rem 1.5rem; border-radius: 4px; cursor: pointer; border: none; background: #007bff; color: white; }
-    button.secondary { background: #6c757d; }
-    button:disabled { opacity: 0.7; cursor: not-allowed; }
-  `]
+  selector: 'app-contact-info',
+  standalone: true, // It was standalone before
+  imports: [ReactiveFormsModule],
+  templateUrl: './contact-info.component.html',
+  styleUrls: ['./contact-info.component.scss'] // Assuming scss file exists or will work if empty. It was inline template before.
 })
 export class ContactInfoComponent implements OnInit {
   private fb = inject(FormBuilder);
@@ -125,20 +21,72 @@ export class ContactInfoComponent implements OnInit {
 
   constructor() {
     this.form = this.fb.group({
+      // Basics
       firstName: ['', Validators.required],
       lastName: ['', Validators.required],
       organizationName: ['', Validators.required],
-      website: [''],
+
+      onSite: ['yes', Validators.required],
+      onSiteContact: this.fb.group({
+        firstName: [''],
+        lastName: [''],
+        phone: [''],
+        email: ['', Validators.email]
+      }),
+
+      establishedDate: [''],
+      email: [{ value: '', disabled: true }, [Validators.required, Validators.email]],
       phone: ['', Validators.required],
+
+      // Website/Socials
+      website: [''],
+      instagram: [''],
+      facebook: [''],
+      // Legacy fields mapping if needed, but we focus on new ones.
+
+      // Address
       address: ['', Validators.required],
       city: ['', Validators.required],
       state: ['', Validators.required],
       zip: ['', Validators.required],
-      facebookPage: [''],
-      instagramPage: [''],
-      tiktokPage: [''],
-      otherSocials: ['']
-    });
+
+      // History
+      participatedBefore: [null, Validators.required],
+      soldElsewhere: [''],
+
+      // Demographics & Values
+      ownerDemographics: [[]],
+      isVeganOwners: [false],
+      isVeganProducts: [false],
+      // Type is set at signup, usually not editable here or just display it? 
+      // We can omit 'type' from here or make it readonly if included.
+    }, { validators: [this.websiteOrSocialValidator, this.onSiteContactValidator] });
+  }
+
+  // Custom Validator: Website or Social Required
+  websiteOrSocialValidator(group: AbstractControl): ValidationErrors | null {
+    const website = group.get('website')?.value;
+    const instagram = group.get('instagram')?.value;
+    const facebook = group.get('facebook')?.value;
+    return (website || instagram || facebook) ? null : { websiteOrSocialRequired: true };
+  }
+
+  // Custom Validator: On Site Contact Required if Not On Site
+  onSiteContactValidator(group: AbstractControl): ValidationErrors | null {
+    const onSite = group.get('onSite')?.value;
+    const contactGroup = group.get('onSiteContact') as FormGroup;
+
+    if (onSite === 'no' || onSite === 'unsure') {
+      const fn = contactGroup.get('firstName')?.value;
+      const ln = contactGroup.get('lastName')?.value;
+      const phone = contactGroup.get('phone')?.value;
+      const email = contactGroup.get('email')?.value;
+
+      if (!fn || !ln || !phone || !email) {
+        return { onSiteContactRequired: true };
+      }
+    }
+    return null;
   }
 
   ngOnInit(): void {
@@ -146,11 +94,13 @@ export class ContactInfoComponent implements OnInit {
       if (reg && reg._id) {
         this.registrationId = reg._id;
         this.form.patchValue(reg);
+        // Important: patchValue might not handle nested 'onSiteContact' if reg.onSiteContact matches structure perfectly it will.
+        // Also 'email' field is disabled, patchValue works fine.
 
         // Lock form if not In Progress
         if (reg.status !== 'In Progress') {
           this.form.disable();
-          this.saving = true; // Use saving flag to disable submit button visually or add a specific flag
+          this.saving = true; // Visual lock
         }
       }
     });
@@ -159,8 +109,9 @@ export class ContactInfoComponent implements OnInit {
   onSubmit() {
     if (this.form.valid && this.registrationId) {
       this.saving = true;
+
       const updates: any = {
-        ...this.form.value,
+        ...this.form.getRawValue(), // Use getRawValue to include disabled email
         'sectionStatus.contact': true
       };
 
@@ -175,6 +126,8 @@ export class ContactInfoComponent implements OnInit {
           alert('Failed to save. Please try again.');
         }
       });
+    } else {
+      this.form.markAllAsTouched();
     }
   }
 
