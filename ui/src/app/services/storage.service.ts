@@ -55,8 +55,23 @@ export interface Registration {
   veganFoodAck?: boolean;
   compostableAck?: boolean;
 
-  // Section 3
+  // Section 3: Values
+  valuesDescription?: string;
+  materialsAck?: boolean;
+
+  // Section 4 (formerly 3)
   loadInDay?: string;
+  // ...
+  sectionStatus?: {
+    contact: boolean;
+    products: boolean;
+    values: boolean; // New Section
+    logistics: boolean;
+    documents: boolean;
+    profile: boolean;
+    sponsorship: boolean;
+  };
+
   tablesChairs?: string[];
   otherEquipment?: string;
   vehicleDetails?: string;
@@ -139,14 +154,6 @@ export interface Registration {
   type: 'Exhibitor' | 'Sponsor' | 'Both';
   status: 'In Progress' | 'Pending' | 'Waiting for Approval' | 'Approved' | 'Declined';
   websiteStatus?: 'Pending' | 'Added';
-  sectionStatus?: {
-    contact: boolean;
-    products: boolean;
-    logistics: boolean;
-    documents: boolean;
-    profile: boolean;
-    sponsorship: boolean;
-  };
   createdAt?: Date;
   updatedAt?: Date;
 }

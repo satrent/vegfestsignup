@@ -52,9 +52,18 @@ export interface IRegistration extends Document {
     veganFoodAck?: boolean;
     compostableAck?: boolean;
 
-    // Section 3
+    // Section 3: Values (New)
+    valuesDescription?: string;
+    materialsAck?: boolean;
+
+    // Section 3: Logistics & Equipment (Now Section 4)
     loadInDay?: string;
     tablesChairs?: string[];
+
+    // ...
+
+    // ...
+
     otherEquipment?: string;
     vehicleDetails?: string;
     suppliesOrdered?: string[];
@@ -136,6 +145,7 @@ export interface IRegistration extends Document {
     sectionStatus: {
         contact: boolean;
         products: boolean;
+        values: boolean;
         logistics: boolean;
         documents: boolean;
         profile: boolean;
@@ -346,6 +356,7 @@ const registrationSchema = new Schema<IRegistration>(
         sectionStatus: {
             contact: { type: Boolean, default: false },
             products: { type: Boolean, default: false },
+            values: { type: Boolean, default: false },
             logistics: { type: Boolean, default: false },
             documents: { type: Boolean, default: false },
             profile: { type: Boolean, default: false },

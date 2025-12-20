@@ -35,6 +35,11 @@ export const routes: Routes = [
         canActivate: [authGuard]
     },
     {
+        path: 'dashboard/values',
+        loadComponent: () => import('./components/section-forms/values.component').then(m => m.ValuesComponent),
+        canActivate: [authGuard]
+    },
+    {
         path: 'dashboard/logistics',
         loadComponent: () => import('./components/section-forms/logistics.component').then(m => m.LogisticsComponent),
         canActivate: [authGuard]

@@ -1,0 +1,65 @@
+<div class="section-container">
+    <h2>Section 3 — Values</h2>
+
+    @if (form.disabled) {
+    <div class="alert alert-warning">
+        This application has been submitted and is currently locked.
+    </div>
+    }
+
+    <div class="intro-text">
+        <p>The festival is organized by the Minnesota nonprofit Compassionate Action for Animals.</p>
+        <p>Twin Cities Veg Fest exists to promote plant-based eating for the well-being of animals, people and our
+            planet.</p>
+    </div>
+
+    <form [formGroup]="form" (ngSubmit)="onSubmit()">
+
+        <div class="form-group">
+            <label for="valuesDescription">How does your organization or business promote these values?<span
+                    class="required">*</span></label>
+            <textarea id="valuesDescription" formControlName="valuesDescription" rows="4"></textarea>
+            @if (form.get('valuesDescription')?.touched && form.get('valuesDescription')?.invalid) {
+            <div class="error">This field is required</div>
+            }
+        </div>
+
+        <div class="zero-waste-section">
+            <h3>We strive to run a Zero Waste Festival.</h3>
+            <p>All Food and Goods Must Be Vegan and Reusable, Recyclable, or Compostable.</p>
+        </div>
+
+        @if (isFoodVendor) {
+        <!-- Food Vendor Confirmation -->
+        <div class="form-group checkbox-group">
+            <input id="veganFoodAck" type="checkbox" formControlName="veganFoodAck">
+            <label for="veganFoodAck">
+                We will not sell or distribute products containing animal products (meat, dairy, eggs, honey, beeswax,
+                wool, silk, etc.).
+            </label>
+        </div>
+        @if (form.get('veganFoodAck')?.touched && form.get('veganFoodAck')?.invalid) {
+        <div class="error">You must confirm this statement</div>
+        }
+        } @else {
+        <!-- Non-Food Vendor Confirmation -->
+        <div class="form-group checkbox-group">
+            <input id="materialsAck" type="checkbox" formControlName="materialsAck">
+            <label for="materialsAck">
+                We will not sell or display products made with animal-derived materials (e.g., leather, silk, wool,
+                fur, feathers, bone, shell).
+            </label>
+        </div>
+        @if (form.get('materialsAck')?.touched && form.get('materialsAck')?.invalid) {
+        <div class="error">You must confirm this statement</div>
+        }
+        }
+
+        <div class="actions">
+            <button type="button" class="secondary" (click)="cancel()">Cancel</button>
+            <button type="submit" [disabled]="form.invalid || saving">
+                {{ saving ? 'Saving...' : 'Save & Complete' }}
+            </button>
+        </div>
+    </form>
+</div>
