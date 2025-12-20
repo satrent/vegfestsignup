@@ -5,152 +5,150 @@
   </header>
 
   @if (loading) {
-    <div class="loading-spinner">
-      Loading...
-    </div>
+  <div class="loading-spinner">
+    Loading...
+  </div>
   }
 
   @if (error) {
-    <div class="error-message">
-      {{ error }}
-    </div>
+  <div class="error-message">
+    {{ error }}
+  </div>
   }
 
   @if (registration && !loading) {
-    <div>
-      <!-- Status Card -->
-      <div class="status-card" [ngClass]="getStatusClass(registration.status)">
-        <h3>Registration Status</h3>
-        <div class="status-value">{{ registration.status }}</div>
-        @if (registration.status === 'In Progress') {
-          <p>
-            Your application is currently in progress. Please complete all sections below to submit your
-            application.
-          </p>
-        }
-        @if (registration.status === 'Pending') {
-          <p>
-            Your application has been submitted and is pending review. We will notify you once a decision has been
-            made.
-          </p>
-        }
-        @if (registration.status === 'Approved') {
-          <p>
-            Congratulations! Your application has been approved. Welcome to the festival!
-          </p>
-        }
-        @if (registration.status === 'Declined') {
-          <p>
-            Thank you for your interest. Unfortunately, we cannot accommodate your application this year.
-          </p>
-        }
-        @if (registration.status === 'In Progress' && canSubmit) {
-          <div class="submit-section">
-            <button class="submit-btn" (click)="submitApplication()">Submit Application</button>
-          </div>
-        }
+  <div>
+    <!-- Status Card -->
+    <div class="status-card" [ngClass]="getStatusClass(registration.status)">
+      <h3>Registration Status</h3>
+      <div class="status-value">{{ registration.status }}</div>
+      @if (registration.status === 'In Progress') {
+      <p>
+        Your application is currently in progress. Please complete all sections below to submit your
+        application.
+      </p>
+      }
+      @if (registration.status === 'Pending') {
+      <p>
+        Your application has been submitted and is pending review. We will notify you once a decision has been
+        made.
+      </p>
+      }
+      @if (registration.status === 'Approved') {
+      <p>
+        Congratulations! Your application has been approved. Welcome to the festival!
+      </p>
+      }
+      @if (registration.status === 'Declined') {
+      <p>
+        Thank you for your interest. Unfortunately, we cannot accommodate your application this year.
+      </p>
+      }
+      @if (registration.status === 'In Progress' && canSubmit) {
+      <div class="submit-section">
+        <button class="submit-btn" (click)="submitApplication()">Submit Application</button>
       </div>
-      <!-- Sections List -->
-      <div class="sections-list">
-        <h3>Registration Sections</h3>
-        @for (section of sections; track section) {
-          <div class="section-item" (click)="navigateToSection(section.id)">
-            <div class="section-info">
-              <span class="status-icon" [class.complete]="isSectionComplete(section.id)">
-                {{ isSectionComplete(section.id) ? '✓' : '○' }}
-              </span>
-              <span class="section-title">{{ section.title }}</span>
-            </div>
-            <span class="arrow">→</span>
-          </div>
-        }
+      }
+    </div>
+    <!-- Sections List -->
+    <div class="sections-list">
+      <h3>Registration Sections</h3>
+      @for (section of sections; track section) {
+      <div class="section-item" [class.active]="getSectionStatus(section.id) === 'active'"
+        [class.complete]="getSectionStatus(section.id) === 'complete'"
+        [class.locked]="getSectionStatus(section.id) === 'locked'" (click)="navigateToSection(section.id)">
+        <div class="section-info">
+          <span class="section-title">{{ section.title }}</span>
+        </div>
+        <span class="arrow">→</span>
       </div>
-      <!-- Registration Details -->
-      <div class="registration-details" style="margin-top: 2rem;">
-        <div class="info-section">
-          <h2>Organization Information</h2>
-          <div class="info-grid">
-            <div class="info-item">
-              <label>Organization Name</label>
-              <p>{{ registration.organizationName }}</p>
-            </div>
-            <div class="info-item">
-              <label>Registration Type</label>
-              <p>{{ registration.type }}</p>
-            </div>
-            @if (registration.website) {
-              <div class="info-item">
-                <label>Website</label>
-                <p><a [href]="registration.website" target="_blank">{{ registration.website }}</a></p>
-              </div>
-            }
-            @if (registration.participatedBefore !== undefined) {
-              <div class="info-item">
-                <label>Participated Before</label>
-                <p>{{ registration.participatedBefore ? 'Yes' : 'No' }}</p>
-              </div>
-            }
+      }
+    </div>
+    <!-- Registration Details -->
+    <div class="registration-details" style="margin-top: 2rem;">
+      <div class="info-section">
+        <h2>Organization Information</h2>
+        <div class="info-grid">
+          <div class="info-item">
+            <label>Organization Name</label>
+            <p>{{ registration.organizationName }}</p>
           </div>
-        </div>
-        <div class="info-section">
-          <h2>Contact Information</h2>
-          <div class="info-grid">
-            <div class="info-item">
-              <label>First Name</label>
-              <p>{{ registration.firstName }}</p>
-            </div>
-            <div class="info-item">
-              <label>Last Name</label>
-              <p>{{ registration.lastName }}</p>
-            </div>
-            <div class="info-item">
-              <label>Email</label>
-              <p>{{ registration.email }}</p>
-            </div>
-            @if (registration.phone) {
-              <div class="info-item">
-                <label>Phone</label>
-                <p>{{ registration.phone }}</p>
-              </div>
-            }
+          <div class="info-item">
+            <label>Registration Type</label>
+            <p>{{ registration.type }}</p>
           </div>
-        </div>
-        @if (registration.address || registration.city || registration.state || registration.zip) {
-          <div class="info-section"
-            >
-            <h2>Address</h2>
-            <div class="info-grid">
-              @if (registration.address) {
-                <div class="info-item full-width">
-                  <label>Street Address</label>
-                  <p>{{ registration.address }}</p>
-                </div>
-              }
-              @if (registration.city) {
-                <div class="info-item">
-                  <label>City</label>
-                  <p>{{ registration.city }}</p>
-                </div>
-              }
-              @if (registration.state) {
-                <div class="info-item">
-                  <label>State</label>
-                  <p>{{ registration.state }}</p>
-                </div>
-              }
-              @if (registration.zip) {
-                <div class="info-item">
-                  <label>Zip Code</label>
-                  <p>{{ registration.zip }}</p>
-                </div>
-              }
-            </div>
+          @if (registration.website) {
+          <div class="info-item">
+            <label>Website</label>
+            <p><a [href]="registration.website" target="_blank">{{ registration.website }}</a></p>
           </div>
-        }
-        <div class="info-section metadata">
-          <p class="submitted-date">Submitted on {{ registration.createdAt | date:'medium' }}</p>
+          }
+          @if (registration.participatedBefore !== undefined) {
+          <div class="info-item">
+            <label>Participated Before</label>
+            <p>{{ registration.participatedBefore ? 'Yes' : 'No' }}</p>
+          </div>
+          }
         </div>
+      </div>
+      <div class="info-section">
+        <h2>Contact Information</h2>
+        <div class="info-grid">
+          <div class="info-item">
+            <label>First Name</label>
+            <p>{{ registration.firstName }}</p>
+          </div>
+          <div class="info-item">
+            <label>Last Name</label>
+            <p>{{ registration.lastName }}</p>
+          </div>
+          <div class="info-item">
+            <label>Email</label>
+            <p>{{ registration.email }}</p>
+          </div>
+          @if (registration.phone) {
+          <div class="info-item">
+            <label>Phone</label>
+            <p>{{ registration.phone }}</p>
+          </div>
+          }
+        </div>
+      </div>
+      @if (registration.address || registration.city || registration.state || registration.zip) {
+      <div class="info-section">
+        <h2>Address</h2>
+        <div class="info-grid">
+          @if (registration.address) {
+          <div class="info-item full-width">
+            <label>Street Address</label>
+            <p>{{ registration.address }}</p>
+          </div>
+          }
+          @if (registration.city) {
+          <div class="info-item">
+            <label>City</label>
+            <p>{{ registration.city }}</p>
+          </div>
+          }
+          @if (registration.state) {
+          <div class="info-item">
+            <label>State</label>
+            <p>{{ registration.state }}</p>
+          </div>
+          }
+          @if (registration.zip) {
+          <div class="info-item">
+            <label>Zip Code</label>
+            <p>{{ registration.zip }}</p>
+          </div>
+          }
+        </div>
+      </div>
+      }
+      <div class="info-section metadata">
+        <p class="submitted-date">Submitted on {{ registration.createdAt | date:'medium' }}</p>
       </div>
     </div>
+  </div>
   }
 </div>

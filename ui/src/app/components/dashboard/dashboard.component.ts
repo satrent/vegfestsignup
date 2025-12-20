@@ -24,17 +24,54 @@ export class DashboardComponent implements OnInit {
         { id: 'products', title: 'Category & offering', route: 'products' },
         { id: 'values', title: 'Values', route: 'values' },
         { id: 'logistics', title: 'Booth & logistics', route: 'logistics' },
+        { id: 'food-compliance', title: 'Food/THC compliance', route: 'food-compliance' },
         { id: 'documents', title: 'Documents', route: 'documents' },
         { id: 'profile', title: 'Exhibitor Profile', route: 'profile' },
         { id: 'sponsorship', title: 'Sponsorship & Marketing', route: 'sponsorship' }
     ];
 
     get sections() {
-        if (this.registration && this.registration.type === 'Sponsor') {
-            return this.allSections.filter(s => ['contact', 'sponsorship'].includes(s.id));
+        if (!this.registration) return [];
+
+        let visibleSections = this.allSections.filter(s => this.isSectionVisible(s.id));
+
+        if (this.registration.type === 'Sponsor') {
+            visibleSections = visibleSections.filter(s => ['contact', 'sponsorship'].includes(s.id));
         }
 
-        return this.allSections;
+        return visibleSections;
+    }
+
+    get isFoodVendor(): boolean {
+        const cat = this.registration?.organizationCategory || '';
+        return cat.toLowerCase().includes('food') || cat.toLowerCase().includes('drink') || cat.toLowerCase().includes('ice cream');
+    }
+
+    get isThcVendor(): boolean {
+        const cat = this.registration?.organizationCategory || '';
+        return cat.toLowerCase().includes('thc');
+    }
+
+    isSectionVisible(sectionId: string): boolean {
+        if (!this.registration) return false;
+
+        if (sectionId === 'food-compliance') {
+            return this.isFoodVendor || this.isThcVendor;
+        }
+
+        return true;
+    }
+
+    getSectionStatus(sectionId: string): 'locked' | 'complete' | 'active' | 'pending' {
+        if (!this.registration) return 'locked';
+
+        if (!this.isSectionVisible(sectionId)) return 'locked';
+
+        if (this.isSectionComplete(sectionId)) return 'complete';
+
+        // Check dependencies (Optional: strict flow)
+        // For now, allow random access to any visible section
+        return 'active';
     }
 
     ngOnInit(): void {
@@ -92,7 +129,15 @@ export class DashboardComponent implements OnInit {
             return s.contact && s.sponsorship;
         }
 
-        return s.contact && s.products && s.logistics && s.documents && s.profile;
+        // Basic requirements
+        let complete = s.contact && s.products && s.logistics && s.documents && s.profile;
+
+        // Conditional requirements
+        if (this.isSectionVisible('food-compliance')) {
+            complete = complete && s.foodCompliance;
+        }
+
+        return complete;
     }
 
     submitApplication(): void {

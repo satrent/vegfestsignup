@@ -45,6 +45,11 @@ export const routes: Routes = [
         canActivate: [authGuard]
     },
     {
+        path: 'dashboard/food-compliance',
+        loadComponent: () => import('./components/section-forms/food-compliance.component').then(m => m.FoodComplianceComponent),
+        canActivate: [authGuard]
+    },
+    {
         path: 'dashboard/documents',
         loadComponent: () => import('./components/section-forms/documents.component').then(m => m.DocumentsComponent),
         canActivate: [authGuard]

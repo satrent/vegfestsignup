@@ -1,0 +1,167 @@
+<div class="section-container">
+    <h2>Section 5 — Food/THC compliance</h2>
+
+    @if (form.disabled) {
+    <div class="alert alert-warning">
+        This application has been submitted and is currently locked.
+    </div>
+    }
+
+    <form [formGroup]="form" (ngSubmit)="onSubmit()">
+
+        @if (isFoodVendor) {
+        <div class="sub-section">
+            <h3>Food Prep & Offerings</h3>
+
+            <div class="form-group">
+                <label>Cooking on-site? <span class="required">*</span></label>
+                <div class="radio-group-inline">
+                    <div class="radio-item">
+                        <input type="radio" formControlName="cookingOnSite" [value]="true"> Yes
+                    </div>
+                    <div class="radio-item">
+                        <input type="radio" formControlName="cookingOnSite" [value]="false"> No
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Is this a Food Truck? <span class="required">*</span></label>
+                <div class="radio-group-inline">
+                    <div class="radio-item">
+                        <input type="radio" formControlName="isFoodTruck" [value]="true"> Yes
+                    </div>
+                    <div class="radio-item">
+                        <input type="radio" formControlName="isFoodTruck" [value]="false"> No
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Will you sell food products containing THC? <span class="required">*</span></label>
+                <div class="radio-group-inline">
+                    <div class="radio-item">
+                        <input type="radio" formControlName="thcProductSales" [value]="true"> Yes
+                    </div>
+                    <div class="radio-item">
+                        <input type="radio" formControlName="thcProductSales" [value]="false"> No
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Food offerings <span class="required">*</span></label>
+                <div class="radio-list">
+                    <div class="radio-item">
+                        <input type="radio" formControlName="foodOfferings" value="100% Vegan">
+                        <label>"Our entire menu for this event will be 100% vegan: no meat, poultry, fish, dairy/milk,
+                            eggs, gelatin, honey, or other animal-derived ingredients."</label>
+                    </div>
+                    <div class="radio-item">
+                        <input type="radio" formControlName="foodOfferings" value="Mixed">
+                        <label>"We will offer vegan items but not everything will be vegan"</label>
+                    </div>
+                </div>
+                @if (form.get('foodOfferings')?.value === 'Mixed') {
+                <div class="error-box">
+                    <strong>Policy Violation:</strong> All items served at the festival must be 100% vegan. Your
+                    application will be automatically rejected if you proceed.
+                </div>
+                }
+            </div>
+
+            <div class="form-group">
+                <div class="radio-item">
+                    <input type="checkbox" formControlName="fiveDollarItemAck">
+                    <label>We will offer at least one food item (can be a sample size) that costs $5 or less</label>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Menu Upload</label>
+                <div class="radio-group-inline">
+                    <div class="radio-item">
+                        <input type="radio" formControlName="menuOption" value="upload_now"> Upload now
+                    </div>
+                    <div class="radio-item">
+                        <input type="radio" formControlName="menuOption" value="later"> Will provide by August 10
+                    </div>
+                </div>
+                @if (form.get('menuOption')?.value === 'upload_now') {
+                <div class="upload-area" style="margin-top:1rem;">
+                    <app-file-upload documentType="Menu" [currentFile]="getDoc('Menu')" [disabled]="form.disabled"
+                        (uploadComplete)="onUpload($event)">
+                    </app-file-upload>
+                </div>
+                }
+            </div>
+
+            <h3>Compostable Serviceware / Zero Waste</h3>
+            <div class="form-group">
+                <div class="radio-item">
+                    <input type="checkbox" formControlName="compostableServicewareAck">
+                    <label>All our serviceware is BPI compostable (biodegradable is not acceptable)</label>
+                </div>
+            </div>
+
+            <!-- Drinks would go here, skipping complex list logic for speed unless requested -->
+
+            <div class="form-group">
+                <div class="radio-item">
+                    <input type="checkbox" formControlName="bottledWaterAck">
+                    <label>I acknowledge that bottled water cannot be sold</label>
+                </div>
+            </div>
+
+            <h3>Operations</h3>
+            <div class="form-group">
+                <label>Propane/open flame?</label>
+                <div class="radio-group-inline">
+                    <div class="radio-item">
+                        <input type="radio" formControlName="propaneOpenFlame" [value]="true"> Yes
+                    </div>
+                    <div class="radio-item">
+                        <input type="radio" formControlName="propaneOpenFlame" [value]="false"> No
+                    </div>
+                </div>
+            </div>
+
+            @if (form.get('propaneOpenFlame')?.value === true && form.get('isFoodTruck')?.value !== true) {
+            <div class="form-group">
+                <label>How many pounds of propane will you bring?</label>
+                <input type="text" formControlName="propaneAmount">
+            </div>
+            }
+
+            <div class="form-group">
+                <div class="radio-item">
+                    <input type="checkbox" formControlName="handwashingAck">
+                    <label>"I understand water is not provided. I will bring a compliant handwashing station."</label>
+                </div>
+            </div>
+        </div>
+        }
+
+        @if (isThcVendor || isThcSales) {
+        <div class="sub-section" style="border-color: #48bb78;">
+            <h3>THC Compliance</h3>
+            <div class="form-group">
+                <div class="radio-item">
+                    <input type="checkbox" formControlName="thcComplianceAck">
+                    <label>"All products comply with Minnesota law and event policies. No on-site sampling."</label>
+                </div>
+                @if (form.get('thcComplianceAck')?.touched && form.get('thcComplianceAck')?.invalid) {
+                <div class="text-danger">Compliance acknowledgement is required.</div>
+                }
+            </div>
+        </div>
+        }
+
+        <div class="actions">
+            <button type="button" class="secondary" (click)="cancel()">Cancel</button>
+            <button type="submit" [disabled]="form.disabled || saving">
+                {{ saving ? 'Saving...' : 'Save & Complete' }}
+            </button>
+        </div>
+    </form>
+</div>

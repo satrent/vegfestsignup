@@ -77,6 +77,22 @@ export interface Registration {
   vehicleDimensions?: string;
   loadInAvailability?: string;
 
+  // Section 5: Food/THC Compliance
+  cookingOnSite?: boolean;
+  isFoodTruck?: boolean;
+  thcProductSales?: boolean;
+  foodOfferings?: '100% Vegan' | 'Mixed';
+  foodOfferingsRejectAck?: boolean;
+  fiveDollarItemAck?: boolean;
+  menuOption?: 'upload_now' | 'later';
+  compostableServicewareAck?: boolean;
+  servingDrinks?: string[];
+  bottledWaterAck?: boolean;
+  propaneOpenFlame?: boolean;
+  propaneAmount?: string;
+  handwashingAck?: boolean;
+  thcComplianceAck?: boolean;
+
   // Section 4 (Documents)
   foodLicenseUrl?: string;
   insuranceUrl?: string;
@@ -146,6 +162,7 @@ export interface Registration {
     contact: boolean;
     products: boolean;
     values: boolean;
+    foodCompliance: boolean;
     logistics: boolean;
     documents: boolean;
     profile: boolean;

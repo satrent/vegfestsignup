@@ -74,6 +74,22 @@ export interface IRegistration extends Document {
     vehicleDimensions?: string;
     loadInAvailability?: string;
 
+    // Section 5: Food/THC Compliance
+    cookingOnSite?: boolean;
+    isFoodTruck?: boolean;
+    thcProductSales?: boolean;
+    foodOfferings?: '100% Vegan' | 'Mixed';
+    foodOfferingsRejectAck?: boolean;
+    fiveDollarItemAck?: boolean;
+    menuOption?: 'upload_now' | 'later';
+    compostableServicewareAck?: boolean;
+    servingDrinks?: string[];
+    bottledWaterAck?: boolean;
+    propaneOpenFlame?: boolean;
+    propaneAmount?: string;
+    handwashingAck?: boolean;
+    thcComplianceAck?: boolean;
+
     // Section 4 (Documents)
     foodLicenseUrl?: string; // @deprecated
     insuranceUrl?: string;
@@ -266,6 +282,33 @@ const registrationSchema = new Schema<IRegistration>(
         },
         vehicleDimensions: String,
         loadInAvailability: String, // '2pm to 5pm September 19', 'Event morning window'
+
+        // Section 5: Food/THC Compliance
+        cookingOnSite: Boolean,
+        isFoodTruck: Boolean,
+        thcProductSales: Boolean, // "Will you sell food products containing THC?"
+        foodOfferings: {
+            type: String,
+            enum: ['100% Vegan', 'Mixed']
+        },
+        foodOfferingsRejectAck: Boolean, // System flag if they tried to submit Mixed
+        fiveDollarItemAck: Boolean,
+        menuOption: {
+            type: String,
+            enum: ['upload_now', 'later'],
+            default: 'upload_now'
+        },
+        // reusing documents.type='Menu' for the file
+
+        compostableServicewareAck: Boolean,
+        servingDrinks: [String],
+        bottledWaterAck: Boolean,
+
+        propaneOpenFlame: Boolean,
+        propaneAmount: String,
+        handwashingAck: Boolean,
+
+        thcComplianceAck: Boolean,
 
         // Section 4: Licensing & Insurance
         foodLicenseUrl: String, // @deprecated
