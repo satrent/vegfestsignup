@@ -25,7 +25,8 @@ export class DashboardComponent implements OnInit {
         { id: 'values', title: 'Values', route: 'values' },
         { id: 'logistics', title: 'Booth & logistics', route: 'logistics' },
         { id: 'food-compliance', title: 'Food/THC compliance', route: 'food-compliance' },
-        { id: 'documents', title: 'Documents', route: 'documents' }
+        { id: 'documents', title: 'Documents', route: 'documents' },
+        { id: 'expectations', title: 'Expectations & Terms', route: 'expectations' }
     ];
 
     get sections() {
@@ -128,7 +129,7 @@ export class DashboardComponent implements OnInit {
         }
 
         // Basic requirements
-        let complete = s.contact && s.products && s.logistics && s.documents;
+        let complete = s.contact && s.products && s.logistics && s.documents && s.expectations;
 
         // Conditional requirements
         if (this.isSectionVisible('food-compliance')) {

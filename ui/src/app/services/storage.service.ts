@@ -93,6 +93,11 @@ export interface Registration {
   handwashingAck?: boolean;
   thcComplianceAck?: boolean;
 
+  // Section 7
+  orientationSession?: string;
+  termsAgreement?: boolean;
+  signature?: string;
+
   // Section 4 (Documents)
   foodLicenseUrl?: string;
   insuranceUrl?: string;
@@ -165,6 +170,7 @@ export interface Registration {
     foodCompliance: boolean;
     logistics: boolean;
     documents: boolean;
+    expectations: boolean;
   };
   createdAt?: Date;
   updatedAt?: Date;

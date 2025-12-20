@@ -55,6 +55,11 @@ export const routes: Routes = [
         canActivate: [authGuard]
     },
     {
+        path: 'dashboard/expectations',
+        loadComponent: () => import('./components/section-forms/expectations.component').then(m => m.ExpectationsComponent),
+        canActivate: [authGuard]
+    },
+    {
         path: 'admin',
         component: AdminDashboardComponent,
         canActivate: [authGuard, roleGuard],

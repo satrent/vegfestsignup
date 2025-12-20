@@ -1,0 +1,166 @@
+.section-container {
+    max-width: 800px;
+    margin: 2rem auto;
+    padding: 2rem;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+h2 {
+    color: #2c3e50;
+    margin-bottom: 2rem;
+    border-bottom: 2px solid #edf2f7;
+    padding-bottom: 1rem;
+}
+
+.form-group {
+    margin-bottom: 2rem;
+}
+
+label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: #2d3748;
+}
+
+.hint {
+    display: block;
+    color: #718096;
+    font-size: 0.9em;
+    margin-bottom: 0.5rem;
+    font-weight: normal;
+}
+
+select,
+input[type="text"] {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #cbd5e0;
+    border-radius: 6px;
+    font-size: 1rem;
+
+    &:focus {
+        border-color: #4299e1;
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.2);
+    }
+}
+
+.terms-scroll-container {
+    border: 1px solid #cbd5e0;
+    border-radius: 6px;
+    padding: 1.5rem;
+    height: 300px;
+    overflow-y: auto;
+    background: #f8f9fa;
+    margin-bottom: 1rem;
+
+    h3 {
+        margin-top: 0;
+        color: #2c3e50;
+    }
+
+    ul {
+        padding-left: 1.5rem;
+
+        li {
+            margin-bottom: 0.5rem;
+            line-height: 1.5;
+            color: #4a5568;
+        }
+    }
+
+    .legal-text {
+        margin-top: 1.5rem;
+        font-size: 0.95em;
+        line-height: 1.6;
+        color: #4a5568;
+
+        p {
+            margin-bottom: 1rem;
+        }
+    }
+}
+
+.agreement-box {
+    margin-top: 1rem;
+    padding: 1rem;
+    background: #ebf8ff;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+
+    &.disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        background: #edf2f7;
+    }
+
+    input[type="checkbox"] {
+        width: 1.25rem;
+        height: 1.25rem;
+    }
+
+    label {
+        margin: 0;
+        cursor: pointer;
+    }
+}
+
+.scroll-notice {
+    font-size: 0.85em;
+    color: #e53e3e;
+    margin-top: 0.5rem;
+    font-style: italic;
+}
+
+.actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    margin-top: 2rem;
+    border-top: 1px solid #e2e8f0;
+    padding-top: 2rem;
+}
+
+button {
+    padding: 0.75rem 1.5rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.2s;
+
+    &[type="submit"] {
+        background: #48bb78;
+        color: white;
+        border: none;
+
+        &:disabled {
+            background: #cbd5e0;
+            cursor: not-allowed;
+        }
+
+        &:hover:not(:disabled) {
+            background: #38a169;
+        }
+    }
+
+    &.secondary {
+        background: #718096;
+        color: white;
+        border: none;
+
+        &:hover {
+            background: #4a5568;
+        }
+    }
+}
+
+.error {
+    color: #e53e3e;
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+}

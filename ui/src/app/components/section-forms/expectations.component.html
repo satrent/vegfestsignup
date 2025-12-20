@@ -1,0 +1,112 @@
+<div class="section-container">
+    <h2>Section 7 — Expectations, orientation, terms</h2>
+
+    <form [formGroup]="form" (ngSubmit)="onSubmit()">
+
+        <div class="form-group">
+            <label>Exhibitor Expectations & Terms</label>
+            <span class="hint">Please read the following terms carefully. You must scroll to the bottom to agree.</span>
+
+            <div class="terms-scroll-container" (scroll)="onTermsScroll($event)">
+                <h3>Expectations & Logistics</h3>
+                <ul>
+                    <li><strong>Arrival:</strong> Check in to be led on field by volunteers during your assigned window;
+                        drop off material and park; no vehicles on grounds after 8:30am. No early teardown.</li>
+                    <li><strong>Footprint:</strong> Stay within your 10' x 10' space; keep aisles clear; maintain a
+                        clean, professional display.</li>
+                    <li><strong>Power & safety:</strong> Tents must have at least 30 pounds weights at each corner;
+                        secure all structures. Bring rated extension cords; no daisy-chaining; open flames/propane only
+                        if pre-approved.</li>
+                    <li><strong>Water:</strong> Not provided. Food vendors must bring a compliant handwashing station.
+                    </li>
+                    <li><strong>Compliance:</strong> Forms listed above must be provided by August 10, and preferably
+                        sooner. You're responsible for permits, taxes, insurance, local regulations, and following
+                        festival guidelines. The festival may inspect menus, ingredients, materials, and packaging.
+                        Non-compliance may result in product removal, withholding of the $200 security deposit, and/or
+                        removal from the event without refund.</li>
+                    <li><strong>Waste:</strong> Pack-in/pack-out; oil and wastewater disposal provided; leave your space
+                        clean.</li>
+                    <li><strong>Weather:</strong> Rain-or-shine unless officially canceled. No refunds due to weather
+                        conditions or any other emergency cancellation.</li>
+                    <li><strong>Communication:</strong> Read and respond to organizer emails, approve tcvegest.com as a
+                        sender; day-of updates via WhatsApp.</li>
+                    <li><strong>Fees & selection:</strong>
+                        <ul>
+                            <li>$50 application fee due with submission. Applied to exhibitor fee if accepted; refunded
+                                if declined.</li>
+                            <li>Your exhibitor fee listed above, discounted if applicable.</li>
+                            <li>$200 refundable security deposit due upon acceptance; refunded after compliant
+                                exhibition and load-out.</li>
+                            <li>Curated selection; submission does not guarantee acceptance.</li>
+                            <li>Refund policy: Full refunds provided if you cancel by Aug 10; 50% refund from Aug 11 to
+                                Aug 31, no refunds after Aug 31.</li>
+                        </ul>
+                    </li>
+                </ul>
+
+                <h3>Indemnity and Limitation of Liability</h3>
+                <div class="legal-text">
+                    <p>Neither Compassionate Action for Animals, any co-sponsor, venue provider nor any of their
+                        respective officers, agents, employees, contractors, facilities, representatives or assigns
+                        shall be liable for, and Exhibitor hereby releases them from, any claims for damage, loss,
+                        expense, harm, or injury or death to the person, property or business of the Exhibitor and/or
+                        any of its visitors, officers, agents, employees, contractors, or other representatives,
+                        resulting from theft, fire, earthquake, water, unavailability of the facility, uncontrollable
+                        events, third parties, accident or any other reason in connection with the display at the
+                        Festival.</p>
+                    <p>The Exhibitor hereby indemnifies, and shall defend, and protect Compassionate Action for Animals
+                        and hold Compassionate Action for Animals, any co-sponsor and venue provider harmless from any
+                        and all claims, demands, suits, liability, damages, losses, costs, attorney’s fees, and expenses
+                        which might result or arise from Exhibitor’s participation in the Festival or any actions of
+                        Exhibitor’s officers, agents, employees, contractors, or other representatives.</p>
+                    <p>Under no circumstance will Compassionate Action for Animals, any co-sponsor, or the venue
+                        provider be liable for lost profits or other incidental or consequential damages for any of
+                        their acts or omissions whatsoever whether or not appraised of the possibility or likelihood of
+                        such damages or lost profits. In no event shall Compassionate Action for Animals’s liability,
+                        under any circumstance, exceed the amount actually paid to it by the Exhibitor. Compassionate
+                        Action for Animals makes no representations or warranties regarding the number or identity of
+                        persons who will attend the Festival.</p>
+                </div>
+            </div>
+
+            <div class="agreement-box" [class.disabled]="!hasScrolledToBottom">
+                <input type="checkbox" id="termsAgreement" formControlName="termsAgreement">
+                <label for="termsAgreement">
+                    I have read and agree to the Expectations, Fees, Selection, Refund, Orientation, Indemnity and
+                    Limitation of Liability terms above.
+                </label>
+            </div>
+            @if (!hasScrolledToBottom) {
+            <div class="scroll-notice">Please scroll to the bottom of the terms to agree.</div>
+            }
+        </div>
+
+        <div class="form-group">
+            <label>Orientation session (required to receive a parking pass) <span class="required">*</span></label>
+            <select formControlName="orientationSession">
+                <option value="" disabled>Select a session...</option>
+                @for (opt of orientationOptions; track opt) {
+                <option [value]="opt">{{ opt }}</option>
+                }
+            </select>
+            @if (form.get('orientationSession')?.touched && form.get('orientationSession')?.invalid) {
+            <div class="error">Orientation session is required</div>
+            }
+        </div>
+
+        <div class="form-group">
+            <label>Type your full name (e-signature) <span class="required">*</span></label>
+            <input type="text" formControlName="signature" placeholder="e.g. John Smith">
+            @if (form.get('signature')?.touched && form.get('signature')?.invalid) {
+            <div class="error">Signature is required</div>
+            }
+        </div>
+
+        <div class="actions">
+            <button type="button" class="secondary" (click)="cancel()">Cancel</button>
+            <button type="submit" [disabled]="form.invalid || saving">
+                {{ saving ? 'Saving...' : 'Save & Complete' }}
+            </button>
+        </div>
+    </form>
+</div>

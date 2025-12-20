@@ -90,6 +90,11 @@ export interface IRegistration extends Document {
     handwashingAck?: boolean;
     thcComplianceAck?: boolean;
 
+    // Section 7: Expectations & Terms
+    orientationSession?: string;
+    termsAgreement?: boolean;
+    signature?: string;
+
     // Section 4 (Documents)
     foodLicenseUrl?: string; // @deprecated
     insuranceUrl?: string;
@@ -142,9 +147,6 @@ export interface IRegistration extends Document {
     invoiced?: boolean;
 
     // Logistics Counts (Explicit fields for calculation)
-    numTables?: number;
-    numChairs?: number;
-    numTents?: number;
     numWeights?: number;
     numExtraSpots?: number;
 
@@ -310,7 +312,12 @@ const registrationSchema = new Schema<IRegistration>(
 
         thcComplianceAck: Boolean,
 
-        // Section 4: Licensing & Insurance
+        // Section 7: Expectations & Terms
+        orientationSession: String,
+        termsAgreement: Boolean,
+        signature: String,
+
+        // Section 6: Documents
         foodLicenseUrl: String, // @deprecated
         insuranceUrl: String,
         coiOption: {
@@ -412,8 +419,7 @@ const registrationSchema = new Schema<IRegistration>(
             values: { type: Boolean, default: false },
             logistics: { type: Boolean, default: false },
             documents: { type: Boolean, default: false },
-            profile: { type: Boolean, default: false },
-            sponsorship: { type: Boolean, default: false },
+            expectations: { type: Boolean, default: false },
         }
     },
     {
