@@ -165,8 +165,6 @@ export interface Registration {
     foodCompliance: boolean;
     logistics: boolean;
     documents: boolean;
-    profile: boolean;
-    sponsorship: boolean;
   };
   createdAt?: Date;
   updatedAt?: Date;

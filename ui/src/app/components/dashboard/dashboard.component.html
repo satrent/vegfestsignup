@@ -58,6 +58,9 @@
         [class.complete]="getSectionStatus(section.id) === 'complete'"
         [class.locked]="getSectionStatus(section.id) === 'locked'" (click)="navigateToSection(section.id)">
         <div class="section-info">
+          <span class="status-icon" [class.complete]="getSectionStatus(section.id) === 'complete'">
+            {{ getSectionStatus(section.id) === 'complete' ? '✓' : '○' }}
+          </span>
           <span class="section-title">{{ section.title }}</span>
         </div>
         <span class="arrow">→</span>

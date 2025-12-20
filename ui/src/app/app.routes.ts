@@ -55,16 +55,6 @@ export const routes: Routes = [
         canActivate: [authGuard]
     },
     {
-        path: 'dashboard/profile',
-        loadComponent: () => import('./components/section-forms/profile.component').then(m => m.ProfileComponent),
-        canActivate: [authGuard]
-    },
-    {
-        path: 'dashboard/sponsorship',
-        loadComponent: () => import('./components/section-forms/sponsorship.component').then(m => m.SponsorshipComponent),
-        canActivate: [authGuard]
-    },
-    {
         path: 'admin',
         component: AdminDashboardComponent,
         canActivate: [authGuard, roleGuard],

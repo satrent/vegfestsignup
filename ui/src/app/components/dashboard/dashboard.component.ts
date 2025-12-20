@@ -25,9 +25,7 @@ export class DashboardComponent implements OnInit {
         { id: 'values', title: 'Values', route: 'values' },
         { id: 'logistics', title: 'Booth & logistics', route: 'logistics' },
         { id: 'food-compliance', title: 'Food/THC compliance', route: 'food-compliance' },
-        { id: 'documents', title: 'Documents', route: 'documents' },
-        { id: 'profile', title: 'Exhibitor Profile', route: 'profile' },
-        { id: 'sponsorship', title: 'Sponsorship & Marketing', route: 'sponsorship' }
+        { id: 'documents', title: 'Documents', route: 'documents' }
     ];
 
     get sections() {
@@ -36,7 +34,7 @@ export class DashboardComponent implements OnInit {
         let visibleSections = this.allSections.filter(s => this.isSectionVisible(s.id));
 
         if (this.registration.type === 'Sponsor') {
-            visibleSections = visibleSections.filter(s => ['contact', 'sponsorship'].includes(s.id));
+            visibleSections = visibleSections.filter(s => ['contact'].includes(s.id));
         }
 
         return visibleSections;
@@ -126,11 +124,11 @@ export class DashboardComponent implements OnInit {
         const s = this.registration.sectionStatus;
 
         if (this.registration.type === 'Sponsor') {
-            return s.contact && s.sponsorship;
+            return s.contact;
         }
 
         // Basic requirements
-        let complete = s.contact && s.products && s.logistics && s.documents && s.profile;
+        let complete = s.contact && s.products && s.logistics && s.documents;
 
         // Conditional requirements
         if (this.isSectionVisible('food-compliance')) {
