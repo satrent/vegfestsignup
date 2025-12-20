@@ -60,32 +60,22 @@ export interface Registration {
   materialsAck?: boolean;
 
   // Section 4 (formerly 3)
-  loadInDay?: string;
-  // ...
-  sectionStatus?: {
-    contact: boolean;
-    products: boolean;
-    values: boolean; // New Section
-    logistics: boolean;
-    documents: boolean;
-    profile: boolean;
-    sponsorship: boolean;
-  };
+  // Section 4: Booth & Logistics
+  numBoothSpaces?: number;
+  numTables?: number;
+  numChairs?: number;
+  numTents?: number;
 
-  tablesChairs?: string[];
-  otherEquipment?: string;
-  vehicleDetails?: string;
-  suppliesOrdered?: string[];
-  suppliesQuantity?: string;
-  amperageDraw?: string;
-  standardPower?: boolean;
-  electricalEquipment?: string;
   powerNeeds?: string;
-  propaneAmount?: string;
-  sunlightProtection?: string;
-  fireExtinguisherAck?: boolean;
-  propaneFireExtinguisherAck?: boolean;
-  loadOutAck?: boolean;
+  householdElectric?: boolean;
+  electricNeedsDescription?: string;
+
+  onSiteSales?: boolean;
+  priceRange?: string;
+
+  loadInVehicle?: string;
+  vehicleDimensions?: string;
+  loadInAvailability?: string;
 
   // Section 4
   foodLicenseUrl?: string;
@@ -142,10 +132,6 @@ export interface Registration {
   invoiced?: boolean;
   approvedBy?: string[];
 
-  // Logistics Counts
-  numTables?: number;
-  numChairs?: number;
-  numTents?: number;
 
   // Billing
   initialInvoiceAmount?: number;
@@ -154,6 +140,15 @@ export interface Registration {
   type: 'Exhibitor' | 'Sponsor' | 'Both';
   status: 'In Progress' | 'Pending' | 'Waiting for Approval' | 'Approved' | 'Declined';
   websiteStatus?: 'Pending' | 'Added';
+  sectionStatus?: {
+    contact: boolean;
+    products: boolean;
+    values: boolean;
+    logistics: boolean;
+    documents: boolean;
+    profile: boolean;
+    sponsorship: boolean;
+  };
   createdAt?: Date;
   updatedAt?: Date;
 }

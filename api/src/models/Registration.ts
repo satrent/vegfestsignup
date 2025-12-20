@@ -57,26 +57,22 @@ export interface IRegistration extends Document {
     materialsAck?: boolean;
 
     // Section 3: Logistics & Equipment (Now Section 4)
-    loadInDay?: string;
-    tablesChairs?: string[];
+    // Section 4: Booth & Logistics
+    numBoothSpaces?: number;
+    numTables?: number;
+    numChairs?: number;
+    numTents?: number;
 
-    // ...
-
-    // ...
-
-    otherEquipment?: string;
-    vehicleDetails?: string;
-    suppliesOrdered?: string[];
-    suppliesQuantity?: string;
-    amperageDraw?: string;
-    standardPower?: boolean;
-    electricalEquipment?: string;
     powerNeeds?: string;
-    propaneAmount?: string;
-    sunlightProtection?: string;
-    fireExtinguisherAck?: boolean;
-    propaneFireExtinguisherAck?: boolean;
-    loadOutAck?: boolean;
+    householdElectric?: boolean;
+    electricNeedsDescription?: string;
+
+    onSiteSales?: boolean;
+    priceRange?: string;
+
+    loadInVehicle?: string;
+    vehicleDimensions?: string;
+    loadInAvailability?: string;
 
     // Section 4
     foodLicenseUrl?: string;
@@ -245,27 +241,29 @@ const registrationSchema = new Schema<IRegistration>(
         veganFoodAck: Boolean,
         compostableAck: Boolean,
 
-        // Section 3: Logistics & Equipment
-        loadInDay: String,
-        tablesChairs: [String], // Checkbox items (Legacy/Visual)
+        // Section 4: Booth & Logistics
+        numBoothSpaces: { type: Number, default: 0 },
         numTables: { type: Number, default: 0 },
         numChairs: { type: Number, default: 0 },
         numTents: { type: Number, default: 0 },
-        numWeights: { type: Number, default: 0 },
-        numExtraSpots: { type: Number, default: 0 },
-        otherEquipment: String,
-        vehicleDetails: String, // Dimensions if bringing vehicle
-        suppliesOrdered: [String],
-        suppliesQuantity: String, // Explanation if > 1
-        amperageDraw: String,
-        standardPower: Boolean,
-        electricalEquipment: String,
-        powerNeeds: String,
-        propaneAmount: String,
-        sunlightProtection: String,
-        fireExtinguisherAck: Boolean,
-        propaneFireExtinguisherAck: Boolean,
-        loadOutAck: Boolean,
+
+        powerNeeds: {
+            type: String,
+            enum: ['None', '5A', '10A', '15A', '20A'],
+            default: 'None'
+        },
+        householdElectric: Boolean,
+        electricNeedsDescription: String,
+
+        onSiteSales: { type: Boolean, default: false },
+        priceRange: String,
+
+        loadInVehicle: {
+            type: String,
+            enum: ['Car', 'SUV', 'Van', 'Box truck', 'Other']
+        },
+        vehicleDimensions: String,
+        loadInAvailability: String, // '2pm to 5pm September 19', 'Event morning window'
 
         // Section 4: Licensing & Insurance
         foodLicenseUrl: String, // @deprecated

@@ -1,0 +1,148 @@
+<div class="section-container">
+    <h2>Section 4 — Booth & logistics</h2>
+
+    @if (form.disabled) {
+    <div class="alert alert-warning">
+        This application has been submitted and is currently locked.
+    </div>
+    }
+
+    <form [formGroup]="form" (ngSubmit)="onSubmit()">
+
+        <!-- Booth Size Note -->
+        <div class="info-box">
+            <p><strong>Booth size:</strong> All exhibitor spaces are 10' x 10'.</p>
+        </div>
+
+        <!-- Power Needs -->
+        <div class="form-group">
+            <label class="section-label">Power needs <span class="required">*</span></label>
+            <div class="radio-list">
+                @for (opt of powerOptions; track opt) {
+                <div class="radio-item">
+                    <input type="radio" [id]="'power-' + opt" formControlName="powerNeeds" [value]="opt">
+                    <label [for]="'power-' + opt">{{ opt }}</label>
+                </div>
+                }
+            </div>
+        </div>
+
+        @if (showElectricQuestions) {
+        <div class="sub-section">
+            <div class="form-group">
+                <label>Can your equipment be plugged into household outlets?</label>
+                <div class="radio-group-inline">
+                    <div class="radio-item">
+                        <input type="radio" id="household-yes" formControlName="householdElectric" [value]="true">
+                        <label for="household-yes">Yes</label>
+                    </div>
+                    <div class="radio-item">
+                        <input type="radio" id="household-no" formControlName="householdElectric" [value]="false">
+                        <label for="household-no">No</label>
+                    </div>
+                </div>
+            </div>
+
+            @if (form.get('householdElectric')?.value === false) {
+            <div class="form-group">
+                <label for="electricNeedsDescription">Describe your power needs <span class="required">*</span></label>
+                <input id="electricNeedsDescription" type="text" formControlName="electricNeedsDescription">
+                @if (form.get('electricNeedsDescription')?.touched && form.get('electricNeedsDescription')?.invalid) {
+                <div class="error">This field is required</div>
+                }
+            </div>
+            }
+        </div>
+        }
+
+        <!-- On-site Sales -->
+        <div class="form-group">
+            <label class="section-label">On-site sales? <span class="required">*</span></label>
+            <div class="radio-group-inline">
+                <div class="radio-item">
+                    <input type="radio" id="sales-yes" formControlName="onSiteSales" [value]="true">
+                    <label for="sales-yes">Yes</label>
+                </div>
+                <div class="radio-item">
+                    <input type="radio" id="sales-no" formControlName="onSiteSales" [value]="false">
+                    <label for="sales-no">No</label>
+                </div>
+            </div>
+            @if (form.get('onSiteSales')?.touched && form.get('onSiteSales')?.invalid) {
+            <div class="error">Selection required</div>
+            }
+        </div>
+
+        @if (showPriceRange) {
+        <div class="form-group indented">
+            <label for="priceRange">Typical price range (min–max) <span class="optional">(Optional)</span></label>
+            <input id="priceRange" type="text" formControlName="priceRange" placeholder="e.g. $5 - $25">
+        </div>
+        }
+
+        <!-- Rentals -->
+        <div class="rentals-section">
+            <h3>Rentals <span class="optional">(Optional)</span></h3>
+
+            <div class="rental-grid">
+                <div class="form-group">
+                    <label for="numTables">Tables</label>
+                    <input id="numTables" type="number" min="0" formControlName="numTables">
+                </div>
+
+                <div class="form-group">
+                    <label for="numChairs">Chairs</label>
+                    <input id="numChairs" type="number" min="0" formControlName="numChairs">
+                </div>
+
+                <div class="form-group">
+                    <label for="numTents">Tents</label>
+                    <input id="numTents" type="number" min="0" formControlName="numTents">
+                </div>
+
+                <div class="form-group">
+                    <label for="numBoothSpaces">Booth spaces</label>
+                    <input id="numBoothSpaces" type="number" min="0" formControlName="numBoothSpaces">
+                </div>
+            </div>
+        </div>
+
+        <!-- Load-in Vehicle -->
+        <div class="form-group">
+            <label class="section-label">Load-in vehicle <span class="optional">(Optional)</span></label>
+            <select formControlName="loadInVehicle">
+                <option value="">Select vehicle type</option>
+                @for (v of vehicleOptions; track v) {
+                <option [value]="v">{{ v }}</option>
+                }
+            </select>
+        </div>
+
+        @if (showVehicleDimensions) {
+        <div class="form-group indented">
+            <label for="vehicleDimensions">Vehicle dimensions</label>
+            <input id="vehicleDimensions" type="text" formControlName="vehicleDimensions" placeholder="Length x Width">
+        </div>
+        }
+
+        <!-- Load-in Availability -->
+        <div class="form-group">
+            <label class="section-label">Load-in availability <span class="optional">(Optional)</span></label>
+            <div class="radio-list">
+                @for (opt of loadInOptions; track opt) {
+                <div class="radio-item">
+                    <input type="radio" [id]="'loadin-' + $index" formControlName="loadInAvailability" [value]="opt">
+                    <label [for]="'loadin-' + $index">{{ opt }}</label>
+                </div>
+                }
+            </div>
+        </div>
+
+        <div class="actions">
+            <button type="button" class="secondary" (click)="cancel()">Cancel</button>
+            <button type="submit" [disabled]="form.invalid || saving">
+                {{ saving ? 'Saving...' : 'Save & Complete' }}
+            </button>
+        </div>
+    </form>
+</div>
