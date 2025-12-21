@@ -52,15 +52,15 @@
             <div class="form-group">
                 <label>Food offerings <span class="required">*</span></label>
                 <div class="radio-list">
-                    <div class="radio-item">
+                    <label class="radio-item">
                         <input type="radio" formControlName="foodOfferings" value="100% Vegan">
-                        <label>"Our entire menu for this event will be 100% vegan: no meat, poultry, fish, dairy/milk,
-                            eggs, gelatin, honey, or other animal-derived ingredients."</label>
-                    </div>
-                    <div class="radio-item">
+                        Our entire menu for this event will be 100% vegan: no meat, poultry, fish, dairy/milk,
+                        eggs, gelatin, honey, or other animal-derived ingredients.
+                    </label>
+                    <label class="radio-item">
                         <input type="radio" formControlName="foodOfferings" value="Mixed">
-                        <label>"We will offer vegan items but not everything will be vegan"</label>
-                    </div>
+                        We will offer vegan items but not everything will be vegan
+                    </label>
                 </div>
                 @if (form.get('foodOfferings')?.value === 'Mixed') {
                 <div class="error-box">
@@ -71,10 +71,10 @@
             </div>
 
             <div class="form-group">
-                <div class="radio-item">
+                <label class="radio-item">
                     <input type="checkbox" formControlName="fiveDollarItemAck">
-                    <label>We will offer at least one food item (can be a sample size) that costs $5 or less</label>
-                </div>
+                    We will offer at least one food item (can be a sample size) that costs $5 or less
+                </label>
             </div>
 
             <div class="form-group">
@@ -98,19 +98,19 @@
 
             <h3>Compostable Serviceware / Zero Waste</h3>
             <div class="form-group">
-                <div class="radio-item">
+                <label class="radio-item">
                     <input type="checkbox" formControlName="compostableServicewareAck">
-                    <label>All our serviceware is BPI compostable (biodegradable is not acceptable)</label>
-                </div>
+                    All our serviceware is BPI compostable (biodegradable is not acceptable)
+                </label>
             </div>
 
             <!-- Drinks would go here, skipping complex list logic for speed unless requested -->
 
             <div class="form-group">
-                <div class="radio-item">
+                <label class="radio-item">
                     <input type="checkbox" formControlName="bottledWaterAck">
-                    <label>I acknowledge that bottled water cannot be sold</label>
-                </div>
+                    I acknowledge that bottled water cannot be sold
+                </label>
             </div>
 
             <h3>Operations</h3>
@@ -134,10 +134,10 @@
             }
 
             <div class="form-group">
-                <div class="radio-item">
+                <label class="radio-item">
                     <input type="checkbox" formControlName="handwashingAck">
-                    <label>"I understand water is not provided. I will bring a compliant handwashing station."</label>
-                </div>
+                    I understand water is not provided. I will bring a compliant handwashing station.
+                </label>
             </div>
         </div>
         }
@@ -146,10 +146,10 @@
         <div class="sub-section" style="border-color: #48bb78;">
             <h3>THC Compliance</h3>
             <div class="form-group">
-                <div class="radio-item">
+                <label class="radio-item">
                     <input type="checkbox" formControlName="thcComplianceAck">
-                    <label>"All products comply with Minnesota law and event policies. No on-site sampling."</label>
-                </div>
+                    All products comply with Minnesota law and event policies. No on-site sampling.
+                </label>
                 @if (form.get('thcComplianceAck')?.touched && form.get('thcComplianceAck')?.invalid) {
                 <div class="text-danger">Compliance acknowledgement is required.</div>
                 }
