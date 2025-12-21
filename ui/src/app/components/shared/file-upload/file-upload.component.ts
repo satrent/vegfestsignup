@@ -3,9 +3,9 @@ import { CommonModule } from '@angular/common';
 import { StorageService } from '../../../services/storage.service';
 
 @Component({
-    selector: 'app-file-upload',
-    imports: [CommonModule],
-    template: `
+  selector: 'app-file-upload',
+  imports: [CommonModule],
+  template: `
     <div class="file-upload-container">
       <div
         class="drop-zone"
@@ -20,7 +20,7 @@ import { StorageService } from '../../../services/storage.service';
         @if (!currentFile && !isUploading) {
           <div>
             <p>Drag & Drop your file here or <span>click to upload</span></p>
-            <small>Supported formats: PDF, JPG, PNG (Max 5MB)</small>
+            <small>Supported formats: {{ supportedFormats }} (Max 20MB)</small>
           </div>
         }
     
@@ -51,7 +51,7 @@ import { StorageService } from '../../../services/storage.service';
       }
     </div>
     `,
-    styles: [`
+  styles: [`
     .file-upload-container {
       margin-bottom: 1rem;
     }
@@ -108,72 +108,101 @@ import { StorageService } from '../../../services/storage.service';
   `]
 })
 export class FileUploadComponent {
-    @Input() documentType!: string;
-    @Input() currentFile?: { name: string; location: string; status: string };
-    @Input() disabled = false;
-    @Output() uploadComplete = new EventEmitter<any>();
+  @Input() documentType!: string;
+  @Input() currentFile?: { name: string; location: string; status: string };
+  @Input() disabled = false;
+  @Output() uploadComplete = new EventEmitter<any>();
 
-    isDragging = false;
-    isUploading = false;
-    selectedFile: File | null = null;
-    errorMessage = '';
+  isDragging = false;
+  isUploading = false;
+  selectedFile: File | null = null;
+  errorMessage = '';
 
-    private storageService = inject(StorageService);
+  private storageService = inject(StorageService);
 
-    onDragOver(event: DragEvent) {
-        event.preventDefault();
-        if (!this.disabled) this.isDragging = true;
+  get supportedFormats(): string {
+    const imageTypes = ['product-photo', 'Logo', 'logo', 'Coupon Logo'];
+    if (imageTypes.includes(this.documentType)) {
+      return 'JPG, PNG';
+    }
+    return 'PDF, JPG, PNG';
+  }
+
+  onDragOver(event: DragEvent) {
+    event.preventDefault();
+    if (!this.disabled) this.isDragging = true;
+  }
+
+  onDragLeave(event: DragEvent) {
+    event.preventDefault();
+    this.isDragging = false;
+  }
+
+  onDrop(event: DragEvent) {
+    event.preventDefault();
+    this.isDragging = false;
+    if (this.disabled) return;
+
+    if (event.dataTransfer?.files.length) {
+      this.handleFile(event.dataTransfer.files[0]);
+    }
+  }
+
+  onFileSelected(event: any) {
+    if (event.target.files.length) {
+      this.handleFile(event.target.files[0]);
+    }
+  }
+
+  handleFile(file: File) {
+    // Size validation (20MB)
+    if (file.size > 20 * 1024 * 1024) {
+      this.errorMessage = 'File is too large (Max 20MB)';
+      return;
     }
 
-    onDragLeave(event: DragEvent) {
-        event.preventDefault();
-        this.isDragging = false;
+    // Type validation
+    const imageTypes = ['product-photo', 'Logo', 'logo', 'Coupon Logo'];
+    // Note: 'logo' included for safety, though we should standardize on 'Logo'
+
+    const isImage = file.type === 'image/jpeg' || file.type === 'image/png';
+    const isPdf = file.type === 'application/pdf';
+
+    if (imageTypes.includes(this.documentType)) {
+      if (!isImage) {
+        this.errorMessage = 'Invalid file type. Only JPG and PNG are allowed.';
+        return;
+      }
+    } else {
+      if (!isImage && !isPdf) {
+        this.errorMessage = 'Invalid file type. Only PDF, JPG, and PNG are allowed.';
+        return;
+      }
     }
 
-    onDrop(event: DragEvent) {
-        event.preventDefault();
-        this.isDragging = false;
-        if (this.disabled) return;
+    this.selectedFile = file;
+    this.uploadFile(file);
+  }
 
-        if (event.dataTransfer?.files.length) {
-            this.handleFile(event.dataTransfer.files[0]);
-        }
-    }
+  uploadFile(file: File) {
+    this.isUploading = true;
+    this.errorMessage = '';
 
-    onFileSelected(event: any) {
-        if (event.target.files.length) {
-            this.handleFile(event.target.files[0]);
-        }
-    }
-
-    handleFile(file: File) {
-        if (file.size > 5 * 1024 * 1024) {
-            this.errorMessage = 'File is too large (Max 5MB)';
-            return;
-        }
-        this.selectedFile = file;
-        this.uploadFile(file);
-    }
-
-    uploadFile(file: File) {
-        this.isUploading = true;
-        this.errorMessage = '';
-
-        this.storageService.uploadDocument(file, this.documentType).subscribe({
-            next: (res) => {
-                this.isUploading = false;
-                this.currentFile = {
-                    name: file.name,
-                    location: res.document.location,
-                    status: res.document.status
-                };
-                this.uploadComplete.emit(res);
-            },
-            error: (err) => {
-                this.isUploading = false;
-                this.errorMessage = 'Upload failed. Please try again.';
-                console.error(err);
-            }
-        });
-    }
+    this.storageService.uploadDocument(file, this.documentType).subscribe({
+      next: (res) => {
+        this.isUploading = false;
+        this.currentFile = {
+          name: file.name,
+          location: res.document.location,
+          status: res.document.status
+        };
+        this.uploadComplete.emit(res);
+      },
+      error: (err) => {
+        this.isUploading = false;
+        this.errorMessage = 'Upload failed. Please try again.';
+        console.error(err);
+      }
+    });
+  }
 }

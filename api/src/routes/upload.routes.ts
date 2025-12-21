@@ -11,7 +11,7 @@ const router = express.Router();
 const upload = multer({
     storage: multer.memoryStorage(),
     limits: {
-        fileSize: 5 * 1024 * 1024, // 5MB limit
+        fileSize: 20 * 1024 * 1024, // 20MB limit
     },
 });
 
@@ -29,7 +29,7 @@ router.post(
         upload.single('file')(req, res, (err: any) => {
             if (err instanceof multer.MulterError) {
                 if (err.code === 'LIMIT_FILE_SIZE') {
-                    res.status(400).json({ message: 'File is too large. Maximum size is 5MB.' });
+                    res.status(400).json({ message: 'File is too large. Maximum size is 20MB.' });
                     return;
                 }
                 res.status(400).json({ message: err.message });
@@ -55,10 +55,32 @@ router.post(
                 return;
             }
 
-            const allowedTypes = ['Food License', 'COI', 'ST-19', 'Logo', 'Coupon Logo', 'product-photo'];
+            const allowedTypes = ['Food License', 'COI', 'ST-19', 'Logo', 'Coupon Logo', 'product-photo', 'Menu'];
 
             if (!allowedTypes.includes(documentType)) {
                 res.status(400).json({ message: 'Invalid document type' });
+                return;
+            }
+
+            // Validate MIME types based on document type
+            const imageOnly = ['image/jpeg', 'image/png'];
+            const docOrImage = ['application/pdf', 'image/jpeg', 'image/png'];
+
+            const typeRules: { [key: string]: string[] } = {
+                'product-photo': imageOnly,
+                'Logo': imageOnly,
+                'Coupon Logo': imageOnly,
+                'Food License': docOrImage,
+                'COI': docOrImage,
+                'ST-19': docOrImage,
+                'Menu': docOrImage
+            };
+
+            const allowedMimes = typeRules[documentType] || docOrImage;
+            if (!allowedMimes.includes(req.file.mimetype)) {
+                res.status(400).json({
+                    message: `Invalid file type. Allowed formats: ${allowedMimes.map(m => m.split('/')[1].toUpperCase()).join(', ')}`
+                });
                 return;
             }
 

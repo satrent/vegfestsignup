@@ -80,7 +80,7 @@
 
         <!-- Photo Upload -->
         <div class="form-group">
-            <label>Upload 1–2 photos (booth or products; JPG/PNG) <span class="hint">(Max 5MB per file)</span><span
+            <label>Upload 1–2 photos (booth or products; JPG/PNG) <span class="hint">(Max 20MB per file)</span><span
                     class="required">*</span></label>
 
             <div class="upload-zone" (click)="fileInput.click()" (drop)="onFileDrop($event)"
@@ -115,13 +115,11 @@
 
         <!-- Logo Upload -->
         <div class="form-group">
-            <label>Logo upload (JPG/PNG for web; optional vector .AI/.EPS for print) [Optional] <span class="hint">(Max
-                    5MB)</span></label>
+            <label>Logo upload (JPG/PNG) [Optional] <span class="hint">(Max 20MB)</span></label>
 
             <div class="upload-zone" (click)="logoInput.click()" (drop)="onLogoDrop($event)"
                 (dragover)="onDragOver($event)">
-                <input #logoInput type="file" (change)="onLogoSelected($event)"
-                    accept="image/jpeg,image/png,image/svg+xml,.ai,.eps,.pdf" hidden>
+                <input #logoInput type="file" (change)="onLogoSelected($event)" accept="image/jpeg,image/png" hidden>
 
                 @if (!logoUrl) {
                 <div class="upload-placeholder">

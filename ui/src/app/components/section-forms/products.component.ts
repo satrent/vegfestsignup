@@ -88,6 +88,19 @@ export class ProductsComponent implements OnInit {
     let completed = 0;
 
     filesToUpload.forEach(file => {
+      if (file.size > 20 * 1024 * 1024) {
+        alert(`File ${file.name} is too large (Max 20MB).`);
+        completed++;
+        if (completed === filesToUpload.length) this.uploadingPhoto = false;
+        return;
+      }
+      if (!['image/jpeg', 'image/png'].includes(file.type)) {
+        alert(`File ${file.name} is not a valid image. JPG and PNG only.`);
+        completed++;
+        if (completed === filesToUpload.length) this.uploadingPhoto = false;
+        return;
+      }
+
       this.storageService.uploadDocument(file, 'product-photo').subscribe({
         next: (res: any) => {
           this.productPhotos.push(res.key); // storing Key/URL
@@ -123,8 +136,17 @@ export class ProductsComponent implements OnInit {
   }
 
   handleLogoUpload(file: File) {
+    if (file.size > 20 * 1024 * 1024) {
+      alert('File is too large (Max 20MB).');
+      return;
+    }
+    if (!['image/jpeg', 'image/png'].includes(file.type)) {
+      alert('Invalid file type. JPG and PNG only.');
+      return;
+    }
+
     this.uploadingLogo = true;
-    this.storageService.uploadDocument(file, 'logo').subscribe({
+    this.storageService.uploadDocument(file, 'Logo').subscribe({
       next: (res: any) => {
         this.logoUrl = res.key;
         this.uploadingLogo = false;
