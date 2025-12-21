@@ -109,11 +109,18 @@
         </div>
         <div class="form-group">
             <label>Instagram</label>
-            <input type="text" formControlName="instagram" placeholder="@handle">
+            <div class="input-group-handle">
+                <span class="prefix">@</span>
+                <input type="text" formControlName="instagram" placeholder="handle">
+            </div>
+            <small class="hint">We'll automatically remove the URL if you paste one.</small>
         </div>
         <div class="form-group">
             <label>Facebook</label>
-            <input type="text" formControlName="facebook" placeholder="Page URL or Name">
+            <div class="input-group-handle">
+                <span class="prefix">@</span>
+                <input type="text" formControlName="facebook" placeholder="username">
+            </div>
         </div>
         @if (form.errors?.['websiteOrSocialRequired'] && (form.touched || form.dirty)) {
         <div class="error">At least one website or social media link is required.</div>

@@ -137,3 +137,45 @@
       border-bottom: 1px solid #eee;
       padding-bottom: 0.5rem;
     }
+
+    /* Input Group for Handles */
+    .input-group-handle {
+      display: flex;
+      align-items: center;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      overflow: hidden;
+
+      &:focus-within {
+        border-color: #007bff; /* Highlight color on focus */
+        box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+      }
+
+      .prefix {
+        background-color: #f8f9fa;
+        color: #495057;
+        padding: 0.5rem 0.75rem;
+        border-right: 1px solid #ddd;
+        font-weight: 500;
+        user-select: none;
+      }
+
+      input {
+        border: none;
+        border-radius: 0;
+        padding: 0.5rem;
+        flex: 1;
+
+        &:focus {
+            outline: none; /* Removed default outline as we handle it on wrapper */
+            box-shadow: none;
+        }
+      }
+    }
+
+    .hint {
+        display: block;
+        margin-top: 0.25rem;
+        color: #6c757d;
+        font-size: 0.85rem;
+    }

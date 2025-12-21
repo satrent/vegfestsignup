@@ -209,6 +209,14 @@ router.patch(
             delete updates.createdAt;
             delete updates.updatedAt;
 
+            // Sanitize social handles
+            if (updates.instagram) {
+                updates.instagram = updates.instagram.replace(/^(?:https?:\/\/)?(?:www\.)?(?:instagram\.com\/)?@?([a-zA-Z0-9._]+)\/?$/, '$1');
+            }
+            if (updates.facebook) {
+                updates.facebook = updates.facebook.replace(/^(?:https?:\/\/)?(?:www\.)?(?:facebook\.com\/)?@?([a-zA-Z0-9._-]+)\/?$/, '$1');
+            }
+
             // Protect invoiced from being updated here by regular users
             if (req.user?.role !== 'ADMIN') {
                 delete updates.invoiced;
