@@ -164,6 +164,7 @@ export interface IRegistration extends Document {
         values: boolean;
         logistics: boolean;
         documents: boolean;
+        foodCompliance: boolean;
         profile: boolean;
         sponsorship: boolean;
     };
@@ -418,6 +419,7 @@ const registrationSchema = new Schema<IRegistration>(
             products: { type: Boolean, default: false },
             values: { type: Boolean, default: false },
             logistics: { type: Boolean, default: false },
+            foodCompliance: { type: Boolean, default: false },
             documents: { type: Boolean, default: false },
             expectations: { type: Boolean, default: false },
         }
