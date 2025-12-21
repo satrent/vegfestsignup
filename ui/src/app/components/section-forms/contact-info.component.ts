@@ -90,6 +90,13 @@ export class ContactInfoComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    // Initial check for visibility on load
+    this.updateOnSiteVisibility(this.form.get('onSite')?.value);
+
+    // Subscribe to changes
+    this.form.get('onSite')?.valueChanges.subscribe(val => {
+      this.updateOnSiteVisibility(val);
+    });
     this.storageService.getLatestRegistration().subscribe(reg => {
       if (reg && reg._id) {
         this.registrationId = reg._id;
@@ -121,97 +128,102 @@ export class ContactInfoComponent implements OnInit {
         }
       }
     });
-  }
+    this.form.get('instagram')?.valueChanges.subscribe(value => {
+      if (value) {
+        const handle = this.normalizeHandle(value);
+        if (handle !== value) {
+          this.form.get('instagram')?.setValue(handle, { emitEvent: false });
+        }
+      }
+    });
 
-});
-
-this.form.get('instagram')?.valueChanges.subscribe(value => {
-  if (value) {
-    const handle = this.normalizeHandle(value);
-    if (handle !== value) {
-      this.form.get('instagram')?.setValue(handle, { emitEvent: false });
-    }
-  }
-});
-
-this.form.get('facebook')?.valueChanges.subscribe(value => {
-  if (value) {
-    const handle = this.normalizeHandle(value);
-    if (handle !== value) {
-      this.form.get('facebook')?.setValue(handle, { emitEvent: false });
-    }
-  }
-});
+    this.form.get('facebook')?.valueChanges.subscribe(value => {
+      if (value) {
+        const handle = this.normalizeHandle(value);
+        if (handle !== value) {
+          this.form.get('facebook')?.setValue(handle, { emitEvent: false });
+        }
+      }
+    });
   }
 
   private formatPhoneNumber(value: string): string {
-  // Remove all non-digit characters
-  const digits = value.replace(/\D/g, '');
+    // Remove all non-digit characters
+    const digits = value.replace(/\D/g, '');
 
-  // Format as ###-###-####
-  if (digits.length <= 3) {
-    return digits;
-  } else if (digits.length <= 6) {
-    return `${digits.slice(0, 3)}-${digits.slice(3)}`;
-  } else {
-    return `${digits.slice(0, 3)}-${digits.slice(3, 6)}-${digits.slice(6, 10)}`;
+    // Format as ###-###-####
+    if (digits.length <= 3) {
+      return digits;
+    } else if (digits.length <= 6) {
+      return `${digits.slice(0, 3)}-${digits.slice(3)}`;
+    } else {
+      return `${digits.slice(0, 3)}-${digits.slice(3, 6)}-${digits.slice(6, 10)}`;
+    }
   }
-}
 
   private normalizeHandle(value: string): string {
-  // Remove https://, www., instagram.com/, facebook.com/
-  // Also remove leading @ if present (we will display it visually in UI)
-  // Actually user wanted to "capture that as an @ sign after the social media url"
-  // Wait, "On the front end, let's capture that as an @ sign after the social media url" -> This phrasing is confusing.
-  // "Full URLs or @handles; normalize on backend. Let's just store the handle on the backed."
-  // "On the front end, let's capture that as an @ sign after the social media url. ???"
-  // I interpret this as: Input might be URL, strip it to handle.
+    // Remove https://, www., instagram.com/, facebook.com/
+    // Also remove leading @ if present (we will display it visually in UI)
+    // Actually user wanted to "capture that as an @ sign after the social media url"
+    // Wait, "On the front end, let's capture that as an @ sign after the social media url" -> This phrasing is confusing.
+    // "Full URLs or @handles; normalize on backend. Let's just store the handle on the backed."
+    // "On the front end, let's capture that as an @ sign after the social media url. ???"
+    // I interpret this as: Input might be URL, strip it to handle.
 
-  // Let's strip the URL part.
-  let handle = value.replace(/^(?:https?:\/\/)?(?:www\.)?(?:instagram\.com\/|facebook\.com\/)/i, '');
+    // Let's strip the URL part.
+    let handle = value.replace(/^(?:https?:\/\/)?(?:www\.)?(?:instagram\.com\/|facebook\.com\/)/i, '');
 
-  // If it starts with @, keep it or remove it?
-  // "let's capture that as an @ sign" -> implies we might want to SHOW the @ sign.
-  // Validation on backend seems to strip everything including @ in my regex above...
-  // My backend regex: `... @?([a-zA-Z0-9._]+) ... $1` -> This captures the group AFTER the optional @.
-  // So backend stores JUST the name "myhandle".
+    // If it starts with @, keep it or remove it?
+    // "let's capture that as an @ sign" -> implies we might want to SHOW the @ sign.
+    // Validation on backend seems to strip everything including @ in my regex above...
+    // My backend regex: `... @?([a-zA-Z0-9._]+) ... $1` -> This captures the group AFTER the optional @.
+    // So backend stores JUST the name "myhandle".
 
-  // If backend stores "myhandle", and UI shows "@myhandle", that's good.
-  // Or we can just ensure it doesn't have the URL garbage.
+    // If backend stores "myhandle", and UI shows "@myhandle", that's good.
+    // Or we can just ensure it doesn't have the URL garbage.
 
-  // Let's just strip the URL part for now, and let them type @ if they want, OR if we want to enforce @ we can.
-  // The user said "capture that as an @ sign".
-  // Let's stripping URL is the main goal.
+    // Let's just strip the URL part for now, and let them type @ if they want, OR if we want to enforce @ we can.
+    // The user said "capture that as an @ sign".
+    // Let's stripping URL is the main goal.
 
-  return handle;
-}
-
-onSubmit() {
-  if (this.form.valid && this.registrationId) {
-    this.saving = true;
-
-    const updates: any = {
-      ...this.form.getRawValue(), // Use getRawValue to include disabled email
-      'sectionStatus.contact': true
-    };
-
-    this.storageService.updateRegistration(this.registrationId, updates).subscribe({
-      next: () => {
-        this.saving = false;
-        this.router.navigate(['/dashboard']);
-      },
-      error: (err) => {
-        console.error('Error saving section:', err);
-        this.saving = false;
-        alert('Failed to save. Please try again.');
-      }
-    });
-  } else {
-    this.form.markAllAsTouched();
+    return handle;
   }
-}
 
-cancel() {
-  this.router.navigate(['/dashboard']);
-}
+  private updateOnSiteVisibility(onSite: string | null): void {
+    const contactGroup = this.form.get('onSiteContact');
+    if (onSite === 'no' || onSite === 'unsure') {
+      contactGroup?.enable({ emitEvent: false });
+    } else {
+      contactGroup?.disable({ emitEvent: false });
+    }
+  }
+
+  onSubmit() {
+    if (this.form.valid && this.registrationId) {
+      this.saving = true;
+
+      const updates: any = {
+        ...this.form.getRawValue(), // Use getRawValue to include disabled email
+        'sectionStatus.contact': true
+      };
+
+      this.storageService.updateRegistration(this.registrationId, updates).subscribe({
+        next: () => {
+          this.saving = false;
+          this.router.navigate(['/dashboard']);
+        },
+        error: (err) => {
+          console.error('Error saving section:', err);
+          this.saving = false;
+          alert('Failed to save. Please try again.');
+        }
+      });
+    } else {
+      this.form.markAllAsTouched();
+    }
+  }
+
+  cancel() {
+    this.router.navigate(['/dashboard']);
+  }
 }
