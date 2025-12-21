@@ -30,13 +30,13 @@ export class ContactInfoComponent implements OnInit {
       onSiteContact: this.fb.group({
         firstName: [''],
         lastName: [''],
-        phone: [''],
+        phone: ['', [Validators.pattern(/^\d{3}-\d{3}-\d{4}$/)]],
         email: ['', Validators.email]
       }),
 
       establishedDate: [''],
       email: [{ value: '', disabled: true }, [Validators.required, Validators.email]],
-      phone: ['', Validators.required],
+      phone: ['', [Validators.required, Validators.pattern(/^\d{3}-\d{3}-\d{4}$/)]],
 
       // Website/Socials
       website: [''],
@@ -94,8 +94,6 @@ export class ContactInfoComponent implements OnInit {
       if (reg && reg._id) {
         this.registrationId = reg._id;
         this.form.patchValue(reg);
-        // Important: patchValue might not handle nested 'onSiteContact' if reg.onSiteContact matches structure perfectly it will.
-        // Also 'email' field is disabled, patchValue works fine.
 
         // Lock form if not In Progress
         if (reg.status !== 'In Progress') {
@@ -104,6 +102,39 @@ export class ContactInfoComponent implements OnInit {
         }
       }
     });
+
+    // Phone formatting listeners
+    this.form.get('phone')?.valueChanges.subscribe(value => {
+      if (value) {
+        const formatted = this.formatPhoneNumber(value);
+        if (formatted !== value) {
+          this.form.get('phone')?.setValue(formatted, { emitEvent: false });
+        }
+      }
+    });
+
+    this.form.get('onSiteContact.phone')?.valueChanges.subscribe(value => {
+      if (value) {
+        const formatted = this.formatPhoneNumber(value);
+        if (formatted !== value) {
+          this.form.get('onSiteContact.phone')?.setValue(formatted, { emitEvent: false });
+        }
+      }
+    });
+  }
+
+  private formatPhoneNumber(value: string): string {
+    // Remove all non-digit characters
+    const digits = value.replace(/\D/g, '');
+
+    // Format as ###-###-####
+    if (digits.length <= 3) {
+      return digits;
+    } else if (digits.length <= 6) {
+      return `${digits.slice(0, 3)}-${digits.slice(3)}`;
+    } else {
+      return `${digits.slice(0, 3)}-${digits.slice(3, 6)}-${digits.slice(6, 10)}`;
+    }
   }
 
   onSubmit() {

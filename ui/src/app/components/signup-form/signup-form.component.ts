@@ -28,7 +28,7 @@ export class SignupFormComponent implements OnInit {
       lastName: ['', Validators.required],
       organizationName: ['', Validators.required],
       email: [{ value: '', disabled: true }, [Validators.required, Validators.email]],
-      phone: ['', Validators.required],
+      phone: ['', [Validators.required, Validators.pattern(/^\d{3}-\d{3}-\d{4}$/)]],
       type: ['Exhibitor', Validators.required]
     });
   }
@@ -41,6 +41,29 @@ export class SignupFormComponent implements OnInit {
         this.signupForm.patchValue({ email: user.email });
       }
     });
+
+    this.signupForm.get('phone')?.valueChanges.subscribe(value => {
+      if (value) {
+        const formatted = this.formatPhoneNumber(value);
+        if (formatted !== value) {
+          this.signupForm.get('phone')?.setValue(formatted, { emitEvent: false });
+        }
+      }
+    });
+  }
+
+  private formatPhoneNumber(value: string): string {
+    // Remove all non-digit characters
+    const digits = value.replace(/\D/g, '');
+
+    // Format as ###-###-####
+    if (digits.length <= 3) {
+      return digits;
+    } else if (digits.length <= 6) {
+      return `${digits.slice(0, 3)}-${digits.slice(3)}`;
+    } else {
+      return `${digits.slice(0, 3)}-${digits.slice(3, 6)}-${digits.slice(6, 10)}`;
+    }
   }
 
   onSubmit() {
