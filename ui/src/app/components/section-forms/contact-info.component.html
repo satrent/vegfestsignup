@@ -34,9 +34,19 @@
         <div class="form-group">
             <label>Will you be on site on the day of the festival?<span class="required">*</span></label>
             <div class="radio-group">
-                <label><input type="radio" value="yes" formControlName="onSite"> Yes</label>
-                <label><input type="radio" value="no" formControlName="onSite"> No</label>
-                <label><input type="radio" value="unsure" formControlName="onSite"> Unsure</label>
+                <!-- Using inline radio group style but with new label structure -->
+                <label class="radio-item">
+                    <input type="radio" value="yes" formControlName="onSite">
+                    <span>Yes</span>
+                </label>
+                <label class="radio-item">
+                    <input type="radio" value="no" formControlName="onSite">
+                    <span>No</span>
+                </label>
+                <label class="radio-item">
+                    <input type="radio" value="unsure" formControlName="onSite">
+                    <span>Unsure</span>
+                </label>
             </div>
         </div>
 
@@ -102,7 +112,7 @@
         </div>
 
         <!-- Website/Socials -->
-        <div class="section-title">Website or social (URL and/or @handle) [One Required]</div>
+        <h3>Website or social (URL and/or @handle) [One Required]</h3>
         <div class="form-group">
             <label>Website</label>
             <input type="text" formControlName="website" placeholder="https://...">
@@ -150,8 +160,14 @@
         <div class="form-group">
             <label>Have you participated in Twin Cities Veg Fest before? [Yes/No]<span class="required">*</span></label>
             <div class="radio-group">
-                <label><input type="radio" [value]="true" formControlName="participatedBefore"> Yes</label>
-                <label><input type="radio" [value]="false" formControlName="participatedBefore"> No</label>
+                <label class="radio-item">
+                    <input type="radio" [value]="true" formControlName="participatedBefore">
+                    <span>Yes</span>
+                </label>
+                <label class="radio-item">
+                    <input type="radio" [value]="false" formControlName="participatedBefore">
+                    <span>No</span>
+                </label>
             </div>
         </div>
 
@@ -181,14 +197,14 @@
         <div class="form-group">
             <label>We are a vegan festival. Please check all that apply to your business when not at Twin Cities Veg
                 Fest:</label>
-            <div class="checkbox-group">
-                <label>
+            <div class="radio-list">
+                <label class="radio-item">
                     <input type="checkbox" formControlName="isVeganOwners">
-                    The owners of this business or organization are vegan
+                    <span>The owners of this business or organization are vegan</span>
                 </label>
-                <label>
+                <label class="radio-item">
                     <input type="checkbox" formControlName="isVeganProducts">
-                    All products sold by the business or organization are vegan
+                    <span>All products sold by the business or organization are vegan</span>
                 </label>
             </div>
         </div>
