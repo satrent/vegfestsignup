@@ -154,8 +154,24 @@
         border-bottom: none;
     }
 
+    &.locked {
+        opacity: 0.6;
+        background: #f9f9f9;
+        cursor: not-allowed;
+        pointer-events: none; // Prevent clicks entirely
+        
+        .arrow {
+            display: none; // Hide arrow for locked items
+        }
+    }
+
     &:hover {
         background: #f8f9fa;
+        
+        // Don't change background on hover if locked (though pointer-events: none usually handles this)
+        .locked & {
+            background: #f9f9f9;
+        }
     }
 
     .section-info {
@@ -172,13 +188,20 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        color: transparent;
+        color: #ccc; // Default icon color (e.g. for pending circle or lock)
         font-weight: bold;
+        font-size: 0.9rem;
 
         &.complete {
             background: #28a745;
             border-color: #28a745;
             color: white;
+        }
+
+        &.locked {
+            border-color: #ddd;
+            background: #eee;
+            color: #999;
         }
     }
 

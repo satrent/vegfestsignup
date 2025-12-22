@@ -68,8 +68,22 @@ export class DashboardComponent implements OnInit {
 
         if (this.isSectionComplete(sectionId)) return 'complete';
 
-        // Check dependencies (Optional: strict flow)
-        // For now, allow random access to any visible section
+        // START: Sequential Enforcement Logic
+        const visibleSections = this.sections;
+        const currentIndex = visibleSections.findIndex(s => s.id === sectionId);
+
+        // If it's the first section, it's always active (if visible)
+        if (currentIndex === 0) return 'active';
+
+        // Check if previous section is complete
+        if (currentIndex > 0) {
+            const previousSection = visibleSections[currentIndex - 1];
+            if (!this.isSectionComplete(previousSection.id)) {
+                return 'locked';
+            }
+        }
+        // END: Sequential Enforcement Logic
+
         return 'active';
     }
 
@@ -162,6 +176,11 @@ export class DashboardComponent implements OnInit {
     }
 
     navigateToSection(sectionId: string): void {
+        const status = this.getSectionStatus(sectionId);
+        if (status === 'locked') {
+            return;
+        }
+
         const section = this.sections.find(s => s.id === sectionId);
         if (section) {
             this.router.navigate(['/dashboard', section.route]);
