@@ -18,6 +18,7 @@ export class ContactInfoComponent implements OnInit {
   form: FormGroup;
   saving = false;
   registrationId: string = '';
+  isSponsor = false;
 
   constructor() {
     this.form = this.fb.group({
@@ -58,8 +59,10 @@ export class ContactInfoComponent implements OnInit {
       ownerDemographics: [[]],
       isVeganOwners: [false],
       isVeganProducts: [false],
-      // Type is set at signup, usually not editable here or just display it? 
-      // We can omit 'type' from here or make it readonly if included.
+
+      // Sponsorship
+      sponsorshipLevel: [''],
+      swagBagParticipation: [null],
     }, { validators: [this.websiteOrSocialValidator, this.onSiteContactValidator] });
   }
 
@@ -100,6 +103,13 @@ export class ContactInfoComponent implements OnInit {
     this.storageService.getLatestRegistration().subscribe(reg => {
       if (reg && reg._id) {
         this.registrationId = reg._id;
+        this.isSponsor = reg.type === 'Sponsor' || reg.type === 'Both';
+
+        if (this.isSponsor) {
+          this.form.get('sponsorshipLevel')?.addValidators(Validators.required);
+          this.form.get('swagBagParticipation')?.addValidators(Validators.required);
+        }
+
         this.form.patchValue(reg);
 
         // Lock form if not In Progress
@@ -107,6 +117,16 @@ export class ContactInfoComponent implements OnInit {
           this.form.disable();
           this.saving = true; // Visual lock
         }
+      }
+    });
+
+    // Sponsorship Logic
+    this.form.get('sponsorshipLevel')?.valueChanges.subscribe(val => {
+      if (val === 'product') {
+        this.form.get('swagBagParticipation')?.setValue(true);
+        this.form.get('swagBagParticipation')?.disable({ emitEvent: false });
+      } else {
+        this.form.get('swagBagParticipation')?.enable({ emitEvent: false });
       }
     });
 

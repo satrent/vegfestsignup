@@ -178,6 +178,7 @@
         </div>
         }
 
+        @if (!isSponsor) {
         <!-- Demographics -->
         <div class="form-group">
             <label>We want to showcase food and products from a wide range of cultures at the festival. Please share the
@@ -208,6 +209,62 @@
                 </label>
             </div>
         </div>
+        }
+
+        <!-- Sponsorship Section -->
+        @if (isSponsor) {
+        <div class="sponsorship-section" style="padding-top: 1rem;">
+            <h3>Sponsorship Level</h3>
+            <p class="description">Sponsor level-prices good through Feb 20.</p>
+            <div class="form-group">
+                <label>Select Sponsorship Level<span class="required">*</span></label>
+                <div class="radio-list">
+                    <label class="radio-item">
+                        <input type="radio" value="product" formControlName="sponsorshipLevel">
+                        <span>Product - provide 300 free product coupons or products</span>
+                    </label>
+                    <label class="radio-item">
+                        <input type="radio" value="bronze" formControlName="sponsorshipLevel">
+                        <span>Bronze - {{ form.get('participatedBefore')?.value ? '$600' : '$1,000' }}</span>
+                    </label>
+                    <label class="radio-item">
+                        <input type="radio" value="silver" formControlName="sponsorshipLevel">
+                        <span>Silver - {{ form.get('participatedBefore')?.value ? '$2,000' : '$3,000' }}</span>
+                    </label>
+                    <label class="radio-item">
+                        <input type="radio" value="gold" formControlName="sponsorshipLevel">
+                        <span>Gold - {{ form.get('participatedBefore')?.value ? '$4,500' : '$6,000' }}</span>
+                    </label>
+                    <label class="radio-item">
+                        <input type="radio" value="platinum" formControlName="sponsorshipLevel">
+                        <span>Platinum - {{ form.get('participatedBefore')?.value ? '$10,000' : '$15,000' }}</span>
+                    </label>
+                    <label class="radio-item">
+                        <input type="radio" value="presenting" formControlName="sponsorshipLevel">
+                        <span>Presenting - {{ form.get('participatedBefore')?.value ? '$25,000' : '$30,000' }}</span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Do you want to distribute 300 free product coupons or free products in our swag bags?<span
+                        class="required">*</span></label>
+                <div class="radio-group" style="display: flex; gap: 20px;">
+                    <label class="radio-item">
+                        <input type="radio" [value]="true" formControlName="swagBagParticipation">
+                        <span>Yes</span>
+                    </label>
+                    <label class="radio-item">
+                        <input type="radio" [value]="false" formControlName="swagBagParticipation">
+                        <span>No</span>
+                    </label>
+                </div>
+                @if (form.get('sponsorshipLevel')?.value === 'product') {
+                <small class="hint">Included with Product Sponsorship.</small>
+                }
+            </div>
+        </div>
+        }
 
         <div class="actions">
             <button type="button" class="secondary" (click)="cancel()">Cancel</button>
