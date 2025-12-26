@@ -18,6 +18,7 @@ export class ProductsComponent implements OnInit {
   form: FormGroup;
   saving = false;
   registrationId: string = '';
+  userType: 'Sponsor' | 'Exhibitor' | 'Both' = 'Exhibitor'; // Default to Exhibitor
 
   // File Upload State
   productPhotos: string[] = [];
@@ -38,6 +39,7 @@ export class ProductsComponent implements OnInit {
     this.storageService.getLatestRegistration().subscribe(reg => {
       if (reg && reg._id) {
         this.registrationId = reg._id;
+        this.userType = (reg.type as 'Sponsor' | 'Exhibitor' | 'Both') || 'Exhibitor';
 
         // Patch simple fields
         this.form.patchValue({
@@ -48,6 +50,15 @@ export class ProductsComponent implements OnInit {
         // Load files
         this.productPhotos = reg.productPhotos || [];
         this.logoUrl = reg.logoUrl || null;
+
+        // Conditional Validation Logic
+        if (this.userType === 'Sponsor') {
+          // Sponsors (who are NOT Exhibitors) do not need Org Category or Description
+          this.form.get('organizationCategory')?.clearValidators();
+          this.form.get('organizationCategory')?.updateValueAndValidity();
+          this.form.get('productsDescription')?.clearValidators();
+          this.form.get('productsDescription')?.updateValueAndValidity();
+        }
 
         if (reg.status !== 'In Progress') {
           this.form.disable();
@@ -197,7 +208,18 @@ export class ProductsComponent implements OnInit {
   }
 
   onSubmit() {
-    if (this.form.valid && this.productPhotos.length > 0 && this.registrationId) {
+    this.form.markAllAsTouched();
+
+    if (this.form.invalid) return;
+
+    // Check photo requirement only if user is NOT just a Sponsor
+    // i.e. Exhibitor or Both MUST upload photos. Sponsor-only DOES NOT need product photos.
+    if (this.userType !== 'Sponsor' && this.productPhotos.length === 0) {
+      // maybe show error? The template handles showing the error but we should block submit
+      return;
+    }
+
+    if (this.registrationId) {
       this.saving = true;
       const updates: Partial<Registration> = {
         organizationCategory: this.form.value.organizationCategory,
@@ -223,8 +245,6 @@ export class ProductsComponent implements OnInit {
           alert('Failed to save. Please try again.');
         }
       });
-    } else {
-      this.form.markAllAsTouched();
     }
   }
 

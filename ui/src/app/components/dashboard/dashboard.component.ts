@@ -18,6 +18,7 @@ export class DashboardComponent implements OnInit {
     registration: Registration | null = null;
     loading = true;
     error = '';
+    sections: any[] = [];
 
     private readonly allSections = [
         { id: 'contact', title: 'Contact & Basic Information', route: 'contact' },
@@ -28,18 +29,6 @@ export class DashboardComponent implements OnInit {
         { id: 'documents', title: 'Documents', route: 'documents' },
         { id: 'expectations', title: 'Expectations & Terms', route: 'expectations' }
     ];
-
-    get sections() {
-        if (!this.registration) return [];
-
-        let visibleSections = this.allSections.filter(s => this.isSectionVisible(s.id));
-
-        if (this.registration.type === 'Sponsor') {
-            visibleSections = visibleSections.filter(s => ['contact'].includes(s.id));
-        }
-
-        return visibleSections;
-    }
 
     get isFoodVendor(): boolean {
         const cat = this.registration?.organizationCategory || '';
@@ -59,6 +48,28 @@ export class DashboardComponent implements OnInit {
         }
 
         return true;
+    }
+
+    private updateSections(): void {
+        if (!this.registration) {
+            this.sections = [];
+            return;
+        }
+
+        let visibleSections = this.allSections.filter(s => this.isSectionVisible(s.id));
+
+        if (this.registration.type === 'Sponsor') {
+            visibleSections = visibleSections.filter(s => ['contact', 'products'].includes(s.id));
+            // Rename 'Category & offering' to 'Logo Upload' for sponsors
+            visibleSections = visibleSections.map(s => {
+                if (s.id === 'products') {
+                    return { ...s, title: 'Logo Upload' };
+                }
+                return s;
+            });
+        }
+
+        this.sections = visibleSections;
     }
 
     getSectionStatus(sectionId: string): 'locked' | 'complete' | 'active' | 'pending' {
@@ -96,6 +107,7 @@ export class DashboardComponent implements OnInit {
         this.storageService.getLatestRegistration().subscribe({
             next: (registration) => {
                 this.registration = registration;
+                this.updateSections();
                 this.loading = false;
             },
             error: (err) => {
@@ -139,7 +151,7 @@ export class DashboardComponent implements OnInit {
         const s = this.registration.sectionStatus;
 
         if (this.registration.type === 'Sponsor') {
-            return s.contact;
+            return s.contact && s.products;
         }
 
         // Basic requirements
@@ -163,6 +175,7 @@ export class DashboardComponent implements OnInit {
         this.storageService.submitRegistration(this.registration._id).subscribe({
             next: (updatedReg) => {
                 this.registration = updatedReg;
+                this.updateSections();
                 this.loading = false;
                 // Scroll to top to see status change
                 window.scrollTo(0, 0);

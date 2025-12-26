@@ -1,5 +1,9 @@
 <div class="section-container">
+    @if (userType === 'Sponsor') {
+    <h2>Section 2 — Logo Upload</h2>
+    } @else {
     <h2>Section 2 — Category & offering</h2>
+    }
 
     @if (form.disabled) {
     <div class="alert alert-warning">
@@ -9,6 +13,7 @@
 
     <form [formGroup]="form" (ngSubmit)="onSubmit()">
 
+        @if (userType !== 'Sponsor') {
         <!-- Organization Type -->
         <div class="form-group">
             <label>Organization type: this is your base rate<span class="required">*</span></label>
@@ -112,6 +117,7 @@
             <div class="error">At least one photo is required</div>
             }
         </div>
+        }
 
         <!-- Logo Upload -->
         <div class="form-group">
@@ -145,7 +151,8 @@
 
         <div class="actions">
             <button type="button" class="secondary" (click)="cancel()">Cancel</button>
-            <button type="submit" [disabled]="form.invalid || saving || productPhotos.length === 0">
+            <button type="submit"
+                [disabled]="form.invalid || saving || (userType !== 'Sponsor' && productPhotos.length === 0)">
                 {{ saving ? 'Saving...' : 'Save & Complete' }}
             </button>
         </div>
