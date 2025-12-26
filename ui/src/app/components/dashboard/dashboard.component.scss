@@ -159,7 +159,7 @@
         background: #f9f9f9;
         cursor: not-allowed;
         pointer-events: none; // Prevent clicks entirely
-        
+
         .arrow {
             display: none; // Hide arrow for locked items
         }
@@ -167,7 +167,7 @@
 
     &:hover {
         background: #f8f9fa;
-        
+
         // Don't change background on hover if locked (though pointer-events: none usually handles this)
         .locked & {
             background: #f9f9f9;
@@ -213,4 +213,12 @@
     .arrow {
         color: #ccc;
     }
+}
+
+.welcome-text-section {
+    margin: 1rem 0rem;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    padding: 1rem;
 }

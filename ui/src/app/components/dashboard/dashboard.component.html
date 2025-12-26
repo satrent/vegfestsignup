@@ -17,9 +17,110 @@
   }
 
   @if (registration && !loading) {
+
+  <!-- Welcome Text & Guidelines -->
+  <details class="welcome-text-section" open>
+    <summary
+      style="padding: 1.5rem; cursor: pointer; font-weight: 600; font-size: 1.1em; list-style: none; display: flex; align-items: center; justify-content: space-between;">
+      <span>Important Information & Guidelines</span>
+      <span class="toggle-icon">▼</span>
+    </summary>
+    <div class="content" style="padding: 0 1.5rem 1.5rem 1.5rem;">
+
+      <!-- SPONSOR CONTENT -->
+      @if (registration.type === 'Sponsor') {
+      <p>Thank you for your interest in sponsoring of Twin Cities Veg Fest!</p>
+
+      <p>The festival celebrates the power of plant-based food to help animals, people, and our planet. It is
+        organized by the nonprofit Compassionate Action for Animals.</p>
+
+      <p>The festival will be held on <strong>September 20, 2026</strong> at <strong>Harriet Island Park</strong>.
+        Over 5,500 people attended in 2025, and our social media accounts have a combined following of over 20,000.
+      </p>
+
+      <p><a href="#" target="_blank">View sponsorship levels and benefits</a>.</p>
+
+      <p>You will receive a copy of your responses after submitting this form. We will notify you of our decision
+        within <strong>one week</strong>.</p>
+
+      <p>Email <strong>sponsorship@tcvegfest.com</strong> with any questions.</p>
+
+      <h3>Important Deadlines & Requirements:</h3>
+      <ul>
+        <li>Statewide magazine inclusion deadline <strong>January 20</strong></li>
+        <li>Early bird discounted registration ends on <strong>February 28</strong></li>
+        <li>The final registration deadline is <strong>May 30</strong></li>
+        <li>All forms and payments must be submitted by <strong>June 15</strong></li>
+        <li>If you will exhibit at the festival you must submit:
+          <ul>
+            <li>Completed ST-19 form (if making sales)</li>
+            <li>$200 refundable security deposit</li>
+            <li>Certificate of insurance</li>
+            <li>Food license (if preparing food on-site)</li>
+          </ul>
+        </li>
+      </ul>
+
+      <p>By applying to be a sponsor, you agree to follow all festival guidelines.</p>
+      <p>Thank you again for your interest! We look forward to seeing your application.</p>
+      }
+
+      <!-- EXHIBITOR / BOTH CONTENT -->
+      @if (registration.type !== 'Sponsor') {
+      <p>Thank you for your interest in Twin Cities Veg Fest!</p>
+
+      <p>The festival celebrates the power of plant-based food to help animals, people, and our planet. It is
+        organized by the nonprofit Compassionate Action for Animals.</p>
+
+      <p>The festival will be held on <strong>September 20, 2026</strong> at <strong>Harriet Island Park</strong>.
+        Over 5,500 people attended in 2025, and this year will be even bigger!</p>
+
+      <p>You will receive a copy of your responses after submitting this form. We will notify you of our decision
+        within <strong>one week</strong>.</p>
+
+      <p>To ensure a positive experience for exhibitors and attendees, we limit the number of certain types of
+        vendors. Applications are accepted on a rolling basis until August 3. Businesses such as <strong>jewelry,
+          henna, acai, and crystals</strong> especially benefit from applying early.</p>
+
+      <h3>Important Deadlines & Requirements:</h3>
+      <ul>
+        <li>This application form closes on <strong>August 3</strong>.</li>
+        <li>All forms and payments must be submitted by <strong>August 10</strong>.</li>
+        <li>Every exhibitor must submit:
+          <ul>
+            <li>Logo (if available)</li>
+            <li>Completed ST-19 form (if making sales)</li>
+            <li>$200 refundable security deposit</li>
+            <li>Certificate of insurance</li>
+            <li>Food license (if preparing food on-site)</li>
+          </ul>
+        </li>
+      </ul>
+
+      <h3>Application Costs & Discounts:</h3>
+      <ul>
+        <li>Fill out this form to apply. You must pay $50 via <span
+            style="background-color: #fff3cd; padding: 0 4px;">credit card or ACH</span> when you apply. If you are
+          accepted this will be applied towards your fee; if you are rejected it will be refunded.</li>
+        <li>Email <strong>exhibitors@tcvegfest.com</strong> with any questions.</li>
+        <li>Discounts are available for:
+          <ul>
+            <li>Exhibitors traveling 100 miles or more (50% off base exhibitor fee)</li>
+            <li>New businesses (<3 years old) owned by members of Black, Indigenous, and People of the Global Majority
+                communities.</li>
+          </ul>
+        </li>
+      </ul>
+
+      <p>By applying to exhibit or sponsor, you agree to follow all festival guidelines.</p>
+      <p>Thank you again for your interest! We look forward to seeing your application.</p>
+      }
+    </div>
+  </details>
+
   <div>
     <!-- Status Card -->
-    <div class="status-card" [ngClass]="getStatusClass(registration.status)">
+    <div class="status-card" [ngClass]="getStatusClass(registration.status)" style="background: white;">
       <h3>Registration Status</h3>
       <div class="status-value">{{ registration.status }}</div>
       @if (registration.status === 'In Progress') {
@@ -50,6 +151,7 @@
       </div>
       }
     </div>
+
     <!-- Sections List -->
     <div class="sections-list">
       <h3>Registration Sections</h3>
