@@ -63,6 +63,9 @@ export class ContactInfoComponent implements OnInit {
       // Sponsorship
       sponsorshipLevel: [''],
       swagBagParticipation: [null],
+      swagDistributionInterest: [''],
+      swagDistributionItem: [''],
+      palletsDonation: [false],
     }, { validators: [this.websiteOrSocialValidator, this.onSiteContactValidator] });
   }
 
@@ -127,6 +130,27 @@ export class ContactInfoComponent implements OnInit {
         this.form.get('swagBagParticipation')?.disable({ emitEvent: false });
       } else {
         this.form.get('swagBagParticipation')?.enable({ emitEvent: false });
+      }
+    });
+
+    this.form.get('swagBagParticipation')?.valueChanges.subscribe(val => {
+      if (val === true) {
+        this.form.get('swagDistributionInterest')?.setValidators(Validators.required);
+        this.form.get('swagDistributionItem')?.setValidators(Validators.required);
+      } else {
+        this.form.get('swagDistributionInterest')?.clearValidators();
+        this.form.get('swagDistributionItem')?.clearValidators();
+        this.form.get('swagDistributionInterest')?.setValue('');
+        this.form.get('swagDistributionItem')?.setValue('');
+        this.form.get('palletsDonation')?.setValue(false);
+      }
+      this.form.get('swagDistributionInterest')?.updateValueAndValidity();
+      this.form.get('swagDistributionItem')?.updateValueAndValidity();
+    });
+
+    this.form.get('swagDistributionInterest')?.valueChanges.subscribe(val => {
+      if (val !== 'products') {
+        this.form.get('palletsDonation')?.setValue(false);
       }
     });
 

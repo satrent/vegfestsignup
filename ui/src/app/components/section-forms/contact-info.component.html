@@ -259,10 +259,56 @@
                         <span>No</span>
                     </label>
                 </div>
-                @if (form.get('sponsorshipLevel')?.value === 'product') {
-                <small class="hint">Included with Product Sponsorship.</small>
+            </div>
+
+            @if (form.get('swagBagParticipation')?.value === true) {
+            <div class="swag-details">
+                <div class="form-group">
+                    <label>Are you interested in distributing coupons or products?<span
+                            class="required">*</span></label>
+                    <div class="radio-group" style="display: flex; gap: 20px;">
+                        <label class="radio-item">
+                            <input type="radio" value="coupons" formControlName="swagDistributionInterest">
+                            <span>Coupons</span>
+                        </label>
+                        <label class="radio-item">
+                            <input type="radio" value="products" formControlName="swagDistributionInterest">
+                            <span>Products</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>What product or product coupon do you want to provide?<span class="required">*</span></label>
+                    <input type="text" formControlName="swagDistributionItem" placeholder="Describe the item or coupon">
+                </div>
+
+                @if (form.get('swagDistributionInterest')?.value === 'products') {
+                <div class="form-group">
+                    <label class="checkbox-container">
+                        <input type="checkbox" formControlName="palletsDonation">
+                        <span class="label-text"><strong>Pallets:</strong> We can accept donations of up to one pallet
+                            of packaged snacks. Please check here if you would like to donate a pallet shipment.</span>
+                    </label>
+                </div>
+
+                @if (form.get('palletsDonation')?.value === true) {
+                <div class="alert alert-info">
+                    <strong>Shipping:</strong> products or coupons should be delivered the week of September 1<br>
+                    Our shipping address is:<br>
+                    Compassionate Action for Animals<br>
+                    34 13th Avenue NE<br>
+                    Suite 108<br>
+                    Minneapolis, MN 55413
+                </div>
+                }
                 }
             </div>
+            }
+
+            @if (form.get('sponsorshipLevel')?.value === 'product') {
+            <small class="hint">Included with Product Sponsorship.</small>
+            }
         </div>
         }
 
