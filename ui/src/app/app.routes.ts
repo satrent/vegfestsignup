@@ -60,6 +60,11 @@ export const routes: Routes = [
         canActivate: [authGuard]
     },
     {
+        path: 'dashboard/payment',
+        loadComponent: () => import('./components/section-forms/payment.component').then(m => m.PaymentComponent),
+        canActivate: [authGuard]
+    },
+    {
         path: 'admin',
         component: AdminDashboardComponent,
         canActivate: [authGuard, roleGuard],

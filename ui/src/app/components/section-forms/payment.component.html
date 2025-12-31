@@ -1,0 +1,61 @@
+<div class="section-container">
+    <div class="section-header">
+        <h2>Payment & Fees</h2>
+        <p>Please review your fees below. Secure payment is handled by Stripe.</p>
+    </div>
+
+    <div class="loading-spinner" *ngIf="loading">
+        Loading...
+    </div>
+
+    <div class="content-wrapper" *ngIf="!loading">
+
+        <div class="fee-summary">
+            <h3>Fee Summary</h3>
+
+            <div class="fee-row" *ngIf="applicationFee > 0">
+                <span class="label">Exhibitor Application Fee</span>
+                <span class="amount">{{ applicationFee | currency }}</span>
+            </div>
+            <div class="fee-note" *ngIf="applicationFee > 0">
+                * Applied to your exhibitor fee if accepted; refunded if declined.
+            </div>
+
+            <div class="fee-row" *ngIf="sponsorshipFee > 0">
+                <span class="label">Sponsorship Level: {{ registration?.sponsorshipLevel | titlecase }}</span>
+                <span class="amount">{{ sponsorshipFee | currency }}</span>
+            </div>
+
+            <div class="total-row">
+                <span class="label">Total Due Includes Processing Fees</span>
+                <span class="amount">{{ totalDue | currency }}</span>
+            </div>
+
+            <div class="receipt-row" *ngIf="registration?.paymentReceipt">
+                <span class="label">Payment Receipt:</span>
+                <span class="receipt-code">{{ registration?.paymentReceipt }}</span>
+            </div>
+        </div>
+
+        <!-- Stripe Placeholder -->
+        <div class="stripe-container" *ngIf="!registration?.sectionStatus?.payment">
+            <p class="crypto-notice">
+                <span class="material-icons">lock</span>
+                Secure Payment via Stripe
+            </p>
+
+            <!-- This is where the stripe-element would go -->
+            <div class="stripe-placeholder">
+                [Stripe Payment Element Placeholder]
+            </div>
+
+            <div class="actions">
+                <button class="btn-secondary" (click)="cancel()">Back</button>
+                <button class="btn-primary" (click)="proceedToPay()" [disabled]="processing">
+                    {{ processing ? 'Processing...' : 'Proceed to Payment (Simulated)' }}
+                </button>
+            </div>
+        </div>
+
+    </div>
+</div>

@@ -138,6 +138,7 @@ export interface Registration {
 
 
   // Section 6
+  sponsorshipLevel?: string;
   sponsorshipInterest?: boolean;
   sponsorExhibiting?: boolean;
   isProductSponsor?: boolean;
@@ -159,6 +160,9 @@ export interface Registration {
   // Billing
   initialInvoiceAmount?: number;
   amountPaid?: number;
+  paymentId?: string;       // Stripe PaymentIntent ID
+  paymentReceipt?: string;  // Receipt Reference
+  paymentDate?: Date;
 
   type: 'Exhibitor' | 'Sponsor' | 'Both';
   status: 'In Progress' | 'Pending' | 'Waiting for Approval' | 'Approved' | 'Declined';
@@ -171,6 +175,7 @@ export interface Registration {
     logistics: boolean;
     documents: boolean;
     expectations: boolean;
+    payment: boolean;
   };
   createdAt?: Date;
   updatedAt?: Date;

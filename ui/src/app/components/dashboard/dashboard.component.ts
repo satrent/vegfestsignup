@@ -27,7 +27,8 @@ export class DashboardComponent implements OnInit {
         { id: 'logistics', title: 'Booth & logistics', route: 'logistics' },
         { id: 'foodCompliance', title: 'Food/THC compliance', route: 'food-compliance' },
         { id: 'documents', title: 'Documents', route: 'documents' },
-        { id: 'expectations', title: 'Expectations & Terms', route: 'expectations' }
+        { id: 'expectations', title: 'Expectations & Terms', route: 'expectations' },
+        { id: 'payment', title: 'Payment', route: 'payment' }
     ];
 
     get isFoodVendor(): boolean {
@@ -47,6 +48,11 @@ export class DashboardComponent implements OnInit {
             return this.isFoodVendor || this.isThcVendor;
         }
 
+        // Payment is always visible at the end?
+        // Or specific conditions? "final registration section" -> seems general.
+        // Assuming always visible for now, or we could hide if fees are 0?
+        // But "refunded if declined" implies fees.
+
         return true;
     }
 
@@ -59,7 +65,7 @@ export class DashboardComponent implements OnInit {
         let visibleSections = this.allSections.filter(s => this.isSectionVisible(s.id));
 
         if (this.registration.type === 'Sponsor') {
-            visibleSections = visibleSections.filter(s => ['contact', 'products'].includes(s.id));
+            visibleSections = visibleSections.filter(s => ['contact', 'products', 'payment'].includes(s.id));
             // Rename 'Category & offering' to 'Logo Upload' for sponsors
             visibleSections = visibleSections.map(s => {
                 if (s.id === 'products') {
@@ -151,11 +157,11 @@ export class DashboardComponent implements OnInit {
         const s = this.registration.sectionStatus;
 
         if (this.registration.type === 'Sponsor') {
-            return s.contact && s.products;
+            return s.contact && s.products && s.payment;
         }
 
         // Basic requirements
-        let complete = s.contact && s.products && s.logistics && s.documents && s.expectations;
+        let complete = s.contact && s.products && s.logistics && s.documents && s.expectations && s.payment;
 
         // Conditional requirements
         if (this.isSectionVisible('foodCompliance')) {
