@@ -63,7 +63,7 @@ export class ContactInfoComponent implements OnInit {
       // Sponsorship
       sponsorshipLevel: [''],
       swagBagParticipation: [null],
-      swagDistributionInterest: [''],
+      swagDistributionInterest: [null],
       swagDistributionItem: [''],
       palletsDonation: [false],
     }, { validators: [this.websiteOrSocialValidator, this.onSiteContactValidator] });
@@ -140,7 +140,7 @@ export class ContactInfoComponent implements OnInit {
       } else {
         this.form.get('swagDistributionInterest')?.clearValidators();
         this.form.get('swagDistributionItem')?.clearValidators();
-        this.form.get('swagDistributionInterest')?.setValue('');
+        this.form.get('swagDistributionInterest')?.setValue(null);
         this.form.get('swagDistributionItem')?.setValue('');
         this.form.get('palletsDonation')?.setValue(false);
       }
