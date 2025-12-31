@@ -19,6 +19,7 @@ export class DashboardComponent implements OnInit {
     loading = true;
     error = '';
     sections: any[] = [];
+    isWelcomeSectionOpen = true;
 
     private readonly allSections = [
         { id: 'contact', title: 'Contact & Basic Information', route: 'contact' },
@@ -105,6 +106,10 @@ export class DashboardComponent implements OnInit {
     }
 
     ngOnInit(): void {
+        const stored = localStorage.getItem('dashboard_welcome_open');
+        if (stored !== null) {
+            this.isWelcomeSectionOpen = stored === 'true';
+        }
         this.loadRegistration();
     }
 
@@ -204,5 +209,11 @@ export class DashboardComponent implements OnInit {
         if (section) {
             this.router.navigate(['/dashboard', section.route]);
         }
+    }
+
+    onWelcomeSectionToggle(event: Event): void {
+        const details = event.target as HTMLDetailsElement;
+        this.isWelcomeSectionOpen = details.open;
+        localStorage.setItem('dashboard_welcome_open', String(this.isWelcomeSectionOpen));
     }
 }

@@ -19,7 +19,7 @@
   @if (registration && !loading) {
 
   <!-- Welcome Text & Guidelines -->
-  <details class="welcome-text-section" open>
+  <details class="welcome-text-section" [open]="isWelcomeSectionOpen" (toggle)="onWelcomeSectionToggle($event)">
     <summary
       style="padding: 1.5rem; cursor: pointer; font-weight: 600; font-size: 1.1em; list-style: none; display: flex; align-items: center; justify-content: space-between;">
       <span>Important Information & Guidelines</span>
