@@ -94,7 +94,23 @@ const startServer = async () => {
             console.log(`📡 Server running on http://localhost:${config.port}`);
             console.log(`🌍 Environment: ${config.nodeEnv}`);
             console.log(`🔗 Frontend URL: ${config.frontend.url}`);
-            console.log(`📧 Email service: ${config.email.service}`);
+
+            console.log(`📧 Email Config:`);
+            console.log(`   - Service: ${config.email.service}`);
+            console.log(`   - From: ${config.email.from}`);
+
+            if (config.email.service === 'smtp') {
+                console.log(`   - SMTP Host: ${config.email.smtp.host ? config.email.smtp.host : 'MISSING'}`);
+                console.log(`   - SMTP Port: ${config.email.smtp.port}`);
+                console.log(`   - SMTP User: ${config.email.smtp.user ? 'Set' : 'MISSING'}`);
+            }
+
+            if (config.nodeEnv === 'production' && config.email.service === 'console') {
+                console.error('\n⚠️  WARNING: Production environment detected but Email Service is set to CONSOLE.');
+                console.error('   Emails will NOT be sent to users. They will be logged to stdout.');
+                console.error('   Set EMAIL_SERVICE=smtp and configure SMTP settings to fix this.\n');
+            }
+
             console.log('================================\n');
         });
     } catch (error) {

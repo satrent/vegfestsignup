@@ -49,7 +49,7 @@ export class LoginComponent implements OnInit {
             next: (response) => {
                 this.loading = false;
                 this.codeSent = true;
-                this.success = 'Verification code sent! Check your email (or console in dev mode).';
+                this.success = 'Verification code sent! Check your email.';
             },
             error: (err) => {
                 this.loading = false;
