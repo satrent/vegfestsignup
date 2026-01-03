@@ -52,7 +52,7 @@
                 Secure Payment via Stripe
             </p>
 
-            <ngx-stripe-elements [stripe]="stripe | async" [elementsOptions]="elementsOptions"
+            <ngx-stripe-elements [stripe]="stripe" [elementsOptions]="elementsOptions"
                 (elements)="onElementsChange($event)">
                 <ngx-stripe-payment></ngx-stripe-payment>
             </ngx-stripe-elements>
