@@ -14,7 +14,7 @@ import { environment } from '../../../environments/environment';
     styleUrls: ['./payment.component.scss']
 })
 export class PaymentComponent implements OnInit {
-    @ViewChild(StripePaymentElementComponent) paymentElement!: StripePaymentElementComponent;
+    @ViewChild(StripeElementsDirective) elementsDirective!: StripeElementsDirective;
 
     private storageService = inject(StorageService);
     private router = inject(Router);
@@ -88,7 +88,11 @@ export class PaymentComponent implements OnInit {
     createPaymentIntent() {
         this.storageService.createPaymentIntent().subscribe({
             next: (res) => {
-                this.elementsOptions.clientSecret = res.clientSecret;
+                // Immutable update to trigger change detection if needed
+                this.elementsOptions = {
+                    ...this.elementsOptions,
+                    clientSecret: res.clientSecret
+                };
                 this.loading = false;
             },
             error: (err) => {
@@ -105,7 +109,7 @@ export class PaymentComponent implements OnInit {
         this.error = '';
 
         this.stripeService.confirmPayment({
-            elements: this.paymentElement.elements,
+            elements: this.elementsDirective.elements,
             redirect: 'if_required', // Avoid full page redirect if possible
             confirmParams: {
                 return_url: window.location.origin + '/dashboard', // Fallback
