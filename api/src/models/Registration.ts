@@ -157,6 +157,9 @@ export interface IRegistration extends Document {
     // Billing
     initialInvoiceAmount?: number;
     amountPaid?: number;
+    paymentId?: string;
+    paymentReceipt?: string;
+    paymentDate?: Date;
 
     type: RegistrationType;
     status: RegistrationStatus;
@@ -171,6 +174,8 @@ export interface IRegistration extends Document {
         foodCompliance: boolean;
         profile: boolean;
         sponsorship: boolean;
+        expectations: boolean;
+        payment: boolean;
     };
     createdAt: Date;
     updatedAt: Date;
@@ -404,6 +409,9 @@ const registrationSchema = new Schema<IRegistration>(
             type: Number,
             default: 0
         },
+        paymentId: String,
+        paymentReceipt: String,
+        paymentDate: Date,
 
         type: {
             type: String,
@@ -433,6 +441,7 @@ const registrationSchema = new Schema<IRegistration>(
             foodCompliance: { type: Boolean, default: false },
             documents: { type: Boolean, default: false },
             expectations: { type: Boolean, default: false },
+            payment: { type: Boolean, default: false },
         }
     },
     {

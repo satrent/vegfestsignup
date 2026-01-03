@@ -154,10 +154,13 @@ export class PaymentComponent implements OnInit {
 
         const updates: any = {
             'sectionStatus.payment': true,
+            'amountPaid': this.totalDue,
             'paymentId': paymentIntent.id,
             'paymentReceipt': 'Stripe', // Using placeholder logic or paymentIntent.id for now
             'paymentDate': new Date()
         };
+
+        console.log('Payment successful. Saving updates:', updates);
 
         this.storageService.updateRegistration(this.registration._id, updates).subscribe({
             next: () => {
