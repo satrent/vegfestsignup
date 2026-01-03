@@ -2,7 +2,7 @@ import { Component, OnInit, ViewChild, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { StorageService, Registration } from '../../services/storage.service';
-import { StripeService, NgxStripeModule, StripePaymentElementComponent, StripeElementsDirective } from 'ngx-stripe';
+import { StripeService, NgxStripeModule, StripePaymentElementComponent, StripeElementsDirective, injectStripe } from 'ngx-stripe';
 import { StripeElementsOptions, StripePaymentElementOptions, StripeElements } from '@stripe/stripe-js';
 import { environment } from '../../../environments/environment';
 
@@ -18,6 +18,7 @@ export class PaymentComponent implements OnInit {
     private router = inject(Router);
     private stripeService = inject(StripeService);
 
+    stripe = injectStripe(environment.stripePublishableKey);
     elements: StripeElements | undefined;
 
     registration: Registration | null = null;
