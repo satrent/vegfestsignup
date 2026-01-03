@@ -6,8 +6,13 @@ import { Registration } from '../models/Registration';
 const router = express.Router();
 
 // Initialize Stripe
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
-    apiVersion: '2025-10-16.acacia' as any, // Cast to any to avoid strict version check issues or use correct string if known
+const stripeKey = process.env.STRIPE_SECRET_KEY;
+if (!stripeKey) {
+    console.warn('⚠️ STRIPE_SECRET_KEY is missing. Payment routes will fail.');
+}
+
+const stripe = new Stripe(stripeKey || 'sk_test_placeholder', {
+    apiVersion: '2025-10-16.acacia' as any,
 });
 
 router.post('/create-payment-intent', authenticate, async (req, res) => {
@@ -16,7 +21,8 @@ router.post('/create-payment-intent', authenticate, async (req, res) => {
         const registration = await Registration.findOne({ userId });
 
         if (!registration) {
-            return res.status(404).json({ message: 'Registration not found' });
+            res.status(404).json({ message: 'Registration not found' });
+            return;
         }
 
         // Calculate Amount Logic (Must match frontend logic roughly, but is source of truth)
@@ -54,7 +60,8 @@ router.post('/create-payment-intent', authenticate, async (req, res) => {
         }
 
         if (amount === 0) {
-            return res.status(400).json({ message: 'No payment due' });
+            res.status(400).json({ message: 'No payment due' });
+            return;
         }
 
         // Create a PaymentIntent with the order amount and currency

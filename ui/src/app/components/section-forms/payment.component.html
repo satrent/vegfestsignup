@@ -44,7 +44,9 @@
                 Secure Payment via Stripe
             </p>
 
-            <ngx-stripe-payment-element [elementsOptions]="elementsOptions"></ngx-stripe-payment-element>
+            <ngx-stripe-elements [elementsOptions]="elementsOptions">
+                <ngx-stripe-payment></ngx-stripe-payment>
+            </ngx-stripe-elements>
 
             <div class="error-message" *ngIf="error">
                 {{ error }}

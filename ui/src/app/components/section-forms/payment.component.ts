@@ -2,21 +2,20 @@ import { Component, OnInit, ViewChild, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { StorageService, Registration } from '../../services/storage.service';
-import { StripeService, StripePaymentElementComponent } from 'ngx-stripe';
+import { StripeService, NgxStripeModule, StripePaymentElementComponent, StripeElementsDirective } from 'ngx-stripe';
 import { StripeElementsOptions, StripePaymentElementOptions } from '@stripe/stripe-js';
 import { environment } from '../../../environments/environment';
 
 @Component({
     selector: 'app-payment',
     standalone: true,
-    imports: [CommonModule, StripePaymentElementComponent],
+    imports: [CommonModule, NgxStripeModule, StripePaymentElementComponent, StripeElementsDirective],
     templateUrl: './payment.component.html',
     styleUrls: ['./payment.component.scss']
 })
 export class PaymentComponent implements OnInit {
     @ViewChild(StripePaymentElementComponent) paymentElement!: StripePaymentElementComponent;
 
-    privatestorageService = inject(StorageService); // Typo fixed in next line
     private storageService = inject(StorageService);
     private router = inject(Router);
     private stripeService = inject(StripeService);
