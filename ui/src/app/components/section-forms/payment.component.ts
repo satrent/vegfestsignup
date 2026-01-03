@@ -93,7 +93,7 @@ export class PaymentComponent implements OnInit {
             },
             error: (err) => {
                 console.error('Error creating payment intent:', err);
-                this.error = 'Failed to initialize payment. Please try again.';
+                this.error = err.error?.message || 'Failed to initialize payment. Please try again.';
                 this.loading = false;
             }
         });
