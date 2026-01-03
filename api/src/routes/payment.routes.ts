@@ -11,9 +11,7 @@ if (!stripeKey) {
     console.warn('⚠️ STRIPE_SECRET_KEY is missing. Payment routes will fail.');
 }
 
-const stripe = new Stripe(stripeKey || 'sk_test_placeholder', {
-    apiVersion: '2025-10-16.acacia' as any,
-});
+const stripe = new Stripe(stripeKey || 'sk_test_placeholder');
 
 router.post('/create-payment-intent', authenticate, async (req, res) => {
     try {
