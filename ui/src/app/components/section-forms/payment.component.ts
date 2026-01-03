@@ -14,11 +14,11 @@ import { environment } from '../../../environments/environment';
     styleUrls: ['./payment.component.scss']
 })
 export class PaymentComponent implements OnInit {
-    @ViewChild(StripeElementsDirective) elementsDirective!: StripeElementsDirective;
-
     private storageService = inject(StorageService);
     private router = inject(Router);
     private stripeService = inject(StripeService);
+
+    elements: StripeElements | undefined;
 
     registration: Registration | null = null;
     loading = true;
@@ -103,13 +103,23 @@ export class PaymentComponent implements OnInit {
         });
     }
 
+    onElementsChange(elements: StripeElements) {
+        this.elements = elements;
+    }
+
     pay(): void {
         if (this.processing) return;
+
+        if (!this.elements) {
+            this.error = 'Payment elements not loaded yet.';
+            return;
+        }
+
         this.processing = true;
         this.error = '';
 
         this.stripeService.confirmPayment({
-            elements: this.elementsDirective.elements,
+            elements: this.elements,
             redirect: 'if_required', // Avoid full page redirect if possible
             confirmParams: {
                 return_url: window.location.origin + '/dashboard', // Fallback
