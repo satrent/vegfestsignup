@@ -119,7 +119,7 @@ export class PaymentComponent implements OnInit {
         this.processing = true;
         this.error = '';
 
-        this.stripeService.confirmPayment({
+        this.stripe.confirmPayment({
             elements: this.elements,
             redirect: 'if_required', // Avoid full page redirect if possible
             confirmParams: {
