@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { StorageService, Registration } from '../../services/storage.service';
 import { StripeService, NgxStripeModule, StripePaymentElementComponent, StripeElementsDirective } from 'ngx-stripe';
-import { StripeElementsOptions, StripePaymentElementOptions } from '@stripe/stripe-js';
+import { StripeElementsOptions, StripePaymentElementOptions, StripeElements } from '@stripe/stripe-js';
 import { environment } from '../../../environments/environment';
 
 @Component({
@@ -92,7 +92,7 @@ export class PaymentComponent implements OnInit {
                 this.elementsOptions = {
                     ...this.elementsOptions,
                     clientSecret: res.clientSecret
-                };
+                } as StripeElementsOptions;
                 this.loading = false;
             },
             error: (err) => {
