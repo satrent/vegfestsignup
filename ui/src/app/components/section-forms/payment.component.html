@@ -37,24 +37,31 @@
             </div>
         </div>
 
-        <!-- Stripe Placeholder -->
-        <div class="stripe-container" *ngIf="!registration?.sectionStatus?.payment">
+        <!-- Stripe Payment Element -->
+        <div class="stripe-container" *ngIf="!registration?.sectionStatus?.payment && elementsOptions.clientSecret">
             <p class="crypto-notice">
                 <span class="material-icons">lock</span>
                 Secure Payment via Stripe
             </p>
 
-            <!-- This is where the stripe-element would go -->
-            <div class="stripe-placeholder">
-                [Stripe Payment Element Placeholder]
+            <ngx-stripe-payment-element [elementsOptions]="elementsOptions"></ngx-stripe-payment-element>
+
+            <div class="error-message" *ngIf="error">
+                {{ error }}
             </div>
 
             <div class="actions">
                 <button class="btn-secondary" (click)="cancel()">Back</button>
-                <button class="btn-primary" (click)="proceedToPay()" [disabled]="processing">
-                    {{ processing ? 'Processing...' : 'Proceed to Payment (Simulated)' }}
+                <button class="btn-primary" (click)="pay()" [disabled]="processing || !elementsOptions.clientSecret">
+                    {{ processing ? 'Processing...' : 'Pay Now ' + (totalDue | currency) }}
                 </button>
             </div>
+        </div>
+
+        <!-- If already paid or no fees -->
+        <div class="paid-message" *ngIf="registration?.sectionStatus?.payment">
+            <p>✅ Payment Complete</p>
+            <button class="btn-primary" (click)="cancel()">Return to Dashboard</button>
         </div>
 
     </div>

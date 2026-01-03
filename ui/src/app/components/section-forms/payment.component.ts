@@ -1,37 +1,59 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, ViewChild, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { StorageService, Registration } from '../../services/storage.service';
+import { StripeService, StripePaymentElementComponent } from 'ngx-stripe';
+import { StripeElementsOptions, StripePaymentElementOptions } from '@stripe/stripe-js';
+import { environment } from '../../../environments/environment';
 
 @Component({
     selector: 'app-payment',
     standalone: true,
-    imports: [CommonModule],
+    imports: [CommonModule, StripePaymentElementComponent],
     templateUrl: './payment.component.html',
     styleUrls: ['./payment.component.scss']
 })
 export class PaymentComponent implements OnInit {
+    @ViewChild(StripePaymentElementComponent) paymentElement!: StripePaymentElementComponent;
+
+    privatestorageService = inject(StorageService); // Typo fixed in next line
     private storageService = inject(StorageService);
     private router = inject(Router);
+    private stripeService = inject(StripeService);
 
     registration: Registration | null = null;
     loading = true;
     processing = false;
+    error = '';
 
     applicationFee = 0;
     sponsorshipFee = 0;
     totalDue = 0;
+
+    elementsOptions: StripeElementsOptions = {
+        locale: 'en',
+        appearance: {
+            theme: 'stripe',
+        },
+    };
 
     ngOnInit(): void {
         this.storageService.getLatestRegistration().subscribe({
             next: (reg) => {
                 this.registration = reg;
                 this.calculateFees();
-                this.loading = false;
+
+                // If not paid and fees exist, create payment intent
+                if (!reg.sectionStatus?.payment && this.totalDue > 0) {
+                    this.createPaymentIntent();
+                } else {
+                    this.loading = false;
+                }
             },
             error: (err) => {
                 console.error('Error loading registration for payment:', err);
                 this.loading = false;
+                this.error = 'Failed to load registration.';
             }
         });
     }
@@ -40,14 +62,7 @@ export class PaymentComponent implements OnInit {
         if (!this.registration) return;
 
         // 1. Application Fee
-        // Exhibitors pay $50. Sponsors might not, or it's included? 
-        // "initial $50 application fee for exhibitors"
-        // If type is 'Exhibitor' or 'Both', assuming they pay the fee.
-        // If type is 'Sponsor' only, maybe not? Sticking to "Exhibitor" logic for now.
-
-        // Check if they are an exhibitor (or Both)
         const isExhibitor = this.registration.type === 'Exhibitor' || this.registration.type === 'Both';
-
         if (isExhibitor) {
             this.applicationFee = 50;
         } else {
@@ -55,70 +70,90 @@ export class PaymentComponent implements OnInit {
         }
 
         // 2. Sponsorship Fee
-        // "sponsorship fee for sponsors"
-        // Based on sponsorshipLevel
-        // Values: "product, bronze, silver, gold, platinum, presenting"
-        // Placeholder values for now as requested.
         if (this.registration.sponsorshipLevel) {
             const level = this.registration.sponsorshipLevel.toLowerCase();
             switch (level) {
-                case 'product':
-                    this.sponsorshipFee = 0; // Assuming product is in-kind?
-                    break;
-                case 'bronze':
-                    this.sponsorshipFee = 500;
-                    break;
-                case 'silver':
-                    this.sponsorshipFee = 1000;
-                    break;
-                case 'gold':
-                    this.sponsorshipFee = 2500;
-                    break;
-                case 'platinum':
-                    this.sponsorshipFee = 5000;
-                    break;
-                case 'presenting':
-                    this.sponsorshipFee = 10000;
-                    break;
-                default:
-                    this.sponsorshipFee = 0;
+                case 'product': this.sponsorshipFee = 0; break;
+                case 'bronze': this.sponsorshipFee = 500; break;
+                case 'silver': this.sponsorshipFee = 1000; break;
+                case 'gold': this.sponsorshipFee = 2500; break;
+                case 'platinum': this.sponsorshipFee = 5000; break;
+                case 'presenting': this.sponsorshipFee = 10000; break;
+                default: this.sponsorshipFee = 0;
             }
         }
 
         this.totalDue = this.applicationFee + this.sponsorshipFee;
     }
 
-    proceedToPay(): void {
-        if (!this.registration || !this.registration._id) return;
+    createPaymentIntent() {
+        this.storageService.createPaymentIntent().subscribe({
+            next: (res) => {
+                this.elementsOptions.clientSecret = res.clientSecret;
+                this.loading = false;
+            },
+            error: (err) => {
+                console.error('Error creating payment intent:', err);
+                this.error = 'Failed to initialize payment. Please try again.';
+                this.loading = false;
+            }
+        });
+    }
 
+    pay(): void {
+        if (this.processing) return;
         this.processing = true;
+        this.error = '';
 
-        // TODO: Integrate Stripe Payment here
-        // For now, we mark the section as complete and maybe simulate a paid status?
-        // "final completed section" -> implies we just mark this section complete so they can submit.
+        this.stripeService.confirmPayment({
+            elements: this.paymentElement.elements,
+            redirect: 'if_required', // Avoid full page redirect if possible
+            confirmParams: {
+                return_url: window.location.origin + '/dashboard', // Fallback
+                payment_method_data: {
+                    billing_details: {
+                        name: this.registration?.organizationName || 'Exhibitor',
+                        email: this.registration?.email
+                    }
+                }
+            }
+        }).subscribe({
+            next: (result) => {
+                this.processing = false;
+                if (result.error) {
+                    this.error = result.error.message || 'Payment failed';
+                } else if (result.paymentIntent && result.paymentIntent.status === 'succeeded') {
+                    // Payment successful!
+                    this.handleSuccess(result.paymentIntent);
+                }
+            },
+            error: (err) => {
+                this.processing = false;
+                this.error = 'An unexpected error occurred.';
+                console.error(err);
+            }
+        });
+    }
 
-        // Simulate a really cool receipt number
-        const fakeReceipt = 'rcpt_' + Math.random().toString(36).substr(2, 9).toUpperCase();
+    handleSuccess(paymentIntent: any) {
+        if (!this.registration || !this.registration._id) return;
 
         const updates: any = {
             'sectionStatus.payment': true,
-            'paymentId': 'pi_simulated_' + Math.random().toString(36).substr(2, 9),
-            'paymentReceipt': fakeReceipt,
+            'paymentId': paymentIntent.id,
+            'paymentReceipt': 'Stripe', // Using placeholder logic or paymentIntent.id for now
             'paymentDate': new Date()
         };
 
-        // NOTE: In a real flow, we might wait for webhook or client-side confirmation.
-
         this.storageService.updateRegistration(this.registration._id, updates).subscribe({
             next: () => {
-                this.processing = false;
-                // Navigate back to dashboard to finally submit? or auto-submit?
-                // "last thing to complete before the final submit"
                 this.router.navigate(['/dashboard']);
             },
             error: (err) => {
                 console.error('Error saving payment status:', err);
-                this.processing = false;
+                // Payment was successful but save failed. Rare edge case.
+                // Maybe show a specific message.
+                alert('Payment successful, but failed to update record. Please contact support.');
             }
         });
     }

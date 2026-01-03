@@ -253,4 +253,8 @@ export class StorageService {
   getRegistrationLogs(id: string): Observable<any[]> {
     return this.api.get<any[]>(`/registrations/${id}/logs`);
   }
+
+  createPaymentIntent(): Observable<{ clientSecret: string }> {
+    return this.api.post<{ clientSecret: string }>('/payment/create-payment-intent', {});
+  }
 }
