@@ -82,9 +82,17 @@ router.post('/create-payment-intent', authenticate, async (req, res) => {
             clientSecret: paymentIntent.client_secret,
         });
 
-    } catch (error) {
+    } catch (error: any) {
         console.error('Error creating payment intent:', error);
-        res.status(500).json({ message: 'Internal server error' });
+
+        let errorMessage = 'Internal server error';
+        if (error.type === 'StripeAuthenticationError') {
+            errorMessage = 'Stripe configuration error (invalid key)';
+        } else if (error.message) {
+            errorMessage = error.message;
+        }
+
+        res.status(500).json({ message: errorMessage, details: error.message });
     }
 });
 
