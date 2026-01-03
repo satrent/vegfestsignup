@@ -37,38 +37,37 @@
             </div>
         </div>
 
-    </div>
-
-    <div class="error-message" *ngIf="error">
-        {{ error }}
-    </div>
-
-    <!-- Stripe Payment Element -->
-    <div class="stripe-container" *ngIf="!registration?.sectionStatus?.payment && elementsOptions.clientSecret">
 
 
-        <p class="crypto-notice">
-            <span class="material-icons">lock</span>
-            Secure Payment via Stripe
-        </p>
-
-        <ngx-stripe-elements [elementsOptions]="elementsOptions">
-            <ngx-stripe-payment></ngx-stripe-payment>
-        </ngx-stripe-elements>
-
-        <div class="actions">
-            <button class="btn-secondary" (click)="cancel()">Back</button>
-            <button class="btn-primary" (click)="pay()" [disabled]="processing || !elementsOptions.clientSecret">
-                {{ processing ? 'Processing...' : 'Pay Now ' + (totalDue | currency) }}
-            </button>
+        <div class="error-message" *ngIf="error">
+            {{ error }}
         </div>
-    </div>
 
-    <!-- If already paid or no fees -->
-    <div class="paid-message" *ngIf="registration?.sectionStatus?.payment">
-        <p>✅ Payment Complete</p>
-        <button class="btn-primary" (click)="cancel()">Return to Dashboard</button>
-    </div>
+        <!-- Stripe Payment Element -->
+        <div class="stripe-container" *ngIf="!registration?.sectionStatus?.payment && elementsOptions.clientSecret">
 
-</div>
-</div>
+
+            <p class="crypto-notice">
+                <span class="material-icons">lock</span>
+                Secure Payment via Stripe
+            </p>
+
+            <ngx-stripe-elements [elementsOptions]="elementsOptions">
+                <ngx-stripe-payment></ngx-stripe-payment>
+            </ngx-stripe-elements>
+
+            <div class="actions">
+                <button class="btn-secondary" (click)="cancel()">Back</button>
+                <button class="btn-primary" (click)="pay()" [disabled]="processing || !elementsOptions.clientSecret">
+                    {{ processing ? 'Processing...' : 'Pay Now ' + (totalDue | currency) }}
+                </button>
+            </div>
+        </div>
+
+        <!-- If already paid or no fees -->
+        <div class="paid-message" *ngIf="registration?.sectionStatus?.payment">
+            <p>✅ Payment Complete</p>
+            <button class="btn-primary" (click)="cancel()">Return to Dashboard</button>
+        </div>
+
+    </div>
