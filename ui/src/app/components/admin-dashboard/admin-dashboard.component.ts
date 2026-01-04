@@ -1,13 +1,15 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms'; // Added import
+import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { StorageService, Registration } from '../../services/storage.service';
 import { AuthService } from '../../services/auth.service';
+import { RegistrationDetailsComponent } from './registration-details/registration-details.component';
 
 @Component({
   selector: 'app-admin-dashboard',
-  imports: [CommonModule, FormsModule, RouterLink], // Added RouterLink
+  standalone: true,
+  imports: [CommonModule, FormsModule, RouterLink, RegistrationDetailsComponent],
   templateUrl: './admin-dashboard.component.html',
   styleUrls: ['./admin-dashboard.component.scss']
 })
@@ -156,66 +158,31 @@ export class AdminDashboardComponent implements OnInit {
     this.selectedRegistrationName = '';
   }
 
-  // Edit Modal
-  showEditModal = false;
-  editingRegistration: Registration | null = null;
-  activeTab = 'admin';
+  // Edit / Details Slide-out
+  showDetailsPanel = false;
+  selectedRegistration: Registration | null = null;
+  // Previously we had 'editingRegistration' and 'showEditModal', mapping them here:
 
   openEditModal(registration: Registration): void {
-    // Create a deep copy to avoid modifying the list view immediately
-    this.editingRegistration = JSON.parse(JSON.stringify(registration));
-    this.showEditModal = true;
-    this.activeTab = 'admin';
+    // We pass the raw registration to the component.
+    // The component makes a copy for editing, so we can pass the live object here.
+    // Ideally we might want to refresh it from server to get latest, but passing local is fine for now.
+    this.selectedRegistration = registration;
+    this.showDetailsPanel = true;
   }
 
-  closeEditModal(): void {
-    this.showEditModal = false;
-    this.editingRegistration = null;
+  closeDetailsPanel(): void {
+    this.showDetailsPanel = false;
+    this.selectedRegistration = null;
   }
 
-  setActiveTab(tab: string): void {
-    this.activeTab = tab;
+  onRegistrationUpdated(updated: Registration): void {
+    const index = this.allRegistrations.findIndex(r => r._id === updated._id);
+    if (index !== -1) {
+      this.allRegistrations[index] = updated;
+    }
   }
 
-  updateDocumentStatus(doc: any, status: 'Pending' | 'Approved' | 'Rejected'): void {
-    if (!doc) return;
-    doc.status = status;
-    // We auto-save when status changes for immediate feedback? 
-    // Or just let them click "Save Changes"? 
-    // Let's let them click "Save Changes" for consistency with other tabs.
-  }
-
-  viewDocument(key: string): void {
-    if (!key) return;
-    this.storageService.getDocumentUrl(key).subscribe({
-      next: (response) => {
-        window.open(response.url, '_blank');
-      },
-      error: (err) => {
-        console.error('Error fetching document URL:', err);
-        alert('Failed to open document. You may not have permission or the file may be missing.');
-      }
-    });
-  }
-
-  saveEdit(): void {
-    if (!this.editingRegistration || !this.editingRegistration._id) return;
-
-    this.storageService.updateRegistration(this.editingRegistration._id, this.editingRegistration).subscribe({
-      next: (updatedReg) => {
-        // Update the item in the list
-        const index = this.allRegistrations.findIndex(r => r._id === updatedReg._id);
-        if (index !== -1) {
-          this.allRegistrations[index] = updatedReg;
-        }
-        this.closeEditModal();
-      },
-      error: (err) => {
-        console.error('Error updating registration:', err);
-        alert('Failed to update registration');
-      }
-    });
-  }
 
   get pendingCount(): number {
     return this.allRegistrations.filter(r => r.status === 'Pending').length;
@@ -293,10 +260,13 @@ export class AdminDashboardComponent implements OnInit {
       this.closeRejectModal();
       this.updateStatus(id, 'Declined');
 
-      // If we are currently editing this registration, update the local copy too
-      if (this.editingRegistration && this.editingRegistration._id === id) {
-        this.editingRegistration.status = 'Declined';
-      }
+      // If we differ the update to the slide-out, we might need to handle it there too
+      // but updateStatus updates the list, which propagates to the slide out if it was bound?
+      // Actually if the slideout is open, it has a copy. The slideout would need to know.
+      // But typically we don't reject from the dashboard *while* the slideout is open,
+      // UNLESS the reject button is INSIDE the slideout.
+      // The current slideout implementation has its own status dropdown, so manual rejection there works.
+      // The dashboard reject button works on the list item.
     }
   }
 }

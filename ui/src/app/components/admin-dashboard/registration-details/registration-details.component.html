@@ -1,0 +1,284 @@
+<div class="slide-over-container" [class.open]="isOpen">
+    <div class="backdrop" (click)="onClose()"></div>
+    <div class="panel" *ngIf="tempRegistration">
+
+        <!-- Header -->
+        <div class="panel-header">
+            <div>
+                <h2>{{ tempRegistration.organizationName }}</h2>
+                <div style="margin-top: 0.25rem; display: flex; gap: 0.5rem;">
+                    <span class="badge" [class.approved]="tempRegistration.status === 'Approved'"
+                        [class.pending]="tempRegistration.status === 'Pending'"
+                        [class.declined]="tempRegistration.status === 'Declined'">
+                        {{ tempRegistration.status }}
+                    </span>
+                    <span class="badge" style="background: #e0e7ff; color: #3730a3;">{{ tempRegistration.type }}</span>
+                </div>
+            </div>
+            <button class="close-btn" (click)="onClose()">&times;</button>
+        </div>
+
+        <!-- Navigation -->
+        <div class="tabs-nav">
+            <button [class.active]="activeTab === 'overview'" (click)="setActiveTab('overview')">Overview</button>
+            <button [class.active]="activeTab === 'contact'" (click)="setActiveTab('contact')">Contact</button>
+            <button [class.active]="activeTab === 'logistics'" (click)="setActiveTab('logistics')">Logistics</button>
+            <button [class.active]="activeTab === 'profile'" (click)="setActiveTab('profile')">Profile</button>
+            <button [class.active]="activeTab === 'documents'" (click)="setActiveTab('documents')">Documents</button>
+            <button [class.active]="activeTab === 'billing'" (click)="setActiveTab('billing')">Billing</button>
+        </div>
+
+        <!-- Content -->
+        <div class="panel-content">
+
+            <!-- Overview Tab (Admin focus) -->
+            <div *ngIf="activeTab === 'overview'">
+                <div class="section-group">
+                    <h3>Admin Status</h3>
+                    <div class="form-grid">
+                        <div class="field-group">
+                            <label>Status</label>
+                            <select [(ngModel)]="tempRegistration.status">
+                                <option value="In Progress">In Progress</option>
+                                <option value="Pending">Pending</option>
+                                <option value="Waiting for Approval">Waiting for Approval</option>
+                                <option value="Approved">Approved</option>
+                                <option value="Declined">Declined</option>
+                            </select>
+                        </div>
+
+                        <div class="field-group">
+                            <label>Invoiced?</label>
+                            <label class="toggle-label">
+                                <input type="checkbox" [(ngModel)]="tempRegistration.invoiced">
+                                <span>{{ tempRegistration.invoiced ? 'Yes, Invoiced' : 'No' }}</span>
+                            </label>
+                        </div>
+
+                        <div class="field-group">
+                            <label>Website Status</label>
+                            <select [ngModel]="tempRegistration.websiteStatus || 'Pending'"
+                                (ngModelChange)="tempRegistration.websiteStatus = $event">
+                                <option value="Pending">Not Posted</option>
+                                <option value="Added">Posted to Website</option>
+                            </select>
+                        </div>
+
+                        <div class="field-group">
+                            <label>Initial Invoice Amount</label>
+                            <input type="number" [(ngModel)]="tempRegistration.initialInvoiceAmount" readonly
+                                style="background: #f3f4f6;">
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="section-group">
+                    <h3>Admin Notes</h3>
+                    <div class="field-group">
+                        <label>Notes (Internal Only)</label>
+                        <textarea [(ngModel)]="tempRegistration.otherInfo"
+                            placeholder="Add internal notes..."></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contact Tab -->
+            <div *ngIf="activeTab === 'contact'">
+                <div class="section-group">
+                    <h3>Primary Contact</h3>
+                    <div class="form-grid">
+                        <div class="field-group">
+                            <label>First Name</label>
+                            <input type="text" [(ngModel)]="tempRegistration.firstName">
+                        </div>
+                        <div class="field-group">
+                            <label>Last Name</label>
+                            <input type="text" [(ngModel)]="tempRegistration.lastName">
+                        </div>
+                        <div class="field-group">
+                            <label>Email</label>
+                            <input type="email" [(ngModel)]="tempRegistration.email">
+                        </div>
+                        <div class="field-group">
+                            <label>Phone</label>
+                            <input type="text" [(ngModel)]="tempRegistration.phone">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section-group">
+                    <h3>On-Site Contact</h3>
+                    <div class="form-grid" *ngIf="tempRegistration.onSiteContact">
+                        <div class="field-group"><label>Name</label>
+                            <div class="value">{{tempRegistration.onSiteContact.firstName}}
+                                {{tempRegistration.onSiteContact.lastName}}</div>
+                        </div>
+                        <div class="field-group"><label>Phone</label>
+                            <div class="value">{{tempRegistration.onSiteContact.phone}}</div>
+                        </div>
+                        <div class="field-group"><label>Email</label>
+                            <div class="value">{{tempRegistration.onSiteContact.email}}</div>
+                        </div>
+                    </div>
+                    <div *ngIf="!tempRegistration.onSiteContact">
+                        <p>Same as primary contact.</p>
+                    </div>
+                </div>
+
+                <div class="section-group">
+                    <h3>Address</h3>
+                    <div class="form-grid">
+                        <div class="field-group"><label>Street</label>
+                            <div class="value">{{tempRegistration.address || '-'}}</div>
+                        </div>
+                        <div class="field-group"><label>City</label>
+                            <div class="value">{{tempRegistration.city || '-'}}</div>
+                        </div>
+                        <div class="field-group"><label>State</label>
+                            <div class="value">{{tempRegistration.state || '-'}}</div>
+                        </div>
+                        <div class="field-group"><label>Zip</label>
+                            <div class="value">{{tempRegistration.zip || '-'}}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Logistics Tab -->
+            <div *ngIf="activeTab === 'logistics'">
+                <div class="section-group">
+                    <h3>Booth Requirements</h3>
+                    <div class="form-grid">
+                        <div class="field-group">
+                            <label>Number of Tables</label>
+                            <input type="number" [(ngModel)]="tempRegistration.numTables">
+                        </div>
+                        <div class="field-group">
+                            <label>Number of Chairs</label>
+                            <input type="number" [(ngModel)]="tempRegistration.numChairs">
+                        </div>
+                        <div class="field-group">
+                            <label>Number of Tents</label>
+                            <input type="number" [(ngModel)]="tempRegistration.numTents">
+                        </div>
+                        <div class="field-group">
+                            <label>Power Needs</label>
+                            <div class="value">{{tempRegistration.powerNeeds || 'None'}}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section-group">
+                    <h3>Load In/Out</h3>
+                    <div class="form-grid">
+                        <div class="field-group"><label>Vehicle Type</label>
+                            <div class="value">{{tempRegistration.loadInVehicle || '-'}}</div>
+                        </div>
+                        <div class="field-group"><label>Availability</label>
+                            <div class="value">{{tempRegistration.loadInAvailability || '-'}}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Profile Tab -->
+            <div *ngIf="activeTab === 'profile'">
+                <div class="section-group">
+                    <h3>Public Profile</h3>
+                    <div class="field-group">
+                        <label>Organization Name</label>
+                        <input type="text" [(ngModel)]="tempRegistration.organizationName">
+                    </div>
+                    <div class="field-group">
+                        <label>Website</label>
+                        <input type="text" [(ngModel)]="tempRegistration.website">
+                    </div>
+                    <div class="field-group">
+                        <label>Products Description</label>
+                        <textarea [(ngModel)]="tempRegistration.productsDescription"></textarea>
+                    </div>
+                </div>
+
+                <div class="section-group">
+                    <h3>Social Media</h3>
+                    <div class="form-grid">
+                        <div class="field-group"><label>Facebook</label><input type="text"
+                                [(ngModel)]="tempRegistration.facebookPage"></div>
+                        <div class="field-group"><label>Instagram</label><input type="text"
+                                [(ngModel)]="tempRegistration.instagramPage"></div>
+                        <div class="field-group"><label>TikTok</label><input type="text"
+                                [(ngModel)]="tempRegistration.tiktokPage"></div>
+                    </div>
+                </div>
+
+                <div class="section-group">
+                    <h3>Sponsorship</h3>
+                    <div class="form-grid">
+                        <div class="field-group"><label>Level</label>
+                            <div class="value">{{tempRegistration.sponsorshipLevel || '-'}}</div>
+                        </div>
+                        <div class="field-group"><label>Logo</label>
+                            <div *ngIf="tempRegistration.logoUrl"><a [href]="tempRegistration.logoUrl"
+                                    target="_blank">View Logo</a></div>
+                            <div *ngIf="!tempRegistration.logoUrl">No logo uploaded</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Documents Tab -->
+            <div *ngIf="activeTab === 'documents'">
+                <div class="doc-list">
+                    <div *ngIf="!tempRegistration.documents?.length">No documents found.</div>
+
+                    <div class="doc-item" *ngFor="let doc of tempRegistration.documents">
+                        <div class="doc-info">
+                            <span class="doc-name" (click)="viewDocument(doc.key)">{{doc.name}}</span>
+                            <span class="doc-meta">{{doc.type}} - {{doc.uploadedAt | date:'short'}}</span>
+                        </div>
+                        <div class="doc-actions">
+                            <span class="badge" [ngClass]="doc.status.toLowerCase()">{{doc.status}}</span>
+                            <div style="margin-top: 0.5rem; display: flex; gap: 0.5rem;"
+                                *ngIf="doc.status !== 'Approved'">
+                                <button (click)="updateDocumentStatus(doc, 'Approved')"
+                                    class="small-btn approve">Approve</button>
+                                <button (click)="updateDocumentStatus(doc, 'Rejected')"
+                                    class="small-btn reject">Reject</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Billing Tab -->
+            <div *ngIf="activeTab === 'billing'">
+                <div class="section-group">
+                    <h3>Payments</h3>
+                    <div class="form-grid">
+                        <div class="field-group">
+                            <label>Amount Paid</label>
+                            <input type="number" [(ngModel)]="tempRegistration.amountPaid">
+                        </div>
+                        <div class="field-group">
+                            <label>Payment Date</label>
+                            <div class="value">{{tempRegistration.paymentDate | date:'medium' }}</div>
+                        </div>
+                        <div class="field-group">
+                            <label>Payment Receipt</label>
+                            <div class="value">{{tempRegistration.paymentReceipt || '-'}}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Footer Action -->
+        <div class="panel-footer">
+            <button class="cancel-btn" (click)="onClose()">Cancel</button>
+            <button class="save-btn" (click)="save()">Save Changes</button>
+        </div>
+
+    </div>
+</div>
