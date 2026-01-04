@@ -29,7 +29,7 @@ export class AdminDashboardComponent implements OnInit {
   showFilterModal = false;
   filterName = '';
   filterInvoiced: 'all' | 'yes' | 'no' = 'all';
-  filterStatus: 'all' | 'In Progress' | 'Pending' | 'Approved' | 'Declined' | 'Ready to Add' = 'all';
+  filterStatus: 'all' | 'In Progress' | 'Pending' | 'Approved' | 'Declined' | 'Ready to Add' = 'Pending';
 
   get filteredRegistrations(): Registration[] {
     return this.allRegistrations.filter(reg => {
