@@ -230,9 +230,9 @@
             <!-- Documents Tab -->
             <div *ngIf="activeTab === 'documents'">
                 <div class="doc-list">
-                    <div *ngIf="!tempRegistration.documents?.length">No documents found.</div>
+                    <div *ngIf="!displayedDocuments.length">No documents found.</div>
 
-                    <div class="doc-item" *ngFor="let doc of tempRegistration.documents">
+                    <div class="doc-item" *ngFor="let doc of displayedDocuments">
                         <div class="doc-info">
                             <span class="doc-name" (click)="viewDocument(doc.key)">{{doc.name}}</span>
                             <span class="doc-meta">{{doc.type}} - {{doc.uploadedAt | date:'short'}}</span>
@@ -240,7 +240,7 @@
                         <div class="doc-actions">
                             <span class="badge" [ngClass]="doc.status.toLowerCase()">{{doc.status}}</span>
                             <div style="margin-top: 0.5rem; display: flex; gap: 0.5rem;"
-                                *ngIf="doc.status !== 'Approved'">
+                                *ngIf="doc.status !== 'Approved' && isApprovalRequired(doc)">
                                 <button (click)="updateDocumentStatus(doc, 'Approved')"
                                     class="small-btn approve">Approve</button>
                                 <button (click)="updateDocumentStatus(doc, 'Rejected')"

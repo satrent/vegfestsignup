@@ -36,6 +36,48 @@ export class RegistrationDetailsComponent {
         this.activeTab = tab;
     }
 
+    get displayedDocuments(): any[] {
+        if (!this.tempRegistration) return [];
+        const docs = [...(this.tempRegistration.documents || [])];
+        if (this.tempRegistration.productPhotos?.length) {
+            this.tempRegistration.productPhotos.forEach((photoKey, index) => {
+                docs.push({
+                    type: 'product-photo', // Matches isApprovalRequired check
+                    name: `Product Photo ${index + 1}`,
+                    key: photoKey,
+                    location: '',
+                    status: 'Approved', // Valid status, buttons hidden by helper anyway
+                    uploadedAt: new Date() // access to date not available for simple string array
+                });
+            });
+        }
+
+
+        if (this.tempRegistration.logoUrl) {
+            docs.push({
+                type: 'Logo',
+                name: 'Organization Logo',
+                key: this.tempRegistration.logoUrl,
+                location: '',
+                status: 'Approved',
+                uploadedAt: new Date()
+            });
+        }
+
+        if (this.tempRegistration.couponLogoUrl) {
+            docs.push({
+                type: 'Coupon Logo',
+                name: 'Coupon Logo',
+                key: this.tempRegistration.couponLogoUrl,
+                location: '',
+                status: 'Approved',
+                uploadedAt: new Date()
+            });
+        }
+
+        return docs;
+    }
+
     onClose(): void {
         this.close.emit();
         this.activeTab = 'overview';
@@ -55,6 +97,13 @@ export class RegistrationDetailsComponent {
                 alert('Failed to update registration');
             }
         });
+    }
+
+    // Helper for documents
+    isApprovalRequired(doc: any): boolean {
+        if (!doc || !doc.type) return true; // Default to requiring approval if type is missing
+        const type = doc.type.toLowerCase();
+        return type !== 'menu' && type !== 'product-photo' && type !== 'logo' && type !== 'coupon logo';
     }
 
     // Helper for documents
