@@ -20,6 +20,7 @@ export class DocumentsComponent implements OnInit {
   saving = false;
   registrationId: string = '';
   documents: NonNullable<Registration['documents']> = [];
+  registrationStatus: string = '';
 
   // State for conditional visibility
   onSiteSales = false;
@@ -38,6 +39,7 @@ export class DocumentsComponent implements OnInit {
     this.storageService.getLatestRegistration().subscribe(reg => {
       if (reg && reg._id) {
         this.registrationId = reg._id;
+        this.registrationStatus = reg.status;
         this.documents = reg.documents || [];
         this.onSiteSales = !!reg.onSiteSales;
 
@@ -49,12 +51,25 @@ export class DocumentsComponent implements OnInit {
         // Setup ST-19 validators based on Sales status
         this.updateValidators();
 
-        if (reg.status !== 'In Progress') {
+        const isMissingRequiredDocs = this.checkMissingDocs();
+
+        if (reg.status !== 'In Progress' && !isMissingRequiredDocs) {
           this.form.disable();
-          this.saving = true;
+          this.saving = true; // Use saving flag to disable submit button visually if needed, or rely on form.disabled
+        } else if (reg.status !== 'In Progress' && isMissingRequiredDocs) {
+          // If not in progress but missing docs, allow interaction
+          // We might want to lock options that are already satisfied?
+          // For simplicity, we just leave the form enabled so they can upload.
+          this.saving = false;
         }
       }
     });
+  }
+
+  checkMissingDocs(): boolean {
+    const missingCOI = !this.hasDoc('COI');
+    const missingST19 = this.onSiteSales && !this.hasDoc('ST-19');
+    return missingCOI || missingST19;
   }
 
   updateValidators() {

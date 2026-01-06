@@ -7,6 +7,12 @@
     </div>
     }
 
+    @if (!form.disabled && registrationStatus !== 'In Progress' && registrationStatus !== '') {
+    <div class="alert alert-info">
+        Please upload the missing required documents to complete your application.
+    </div>
+    }
+
     <form [formGroup]="form" (ngSubmit)="onSubmit()">
 
         <!-- ST-19 Section (Conditional) -->

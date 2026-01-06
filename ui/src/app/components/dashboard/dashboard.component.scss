@@ -208,6 +208,19 @@
     .section-title {
         font-size: 1.1rem;
         font-weight: 500;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+
+        .badge-missing {
+            background-color: #dc3545;
+            color: white;
+            font-size: 0.75rem;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            margin-left: 0.5rem;
+            font-weight: bold;
+        }
     }
 
     .arrow {

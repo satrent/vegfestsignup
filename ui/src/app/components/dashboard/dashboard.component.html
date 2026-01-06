@@ -162,11 +162,17 @@
         <div class="section-info">
           <span class="status-icon" [class.complete]="getSectionStatus(section.id) === 'complete'"
             [class.locked]="getSectionStatus(section.id) === 'locked'">
-            @if (getSectionStatus(section.id) === 'complete') { ✓ }
+            @if (section.id === 'documents' && hasMissingDocuments) { ⚠️ }
+            @else if (getSectionStatus(section.id) === 'complete') { ✓ }
             @else if (getSectionStatus(section.id) === 'locked') { 🔒 }
             @else { ○ }
           </span>
-          <span class="section-title">{{ section.title }}</span>
+          <span class="section-title">
+            {{ section.title }}
+            @if (section.id === 'documents' && hasMissingDocuments) {
+            <span class="badge-missing">Missing Documents</span>
+            }
+          </span>
         </div>
         <span class="arrow">→</span>
       </div>

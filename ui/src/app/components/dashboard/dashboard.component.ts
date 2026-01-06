@@ -216,4 +216,19 @@ export class DashboardComponent implements OnInit {
         this.isWelcomeSectionOpen = details.open;
         localStorage.setItem('dashboard_welcome_open', String(this.isWelcomeSectionOpen));
     }
+
+    get hasMissingDocuments(): boolean {
+        if (!this.registration) return false;
+
+        const docs = this.registration.documents || [];
+        const hasCOI = docs.some(d => d.type === 'COI');
+
+        const onSiteSales = !!this.registration.onSiteSales;
+        const hasST19 = docs.some(d => d.type === 'ST-19');
+
+        if (!hasCOI) return true;
+        if (onSiteSales && !hasST19) return true;
+
+        return false;
+    }
 }
