@@ -21,6 +21,17 @@ router.get('/', authenticate, requireAdmin, async (_req: Request, res: Response)
     }
 });
 
+// Get all tags (admin only)
+router.get('/tags', authenticate, requireAdmin, async (_req: Request, res: Response) => {
+    try {
+        const tags = await Registration.distinct('tags');
+        res.json(tags.filter(t => t)); // Filter out any null/empty
+    } catch (error) {
+        console.error('Error fetching tags:', error);
+        res.status(500).json({ error: 'Failed to fetch tags' });
+    }
+});
+
 // Get user's own registrations
 router.get('/my-registrations', authenticate, async (req: Request, res: Response) => {
     try {

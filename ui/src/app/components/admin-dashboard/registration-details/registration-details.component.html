@@ -74,6 +74,27 @@
                 </div>
 
                 <div class="section-group">
+                    <h3>Tags</h3>
+                    <div class="tags-container">
+                        <div class="tags-list">
+                            <span class="tag-badge" *ngFor="let tag of tempRegistration.tags; let i = index">
+                                {{tag}}
+                                <button (click)="removeTag(i)">&times;</button>
+                            </span>
+                        </div>
+                        <div class="add-tag">
+                            <input type="text" [(ngModel)]="newTagInput" (input)="onTagInput($event)"
+                                placeholder="Add a tag..." list="available-tags" (keydown.enter)="addTag(newTagInput)">
+                            <datalist id="available-tags">
+                                <option *ngFor="let tag of availableTags" [value]="tag"></option>
+                            </datalist>
+                            <button class="add-btn" (click)="addTag(newTagInput)">Add</button>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="section-group">
                     <h3>Admin Notes</h3>
                     <div class="field-group">
                         <label>Notes (Internal Only)</label>
@@ -220,7 +241,8 @@
                         </div>
                         <div class="field-group"><label>Logo</label>
                             <div *ngIf="tempRegistration.logoUrl"><a [href]="tempRegistration.logoUrl"
-                                    target="_blank">View Logo</a></div>
+                                    target="_blank">View
+                                    Logo</a></div>
                             <div *ngIf="!tempRegistration.logoUrl">No logo uploaded</div>
                         </div>
                     </div>

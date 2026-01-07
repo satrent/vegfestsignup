@@ -260,6 +260,24 @@
   font-size: 0.85rem;
 }
 
+.tags-row {
+  margin-bottom: 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.tag-pill {
+  background: #e0e7ff;
+  color: #3730a3;
+  padding: 0.2rem 0.6rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  border: 1px solid #c7d2fe;
+}
+
+
 .date {
   color: #a0aec0;
   font-size: 0.85rem;

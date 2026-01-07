@@ -179,6 +179,7 @@ export interface IRegistration extends Document {
     };
     createdAt: Date;
     updatedAt: Date;
+    tags?: string[];
 }
 
 const registrationSchema = new Schema<IRegistration>(
@@ -442,7 +443,8 @@ const registrationSchema = new Schema<IRegistration>(
             documents: { type: Boolean, default: false },
             expectations: { type: Boolean, default: false },
             payment: { type: Boolean, default: false },
-        }
+        },
+        tags: [String]
     },
     {
         timestamps: true,

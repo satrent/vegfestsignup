@@ -23,13 +23,52 @@ export class RegistrationDetailsComponent {
     editing = false;
     tempRegistration: Registration | null = null;
 
+    // Tags
+    availableTags: string[] = [];
+    filteredTags: string[] = [];
+    newTagInput = '';
+
+
     // Track original values to show changes if needed, or just for cancel
 
     ngOnChanges(): void {
         if (this.registration && this.isOpen) {
             // Initialize temp copy for editing
             this.tempRegistration = JSON.parse(JSON.stringify(this.registration));
+            this.loadTags();
         }
+    }
+
+    loadTags(): void {
+        this.storageService.getTags().subscribe(tags => {
+            this.availableTags = tags;
+        });
+    }
+
+    addTag(tag: string): void {
+        if (!tag || !this.tempRegistration) return;
+        const normalized = tag.trim();
+        if (!normalized) return;
+
+        if (!this.tempRegistration.tags) {
+            this.tempRegistration.tags = [];
+        }
+
+        if (!this.tempRegistration.tags.includes(normalized)) {
+            this.tempRegistration.tags.push(normalized);
+        }
+        this.newTagInput = '';
+    }
+
+    removeTag(index: number): void {
+        if (!this.tempRegistration?.tags) return;
+        this.tempRegistration.tags.splice(index, 1);
+    }
+
+    onTagInput(event: Event): void {
+        const input = (event.target as HTMLInputElement).value;
+        this.newTagInput = input;
+        this.filteredTags = this.availableTags.filter(t => t.toLowerCase().includes(input.toLowerCase()));
     }
 
     setActiveTab(tab: string): void {

@@ -30,6 +30,8 @@ export class AdminDashboardComponent implements OnInit {
   filterName = '';
   filterInvoiced: 'all' | 'yes' | 'no' = 'all';
   filterStatus: 'all' | 'In Progress' | 'Pending' | 'Approved' | 'Declined' | 'Ready to Add' = 'Pending';
+  filterTag = '';
+  availableTags: string[] = [];
 
   get filteredRegistrations(): Registration[] {
     return this.allRegistrations.filter(reg => {
@@ -55,12 +57,15 @@ export class AdminDashboardComponent implements OnInit {
         statusMatch = this.filterStatus === 'all' || reg.status === this.filterStatus;
       }
 
-      return nameMatch && invoicedMatch && statusMatch;
+      // Tag Filter
+      const tagMatch = !this.filterTag || (reg.tags && reg.tags.includes(this.filterTag));
+
+      return nameMatch && invoicedMatch && statusMatch && tagMatch;
     });
   }
 
   get hasActiveFilters(): boolean {
-    return !!this.filterName || this.filterInvoiced !== 'all' || this.filterStatus !== 'all';
+    return !!this.filterName || this.filterInvoiced !== 'all' || this.filterStatus !== 'all' || !!this.filterTag;
   }
 
   ngOnInit(): void {
@@ -70,6 +75,13 @@ export class AdminDashboardComponent implements OnInit {
       }
     });
     this.loadRegistrations();
+    this.loadTags();
+  }
+
+  loadTags(): void {
+    this.storageService.getTags().subscribe(tags => {
+      this.availableTags = tags;
+    });
   }
 
   loadRegistrations(): void {
@@ -181,6 +193,7 @@ export class AdminDashboardComponent implements OnInit {
     if (index !== -1) {
       this.allRegistrations[index] = updated;
     }
+    this.loadTags();
   }
 
 
@@ -205,6 +218,7 @@ export class AdminDashboardComponent implements OnInit {
     this.filterName = '';
     this.filterInvoiced = 'all';
     this.filterStatus = 'all';
+    this.filterTag = '';
   }
 
   logout(): void {

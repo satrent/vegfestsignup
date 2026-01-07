@@ -104,6 +104,10 @@
             <span class="status-badge" [ngClass]="reg.status.toLowerCase()">{{ reg.status }}</span>
           </div>
         </div>
+        <!-- Tags Row -->
+        <div class="tags-row" *ngIf="reg.tags && reg.tags.length > 0">
+          <span class="tag-pill" *ngFor="let tag of reg.tags">{{tag}}</span>
+        </div>
         <div class="card-body">
           <div class="details">
             <div class="contact-row">
@@ -245,6 +249,13 @@
           <option value="Approved">Approved</option>
           <option value="Declined">Declined</option>
           <option value="Ready to Add">Ready to Add to Website</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Filter by Tag</label>
+        <select [(ngModel)]="filterTag">
+          <option value="">All Tags</option>
+          <option *ngFor="let tag of availableTags" [value]="tag">{{tag}}</option>
         </select>
       </div>
     </div>

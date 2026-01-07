@@ -179,6 +179,7 @@ export interface Registration {
   };
   createdAt?: Date;
   updatedAt?: Date;
+  tags?: string[];
 }
 
 @Injectable({
@@ -256,5 +257,9 @@ export class StorageService {
 
   createPaymentIntent(): Observable<{ clientSecret: string }> {
     return this.api.post<{ clientSecret: string }>('/payment/create-payment-intent', {});
+  }
+
+  getTags(): Observable<string[]> {
+    return this.api.get<string[]>('/registrations/tags');
   }
 }

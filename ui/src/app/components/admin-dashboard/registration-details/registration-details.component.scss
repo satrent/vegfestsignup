@@ -276,3 +276,73 @@
         height: 1.25rem;
     }
 }
+
+/* Tags */
+.tags-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.tags-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.tag-badge {
+    background: #eef2ff;
+    color: #4338ca;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.875rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    border: 1px solid #c7d2fe;
+
+    button {
+        background: none;
+        border: none;
+        color: #6b7280;
+        cursor: pointer;
+        padding: 0;
+        font-size: 1.1rem;
+        line-height: 1;
+
+        &:hover {
+            color: #ef4444;
+        }
+    }
+}
+
+.add-tag {
+    display: flex;
+    gap: 0.5rem;
+
+    input {
+        flex: 1;
+        padding: 0.5rem;
+        border: 1px solid #d1d5db;
+        border-radius: 4px;
+        font-size: 0.95rem;
+
+        &:focus {
+            outline: none;
+            border-color: #2563eb;
+        }
+    }
+
+    .add-btn {
+        padding: 0.5rem 1rem;
+        background: #f3f4f6;
+        border: 1px solid #d1d5db;
+        color: #374151;
+        border-radius: 4px;
+        cursor: pointer;
+
+        &:hover {
+            background: #e5e7eb;
+        }
+    }
+}
