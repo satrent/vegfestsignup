@@ -1,67 +1,74 @@
-<div class="login-container">
-  <div class="login-card">
-    <h1>Twin Cities Veg Fest Signup</h1>
-    <p class="subtitle">Participant Login</p>
+<div class="login-wrapper">
+  <div class="image-section">
+    <!-- Background image handled in CSS -->
+  </div>
+  <div class="login-container">
+    <div class="login-card">
+      <div class="logo-container">
+        <img src="/assets/veg_fest_logo.png" alt="Twin Cities Veg Fest" class="logo">
+      </div>
+      <p class="subtitle">Participant Login</p>
 
-    <!-- Error Message -->
-    @if (error) {
+      <!-- Error Message -->
+      @if (error) {
       <div class="alert alert-error">
         {{ error }}
       </div>
-    }
+      }
 
-    <!-- Success Message -->
-    @if (success) {
+      <!-- Success Message -->
+      @if (success) {
       <div class="alert alert-success">
         {{ success }}
       </div>
-    }
+      }
 
-    <!-- Email Input (Step 1) -->
-    @if (!codeSent) {
+      <!-- Email Input (Step 1) -->
+      @if (!codeSent) {
       <div class="form-section">
         <label for="email">Email Address</label>
         <input type="email" id="email" [(ngModel)]="email" placeholder="your@email.com" [disabled]="loading"
           (keyup.enter)="requestCode()" />
-          <div class="checkbox-group">
-            <label class="checkbox-container">
-              <input type="checkbox" [(ngModel)]="stayLoggedIn" [disabled]="loading">
-              Stay logged in
-            </label>
-            @if (stayLoggedIn) {
-              <div class="warning-text">
-                <i class="fas fa-exclamation-triangle"></i> Only use this on private devices
-              </div>
-            }
+        <div class="checkbox-group">
+          <label class="checkbox-container">
+            <input type="checkbox" [(ngModel)]="stayLoggedIn" [disabled]="loading">
+            Stay logged in
+          </label>
+          @if (stayLoggedIn) {
+          <div class="warning-text">
+            <i class="fas fa-exclamation-triangle"></i> Only use this on private devices
           </div>
-          <button class="btn btn-primary" (click)="requestCode()" [disabled]="loading || !email">
-            {{ loading ? 'Sending...' : 'Send Verification Code' }}
-          </button>
+          }
         </div>
+        <button class="btn btn-primary" (click)="requestCode()" [disabled]="loading || !email">
+          {{ loading ? 'Sending...' : 'Send Verification Code' }}
+        </button>
+      </div>
       }
 
       <!-- Code Input (Step 2) -->
       @if (codeSent) {
-        <div class="form-section">
-          <label for="code">Verification Code</label>
-          <p class="help-text">Enter the 6-digit code sent to {{ email }}</p>
-          <input type="text" id="code" [(ngModel)]="code" placeholder="123456" maxlength="6" [disabled]="loading"
-            (keyup.enter)="verifyCode()" />
-            <button class="btn btn-primary" (click)="verifyCode()" [disabled]="loading || code.length !== 6">
-              {{ loading ? 'Verifying...' : 'Verify & Login' }}
-            </button>
-            <button class="btn btn-secondary" (click)="codeSent = false; code = ''; error = ''; success = ''"
-              [disabled]="loading">
-              Use Different Email
-            </button>
-          </div>
-        }
+      <div class="form-section">
+        <label for="code">Verification Code</label>
+        <p class="help-text">Enter the 6-digit code sent to {{ email }}</p>
+        <input type="text" id="code" [(ngModel)]="code" placeholder="123456" maxlength="6" [disabled]="loading"
+          (keyup.enter)="verifyCode()" />
+        <button class="btn btn-primary" (click)="verifyCode()" [disabled]="loading || code.length !== 6">
+          {{ loading ? 'Verifying...' : 'Verify & Login' }}
+        </button>
+        <button class="btn btn-secondary" (click)="codeSent = false; code = ''; error = ''; success = ''"
+          [disabled]="loading">
+          Use Different Email
+        </button>
+      </div>
+      }
 
-        <!-- Admin Login Link -->
-        <div class="admin-link">
-          <button class="btn-link" (click)="goToAdminLogin()">
-            Admin? Sign in with Google →
-          </button>
-        </div>
+      <!-- Admin Login Link -->
+      <div class="admin-link">
+        <button class="btn-link" (click)="goToAdminLogin()">
+          Admin? Sign in with Google →
+        </button>
       </div>
     </div>
+  </div>
+</div>
