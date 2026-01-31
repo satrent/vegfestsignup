@@ -111,8 +111,29 @@
 
         <!-- Established -->
         <div class="form-group">
-            <label for="establishedDate">What month and year was your business established?</label>
-            <input id="establishedDate" type="text" formControlName="establishedDate" placeholder="e.g. May 2020">
+            <label>What month and year was your business established?</label>
+            <div class="row" style="gap: 1rem;">
+                <div class="form-group half">
+                    <select formControlName="establishedMonth">
+                        <option value="" disabled selected>Month</option>
+                        <option value="January">January</option>
+                        <option value="February">February</option>
+                        <option value="March">March</option>
+                        <option value="April">April</option>
+                        <option value="May">May</option>
+                        <option value="June">June</option>
+                        <option value="July">July</option>
+                        <option value="August">August</option>
+                        <option value="September">September</option>
+                        <option value="October">October</option>
+                        <option value="November">November</option>
+                        <option value="December">December</option>
+                    </select>
+                </div>
+                <div class="form-group half">
+                    <input type="text" formControlName="establishedYear" placeholder="Year (YYYY)">
+                </div>
+            </div>
         </div>
 
         <!-- Email & Phone -->
@@ -198,21 +219,6 @@
         }
 
         @if (!isSponsor) {
-        <!-- Demographics -->
-        <div class="form-group">
-            <label>We want to showcase food and products from a wide range of cultures at the festival. Please share the
-                owner(s) races or ethnicities (check all that apply):</label>
-            <select multiple formControlName="ownerDemographics" class="multi-select">
-                <option value="African or Black">African or Black</option>
-                <option value="Asian">Asian</option>
-                <option value="Hispanic/Latinx">Hispanic/Latinx</option>
-                <option value="Indigenous">Indigenous</option>
-                <option value="White">White</option>
-                <option value="Other">Other</option>
-            </select>
-            <small>(Hold Ctrl/Cmd to select multiple)</small>
-        </div>
-
         <!-- Vegan Checks -->
         <div class="form-group">
             <label>We are a vegan festival. Please check all that apply to your business when not at Twin Cities Veg
@@ -225,6 +231,10 @@
                 <label class="radio-item">
                     <input type="checkbox" formControlName="isVeganProducts">
                     <span>All products sold by the business or organization are vegan</span>
+                </label>
+                <label class="radio-item">
+                    <input type="checkbox" formControlName="isVeganProductsSome">
+                    <span>Some of our products are vegan</span>
                 </label>
             </div>
         </div>
@@ -343,6 +353,25 @@
             @if (form.get('sponsorshipLevel')?.value === 'product') {
             <small class="hint">Included with Product Sponsorship.</small>
             }
+        </div>
+        }
+
+        @if (!isSponsor) {
+        <!-- Demographics (Moved to end) -->
+        <div class="form-group">
+            <label>We want to showcase food and products from a wide range of cultures at the festival. Please share the
+                owner(s) races or ethnicities (check all that apply): <span class="optional">(Not
+                    Required)</span></label>
+            <select multiple formControlName="ownerDemographics" class="multi-select">
+                <option value="African or Black">African or Black</option>
+                <option value="Asian">Asian</option>
+                <option value="Hispanic/Latinx">Hispanic/Latinx</option>
+                <option value="Indigenous">Indigenous</option>
+                <option value="White">White</option>
+                <option value="Other">Other</option>
+                <option value="Prefer not to say">Prefer not to say</option>
+            </select>
+            <small>(Hold Ctrl/Cmd to select multiple)</small>
         </div>
         }
 

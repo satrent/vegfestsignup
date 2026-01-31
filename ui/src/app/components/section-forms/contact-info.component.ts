@@ -37,7 +37,9 @@ export class ContactInfoComponent implements OnInit {
         email: ['', Validators.email]
       }),
 
-      establishedDate: [''],
+      establishedMonth: [''],
+      establishedYear: [''],
+
       email: [{ value: '', disabled: true }, [Validators.required, Validators.email]],
       phone: ['', [Validators.required, Validators.pattern(/^\d{3}-\d{3}-\d{4}$/)]],
 
@@ -59,8 +61,10 @@ export class ContactInfoComponent implements OnInit {
 
       // Demographics & Values
       ownerDemographics: [[]],
+      isVeganNeighbors: [false], // "We are a vegan festival..." context? No, just add the new option.
       isVeganOwners: [false],
       isVeganProducts: [false],
+      isVeganProductsSome: [false], // "Some of our products are vegan"
 
       // Sponsorship
       sponsorshipLevel: [''],

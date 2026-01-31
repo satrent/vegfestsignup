@@ -20,7 +20,7 @@ export class LogisticsComponent implements OnInit {
   saving = false;
   registrationId: string = '';
 
-  powerOptions = ['None', '5A', '10A', '15A', '20A'];
+  powerOptions = ['None', '5A ($60)', '10A ($80)', '15A ($100)', '20A ($120)'];
   vehicleOptions = ['Car', 'SUV', 'Van', 'Box truck', 'Other'];
   loadInOptions = [
     '2pm to 5pm September 19 (security provided)',

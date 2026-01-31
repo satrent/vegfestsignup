@@ -21,7 +21,9 @@ export interface Registration {
     phone: string;
     email: string;
   };
-  establishedDate?: string;
+  // establishedDate?: string; // Deprecated/Legacy
+  establishedMonth?: string;
+  establishedYear?: string;
 
   website?: string;
   instagram?: string; // or instagramPage

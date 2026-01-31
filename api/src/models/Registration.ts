@@ -18,7 +18,9 @@ export interface IRegistration extends Document {
         email: string;
     };
     organizationName: string;
-    establishedDate?: string;
+    establishedDate?: string; // Deprecated
+    establishedMonth?: string;
+    establishedYear?: string;
     email: string;
     phone: string;
     website?: string;
@@ -34,6 +36,7 @@ export interface IRegistration extends Document {
     ownerDemographics?: string[];
     isVeganOwners?: boolean;
     isVeganProducts?: boolean;
+    isVeganProductsSome?: boolean;
 
 
     // Section 2
@@ -221,7 +224,9 @@ const registrationSchema = new Schema<IRegistration>(
             required: true,
             trim: true,
         },
-        establishedDate: String,
+        establishedDate: String, // Deprecated
+        establishedMonth: String,
+        establishedYear: String,
         email: {
             type: String,
             required: true,
@@ -235,8 +240,8 @@ const registrationSchema = new Schema<IRegistration>(
         },
         // Website/Socials
         website: String,
-        instagram: String, // Renaming or mapping 'instagramPage' to 'instagram' for consistency if easier, or keeping 'instagramPage'
-        facebook: String, // Renaming 'facebookPage' to 'facebook'
+        instagram: String,
+        facebook: String,
 
         // Address
         address: String,
@@ -245,15 +250,16 @@ const registrationSchema = new Schema<IRegistration>(
         zip: String,
 
         // History
-        participatedBefore: Boolean, // Moved from Section 5
-        soldElsewhere: String, // Moved from Section 5 (only if no on TCVF)
+        participatedBefore: Boolean,
+        soldElsewhere: String,
 
         // Demographics
-        ownerDemographics: [String], // African or Black, Asian, etc.
+        ownerDemographics: [String],
 
         // Vegan Status
         isVeganOwners: Boolean,
         isVeganProducts: Boolean,
+        isVeganProductsSome: Boolean,
 
 
         // Section 2: Products & Festival Guidelines
