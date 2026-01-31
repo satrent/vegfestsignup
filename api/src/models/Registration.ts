@@ -142,6 +142,7 @@ export interface IRegistration extends Document {
     couponLogoUrl?: string;
     couponOtherInfo?: string;
     sponsorshipLevel?: string;
+    sponsoredBefore?: boolean;
     swagBagParticipation?: boolean;
     swagDistributionInterest?: 'coupons' | 'products';
     swagDistributionItem?: string;
@@ -388,6 +389,7 @@ const registrationSchema = new Schema<IRegistration>(
         couponLogoUrl: String,
         couponOtherInfo: String,
         sponsorshipLevel: String,
+        sponsoredBefore: Boolean,
         swagBagParticipation: Boolean,
         swagDistributionInterest: {
             type: String,

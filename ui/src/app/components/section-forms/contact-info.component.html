@@ -215,6 +215,21 @@
         @if (isSponsor) {
         <div class="sponsorship-section">
             <h3>Sponsorship Level</h3>
+
+            <div class="form-group">
+                <label>Have you sponsored the festival in the past?<span class="required">*</span></label>
+                <div class="radio-group">
+                    <label class="radio-item">
+                        <input type="radio" [value]="true" formControlName="sponsoredBefore">
+                        <span>Yes</span>
+                    </label>
+                    <label class="radio-item">
+                        <input type="radio" [value]="false" formControlName="sponsoredBefore">
+                        <span>No</span>
+                    </label>
+                </div>
+            </div>
+
             <p class="description">Sponsor level-prices good through Feb 20.</p>
             <div class="form-group">
                 <label>Select Sponsorship Level<span class="required">*</span></label>
@@ -225,23 +240,23 @@
                     </label>
                     <label class="radio-item">
                         <input type="radio" value="bronze" formControlName="sponsorshipLevel">
-                        <span>Bronze - {{ form.get('participatedBefore')?.value ? '$600' : '$1,000' }}</span>
+                        <span>Bronze - {{ form.get('sponsoredBefore')?.value ? '$600' : '$1,000' }}</span>
                     </label>
                     <label class="radio-item">
                         <input type="radio" value="silver" formControlName="sponsorshipLevel">
-                        <span>Silver - {{ form.get('participatedBefore')?.value ? '$2,000' : '$3,000' }}</span>
+                        <span>Silver - {{ form.get('sponsoredBefore')?.value ? '$2,000' : '$3,000' }}</span>
                     </label>
                     <label class="radio-item">
                         <input type="radio" value="gold" formControlName="sponsorshipLevel">
-                        <span>Gold - {{ form.get('participatedBefore')?.value ? '$4,500' : '$6,000' }}</span>
+                        <span>Gold - {{ form.get('sponsoredBefore')?.value ? '$4,500' : '$6,000' }}</span>
                     </label>
                     <label class="radio-item">
                         <input type="radio" value="platinum" formControlName="sponsorshipLevel">
-                        <span>Platinum - {{ form.get('participatedBefore')?.value ? '$10,000' : '$15,000' }}</span>
+                        <span>Platinum - {{ form.get('sponsoredBefore')?.value ? '$10,000' : '$15,000' }}</span>
                     </label>
                     <label class="radio-item">
                         <input type="radio" value="presenting" formControlName="sponsorshipLevel">
-                        <span>Presenting - {{ form.get('participatedBefore')?.value ? '$25,000' : '$30,000' }}</span>
+                        <span>Presenting - {{ form.get('sponsoredBefore')?.value ? '$25,000' : '$30,000' }}</span>
                     </label>
                 </div>
             </div>

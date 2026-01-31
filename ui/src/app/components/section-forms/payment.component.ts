@@ -74,11 +74,21 @@ export class PaymentComponent implements OnInit {
             const level = this.registration.sponsorshipLevel.toLowerCase();
             switch (level) {
                 case 'product': this.sponsorshipFee = 0; break;
-                case 'bronze': this.sponsorshipFee = 500; break;
-                case 'silver': this.sponsorshipFee = 1000; break;
-                case 'gold': this.sponsorshipFee = 2500; break;
-                case 'platinum': this.sponsorshipFee = 5000; break;
-                case 'presenting': this.sponsorshipFee = 10000; break;
+                case 'bronze':
+                    this.sponsorshipFee = this.registration.sponsoredBefore ? 600 : 1000;
+                    break;
+                case 'silver':
+                    this.sponsorshipFee = this.registration.sponsoredBefore ? 2000 : 3000;
+                    break;
+                case 'gold':
+                    this.sponsorshipFee = this.registration.sponsoredBefore ? 4500 : 6000;
+                    break;
+                case 'platinum':
+                    this.sponsorshipFee = this.registration.sponsoredBefore ? 10000 : 15000;
+                    break;
+                case 'presenting':
+                    this.sponsorshipFee = this.registration.sponsoredBefore ? 25000 : 30000;
+                    break;
                 default: this.sponsorshipFee = 0;
             }
         }

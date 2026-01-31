@@ -62,6 +62,7 @@ export class ContactInfoComponent implements OnInit {
 
       // Sponsorship
       sponsorshipLevel: [''],
+      sponsoredBefore: [null],
       swagBagParticipation: [null],
       swagDistributionInterest: [null],
       swagDistributionItem: [''],
@@ -110,6 +111,7 @@ export class ContactInfoComponent implements OnInit {
 
         if (this.isSponsor) {
           this.form.get('sponsorshipLevel')?.addValidators(Validators.required);
+          this.form.get('sponsoredBefore')?.addValidators(Validators.required);
           this.form.get('swagBagParticipation')?.addValidators(Validators.required);
         }
 

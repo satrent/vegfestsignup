@@ -139,6 +139,7 @@ export interface Registration {
 
   // Section 6
   sponsorshipLevel?: string;
+  sponsoredBefore?: boolean;
   sponsorshipInterest?: boolean;
   sponsorExhibiting?: boolean;
   isProductSponsor?: boolean;
