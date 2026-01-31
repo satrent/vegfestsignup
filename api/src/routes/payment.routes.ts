@@ -23,9 +23,12 @@ router.post('/create-payment-intent', authenticate, async (req, res) => {
             return;
         }
 
-        // Calculate Amount Logic (Must match frontend logic roughly, but is source of truth)
-        let amount = 0;
+        // Calculate Amount Logic
+        // Per requirements: Charge everyone $50 application fee via this site.
+        let amount = 5000; // $50.00 Fixed
 
+        // Legacy/Alternative logic (if needed in future) commented out for now to ensure strict adherence to new flow
+        /*
         // 1. Application Fee
         const isExhibitor = registration.type === 'Exhibitor' || registration.type === 'Both';
         if (isExhibitor) {
@@ -34,28 +37,9 @@ router.post('/create-payment-intent', authenticate, async (req, res) => {
 
         // 2. Sponsorship Fee
         if (registration.sponsorshipLevel) {
-            const level = registration.sponsorshipLevel.toLowerCase();
-            switch (level) {
-                case 'product':
-                    amount += 0;
-                    break;
-                case 'bronze':
-                    amount += 50000; // $500
-                    break;
-                case 'silver':
-                    amount += 100000; // $1000
-                    break;
-                case 'gold':
-                    amount += 250000; // $2500
-                    break;
-                case 'platinum':
-                    amount += 500000; // $5000
-                    break;
-                case 'presenting':
-                    amount += 1000000; // $10000
-                    break;
-            }
+            // ...
         }
+        */
 
         if (amount === 0) {
             res.status(400).json({ message: 'No payment due' });

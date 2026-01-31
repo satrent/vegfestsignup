@@ -98,6 +98,10 @@ export interface Registration {
   termsAgreement?: boolean;
   signature?: string;
 
+  // New Fields
+  wantBooth?: boolean;
+  remainingBalance?: number;
+
   // Section 4 (Documents)
   foodLicenseUrl?: string;
   insuranceUrl?: string;

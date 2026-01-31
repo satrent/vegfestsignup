@@ -44,6 +44,35 @@
         </div>
         }
 
+        <!-- Food Permit Section (Conditional) -->
+        @if (isFoodVendor) {
+        <div class="document-section">
+            <h3>State of Minnesota Food Permit <span class="required">[Required]</span></h3>
+            <p class="description">Required for all food and drink vendors.</p>
+
+            <div class="form-group">
+                <div class="radio-list">
+                    <div class="radio-item">
+                        <input type="radio" id="food-now" formControlName="foodPermitOption" value="upload_now">
+                        <label for="food-now">Upload now</label>
+                    </div>
+                    <div class="radio-item">
+                        <input type="radio" id="food-later" formControlName="foodPermitOption" value="later">
+                        <label for="food-later">Will provide by August 10</label>
+                    </div>
+                </div>
+            </div>
+
+            @if (form.get('foodPermitOption')?.value === 'upload_now') {
+            <div class="upload-area">
+                <app-file-upload documentType="Food Permit" [currentFile]="getDoc('Food Permit')"
+                    [disabled]="form.disabled" (uploadComplete)="onUpload($event)">
+                </app-file-upload>
+            </div>
+            }
+        </div>
+        }
+
         <!-- COI Section (Always Required) -->
         <div class="document-section">
             <h3>Certificate of Insurance (COI) <span class="required">[Required]</span></h3>

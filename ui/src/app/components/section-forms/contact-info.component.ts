@@ -27,6 +27,8 @@ export class ContactInfoComponent implements OnInit {
       lastName: ['', Validators.required],
       organizationName: ['', Validators.required],
 
+      wantBooth: [null, Validators.required], // New field
+
       onSite: ['yes', Validators.required],
       onSiteContact: this.fb.group({
         firstName: [''],
@@ -116,6 +118,11 @@ export class ContactInfoComponent implements OnInit {
         }
 
         this.form.patchValue(reg);
+
+        // Ensure wantBooth is correctly set if it exists, otherwise it stays null (triggering validation)
+        if (reg.wantBooth !== undefined) {
+          this.form.patchValue({ wantBooth: reg.wantBooth });
+        }
 
         // Lock form if not In Progress
         if (reg.status !== 'In Progress') {

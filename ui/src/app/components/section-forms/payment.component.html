@@ -13,27 +13,19 @@
         <div class="fee-summary">
             <h3>Fee Summary</h3>
 
-            <div class="fee-row" *ngIf="applicationFee > 0">
-                <span class="label">Exhibitor Application Fee</span>
-                <span class="amount">{{ applicationFee | currency }}</span>
+            <div class="fee-row">
+                <span class="label">Application Fee (Due Now)</span>
+                <span class="amount">{{ totalDue | currency }}</span>
             </div>
-            <div class="fee-note" *ngIf="applicationFee > 0">
-                * Applied to your exhibitor fee if accepted; refunded if declined.
-            </div>
-
-            <div class="fee-row" *ngIf="sponsorshipFee > 0">
-                <span class="label">Sponsorship Level: {{ registration?.sponsorshipLevel | titlecase }}</span>
-                <span class="amount">{{ sponsorshipFee | currency }}</span>
+            <div class="fee-note">
+                * This non-refundable application fee is applied towards your total balance.
+                <br>
+                * Remaining balance (Exhibitor Fee + Security Deposit - App Fee) will be due upon approval.
             </div>
 
             <div class="total-row">
-                <span class="label">Total Due Includes Processing Fees</span>
+                <span class="label">Total Due Now</span>
                 <span class="amount">{{ totalDue | currency }}</span>
-            </div>
-
-            <div class="receipt-row" *ngIf="registration?.paymentReceipt">
-                <span class="label">Payment Receipt:</span>
-                <span class="receipt-code">{{ registration?.paymentReceipt }}</span>
             </div>
         </div>
 

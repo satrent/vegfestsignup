@@ -45,14 +45,14 @@ export class DashboardComponent implements OnInit {
     isSectionVisible(sectionId: string): boolean {
         if (!this.registration) return false;
 
+        // If they don't want a booth, only show Contact and Payment
+        if (this.registration.wantBooth === false) {
+            return sectionId === 'contact' || sectionId === 'payment';
+        }
+
         if (sectionId === 'foodCompliance') {
             return this.isFoodVendor || this.isThcVendor;
         }
-
-        // Payment is always visible at the end?
-        // Or specific conditions? "final registration section" -> seems general.
-        // Assuming always visible for now, or we could hide if fees are 0?
-        // But "refunded if declined" implies fees.
 
         return true;
     }
@@ -163,6 +163,11 @@ export class DashboardComponent implements OnInit {
 
         if (this.registration.type === 'Sponsor') {
             return s.contact && s.products && s.payment;
+        }
+
+        // If no booth, only Contact and Payment are needed
+        if (this.registration.wantBooth === false) {
+            return s.contact && s.payment;
         }
 
         // Basic requirements

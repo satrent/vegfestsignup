@@ -24,8 +24,8 @@ export class ExpectationsComponent implements OnInit {
     orientationOptions = [
         'Sat 9/5 9:00am',
         'Sun 9/6 7:00pm',
-        'Mon 9/7 12:00pm',
-        'Mon 9/7 7:30pm'
+        'Tue 9/8 12:00pm',
+        'Tue 9/8 7:30pm'
     ];
 
     constructor() {

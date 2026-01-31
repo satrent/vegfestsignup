@@ -24,6 +24,7 @@ export class DocumentsComponent implements OnInit {
 
   // State for conditional visibility
   onSiteSales = false;
+  isFoodVendor = false; // New flag
 
   constructor() {
     this.form = this.fb.group({
@@ -31,7 +32,10 @@ export class DocumentsComponent implements OnInit {
       coiOption: ['upload_now', Validators.required],
 
       // ST-19
-      st19Option: ['upload_now'] // Validator added dynamically
+      st19Option: ['upload_now'], // Validator added dynamically
+
+      // Food Permit
+      foodPermitOption: ['upload_now'] // Validator added dynamically
     });
   }
 
@@ -43,23 +47,25 @@ export class DocumentsComponent implements OnInit {
         this.documents = reg.documents || [];
         this.onSiteSales = !!reg.onSiteSales;
 
+        // Check for Food Vendor status
+        const cat = reg.organizationCategory || '';
+        this.isFoodVendor = cat.toLowerCase().includes('food') || cat.toLowerCase().includes('drink') || cat.toLowerCase().includes('ice cream');
+
         this.form.patchValue({
           coiOption: reg.coiOption || 'upload_now',
-          st19Option: reg.st19Option || 'upload_now'
+          st19Option: reg.st19Option || 'upload_now',
+          foodPermitOption: reg.foodLicenseUrl ? 'upload_now' : 'upload_now' // We don't have a specific option field for this in historic data, defaulting
         });
 
-        // Setup ST-19 validators based on Sales status
+        // Setup validators
         this.updateValidators();
 
         const isMissingRequiredDocs = this.checkMissingDocs();
 
         if (reg.status !== 'In Progress' && !isMissingRequiredDocs) {
           this.form.disable();
-          this.saving = true; // Use saving flag to disable submit button visually if needed, or rely on form.disabled
+          this.saving = true;
         } else if (reg.status !== 'In Progress' && isMissingRequiredDocs) {
-          // If not in progress but missing docs, allow interaction
-          // We might want to lock options that are already satisfied?
-          // For simplicity, we just leave the form enabled so they can upload.
           this.saving = false;
         }
       }
@@ -69,7 +75,8 @@ export class DocumentsComponent implements OnInit {
   checkMissingDocs(): boolean {
     const missingCOI = !this.hasDoc('COI');
     const missingST19 = this.onSiteSales && !this.hasDoc('ST-19');
-    return missingCOI || missingST19;
+    const missingFoodPermit = this.isFoodVendor && !this.hasDoc('Food Permit');
+    return missingCOI || missingST19 || missingFoodPermit;
   }
 
   updateValidators() {
@@ -80,6 +87,14 @@ export class DocumentsComponent implements OnInit {
       st19Ctrl?.clearValidators();
     }
     st19Ctrl?.updateValueAndValidity();
+
+    const foodCtrl = this.form.get('foodPermitOption');
+    if (this.isFoodVendor) {
+      foodCtrl?.setValidators(Validators.required);
+    } else {
+      foodCtrl?.clearValidators();
+    }
+    foodCtrl?.updateValueAndValidity();
   }
 
   getDoc(type: string) {
@@ -119,6 +134,11 @@ export class DocumentsComponent implements OnInit {
       return;
     }
 
+    if (this.isFoodVendor && this.form.get('foodPermitOption')?.value === 'upload_now' && !this.hasDoc('Food Permit')) {
+      alert('Please upload your State of Minnesota food permit.');
+      return;
+    }
+
     if (this.registrationId) {
       this.saving = true;
       const updates: any = {
@@ -144,3 +164,4 @@ export class DocumentsComponent implements OnInit {
     this.router.navigate(['/dashboard']);
   }
 }
+

@@ -30,6 +30,25 @@
             </div>
         </div>
 
+        <!-- Want Booth? -->
+        <div class="form-group">
+            <label>Do you want to have a booth at the festival?<span class="required">*</span></label>
+            <div class="radio-group">
+                <label class="radio-item">
+                    <input type="radio" [value]="true" formControlName="wantBooth">
+                    <span>Yes</span>
+                </label>
+                <label class="radio-item">
+                    <input type="radio" [value]="false" formControlName="wantBooth">
+                    <span>No</span>
+                </label>
+            </div>
+            @if (form.get('wantBooth')?.touched && form.get('wantBooth')?.invalid) {
+            <div class="error">Please select an option</div>
+            }
+        </div>
+
+
         <!-- On Site -->
         <div class="form-group">
             <label>Will you be on site on the day of the festival?<span class="required">*</span></label>
