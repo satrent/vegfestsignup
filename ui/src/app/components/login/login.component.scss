@@ -21,10 +21,12 @@
 .login-container {
     flex: 1;
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
     padding: 20px;
     background: white;
+    position: relative;
 
     @media (min-width: 768px) {
         max-width: 50vw;
@@ -218,5 +220,84 @@ input[type="checkbox"] {
         &:hover {
             color: #2563eb;
         }
+    }
+}
+
+.login-footer {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 100%;
+    box-sizing: border-box;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    padding: 20px 40px;
+    /* Increased side padding */
+    pointer-events: none;
+    /* Let clicks pass through if overlapping, though icons should be clickable if they were links */
+
+    .footer-logo {
+        width: auto;
+        object-fit: contain;
+        opacity: 0.8;
+        transition: opacity 0.2s;
+        pointer-events: auto;
+
+        &:hover {
+            opacity: 1;
+        }
+
+        /* Left Logo (Pihlstrom) */
+        &:first-child {
+            height: 85px;
+
+            @media (max-height: 800px) {
+                height: 85px;
+            }
+        }
+
+        /* Right Logo (CAA) */
+        &:last-child {
+            height: 68px;
+
+            @media (max-height: 800px) {
+                height: 68px;
+            }
+        }
+    }
+}
+
+/* Compact layout for small height screens */
+@media (max-height: 800px) {
+    .logo-container {
+        margin-bottom: 0;
+
+        .logo {
+            max-width: 180px;
+        }
+    }
+
+    .form-title {
+        margin-bottom: 12px;
+        font-size: 20px;
+    }
+
+    .subtitle {
+        margin-bottom: 8px;
+    }
+
+    .form-section {
+        margin-bottom: 12px;
+    }
+
+    .admin-link {
+        margin-top: 10px;
+    }
+
+    /* Ensure footer doesn't overlap too badly if screen is REALLY small */
+    .login-container {
+        padding-bottom: 60px;
     }
 }
