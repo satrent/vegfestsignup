@@ -243,12 +243,8 @@ export class AdminDashboardComponent implements OnInit {
     if (reg.status === 'Approved' || reg.status === 'Declined' || reg.status === 'In Progress') {
       return false;
     }
-    // If Waiting for Approval, can only approve if haven't already
-    if (reg.status === 'Waiting for Approval') {
-      return !this.hasApproved(reg);
-    }
-    // If Pending, can approve
-    return true;
+    // Allow approving Pending or legacy Waiting for Approval
+    return reg.status === 'Pending' || reg.status === 'Waiting for Approval';
   }
 
   openRejectModal(id: string): void {

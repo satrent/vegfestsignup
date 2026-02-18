@@ -179,10 +179,8 @@
             <div class="actions">
               @if (canApprove(reg)) {
               <button (click)="updateStatus(reg._id!, 'Approved')" class="approve-btn">
-                {{ reg.status === 'Pending' ? 'Approve' : 'Approve (Final)' }}
+                Approve
               </button>
-              } @else if (reg.status === 'Waiting for Approval' && hasApproved(reg)) {
-              <span class="status-note waiting">Waiting for 2nd Admin</span>
               }
               <button (click)="openRejectModal(reg._id!)" class="reject-btn">Decline</button>
             </div>

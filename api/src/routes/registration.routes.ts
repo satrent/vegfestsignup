@@ -374,7 +374,7 @@ router.patch(
     '/:id/status',
     authenticate,
     requireApprover,
-    [body('status').isIn(['Pending', 'Approved', 'Declined', 'Waiting for Approval'])],
+    [body('status').isIn(['Pending', 'Approved', 'Declined'])],
     async (req: Request, res: Response) => {
         try {
             const { id } = req.params;
@@ -395,46 +395,19 @@ router.patch(
 
             // Approval Logic
             if (status === 'Approved') {
-                // Initialize array if missing
-                if (!registration.approvedBy) {
-                    registration.approvedBy = [];
-                }
+                newStatus = 'Approved';
+                actionDetails = 'Registration Approved';
 
-                // Check if already approved by this admin
-                // Convert ObjectIds to strings for comparison
-                const alreadyApproved = registration.approvedBy.some(id => id.toString() === adminId);
+                // We can clear the approvedBy array or just ignore it, 
+                // but let's clear it to be clean, or treating it as "who approved it" is handled by audit logs.
+                // The audit log captures who did it.
 
-                if (alreadyApproved) {
-                    // If previously declined or pending, maybe they want to re-approve?
-                    // But if currently Waiting for Approval, they can't double vote.
-                    if (registration.status === 'Waiting for Approval' || registration.status === 'Approved') {
-                        return res.status(400).json({ error: 'You have already approved this registration.' });
-                    }
-                    // If it was somehow reset but their ID stuck ( shouldn't happen if we clean up), let them proceed?
-                    // Let's assume strict check.
-                }
-
-                if (!alreadyApproved) {
-                    registration.approvedBy.push(adminId as any);
-                }
-
-                // Determine Status
-                if (registration.approvedBy.length >= 2) {
-                    newStatus = 'Approved';
-                    actionDetails = 'Final Approval (2/2)';
-                } else {
-                    newStatus = 'Waiting for Approval';
-                    actionDetails = 'Partial Approval (1/2)';
-                }
             } else if (status === 'Pending') {
-                // Reset approvals if moving back to Pending
-                registration.approvedBy = [];
                 newStatus = 'Pending';
                 actionDetails = 'Reset to Pending';
             } else if (status === 'Declined') {
                 newStatus = 'Declined';
                 actionDetails = 'Registration Declined';
-                // We don't necessarily clear approvals, so we know who might have vouched for it before rejection.
             }
 
             // Update the status
