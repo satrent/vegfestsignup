@@ -6,17 +6,6 @@ import { generateToken, generateVerificationCode } from '../utils/jwt';
 import { emailService } from '../services/email.service';
 import { authenticate } from '../middleware/auth.middleware';
 
-// Augment Express Request type
-declare module 'express-serve-static-core' {
-    interface Request {
-        user?: {
-            userId: string;
-            email: string;
-            role: 'PARTICIPANT' | 'ADMIN' | 'WEB_ADMIN';
-        };
-    }
-}
-
 const router = Router();
 
 // Request verification code
@@ -152,6 +141,8 @@ router.post(
                 userId: user._id.toString(),
                 email: user.email,
                 role: user.role,
+                isSuperAdmin: user.isSuperAdmin,
+                isApprover: user.isApprover,
             });
 
             // Set secure cookie
@@ -174,6 +165,8 @@ router.post(
                     firstName: user.firstName,
                     lastName: user.lastName,
                     role: user.role,
+                    isSuperAdmin: user.isSuperAdmin,
+                    isApprover: user.isApprover,
                     emailVerified: user.emailVerified,
                 },
                 isNewUser,
@@ -202,6 +195,8 @@ router.get('/me', authenticate, async (req: Request, res: Response) => {
             lastName: user.lastName,
             role: user.role,
             emailVerified: user.emailVerified,
+            isSuperAdmin: user.isSuperAdmin,
+            isApprover: user.isApprover,
             createdAt: user.createdAt,
             lastLoginAt: user.lastLoginAt,
         });

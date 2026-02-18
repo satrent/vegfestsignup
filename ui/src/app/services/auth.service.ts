@@ -12,6 +12,8 @@ export interface User {
     lastName?: string;
     role: UserRole;
     emailVerified: boolean;
+    isSuperAdmin?: boolean;
+    isApprover?: boolean;
 }
 
 export interface AuthResponse {
@@ -113,6 +115,16 @@ export class AuthService {
     hasRole(roles: UserRole[]): boolean {
         const userRole = this.getUserRole();
         return userRole ? roles.includes(userRole) : false;
+    }
+
+    isSuperAdmin(): boolean {
+        const user = this.currentUserSubject.value;
+        return !!user?.isSuperAdmin || user?.role === 'WEB_ADMIN';
+    }
+
+    isApprover(): boolean {
+        const user = this.currentUserSubject.value;
+        return !!user?.isApprover || this.isSuperAdmin();
     }
 
     // Google OAuth login (redirects to backend)

@@ -74,7 +74,7 @@ export const routes: Routes = [
         path: 'admin/users',
         loadComponent: () => import('./pages/user-management/user-management.component').then(m => m.UserManagementComponent),
         canActivate: [authGuard, roleGuard],
-        data: { roles: ['ADMIN'] }
+        data: { roles: ['ADMIN', 'WEB_ADMIN'], requiresSuperAdmin: true }
     },
     {
         path: 'web-admin',

@@ -1,7 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { body, validationResult } from 'express-validator';
 import { User } from '../models/User';
-import { authenticate, requireAdmin } from '../middleware/auth.middleware';
+import { authenticate, requireAdmin, requireSuperAdmin } from '../middleware/auth.middleware';
 
 const router = Router();
 
@@ -19,12 +19,16 @@ router.get('/', authenticate, requireAdmin, async (_req: Request, res: Response)
     }
 });
 
-// Update user role (admin only)
+// Update user role and permissions (Super Admin only)
 router.patch(
     '/:id/role',
     authenticate,
-    requireAdmin,
-    [body('role').isIn(['PARTICIPANT', 'ADMIN', 'WEB_ADMIN'])],
+    requireSuperAdmin,
+    [
+        body('role').optional().isIn(['PARTICIPANT', 'ADMIN', 'WEB_ADMIN']),
+        body('isSuperAdmin').optional().isBoolean(),
+        body('isApprover').optional().isBoolean(),
+    ],
     async (req: Request, res: Response) => {
         try {
             const errors = validationResult(req);
@@ -34,11 +38,16 @@ router.patch(
             }
 
             const { id } = req.params;
-            const { role } = req.body;
+            const { role, isSuperAdmin, isApprover } = req.body;
+
+            const updateData: any = {};
+            if (role) updateData.role = role;
+            if (isSuperAdmin !== undefined) updateData.isSuperAdmin = isSuperAdmin;
+            if (isApprover !== undefined) updateData.isApprover = isApprover;
 
             const user = await User.findByIdAndUpdate(
                 id,
-                { role },
+                updateData,
                 { new: true }
             ).select('-__v');
 
@@ -83,14 +92,16 @@ router.patch(
     }
 );
 
-// Create new user (admin only)
+// Create new user (Super Admin only)
 router.post(
     '/',
     authenticate,
-    requireAdmin,
+    requireSuperAdmin,
     [
         body('email').isEmail().normalizeEmail(),
         body('role').isIn(['ADMIN', 'WEB_ADMIN']),
+        body('isSuperAdmin').optional().isBoolean(),
+        body('isApprover').optional().isBoolean(),
         body('firstName').optional().trim(),
         body('lastName').optional().trim(),
     ],
@@ -102,7 +113,7 @@ router.post(
                 return;
             }
 
-            const { email, firstName, lastName, role } = req.body;
+            const { email, firstName, lastName, role, isSuperAdmin, isApprover } = req.body;
 
             // Check if user already exists
             const existingUser = await User.findOne({ email });
@@ -117,6 +128,8 @@ router.post(
                 firstName,
                 lastName,
                 role,
+                isSuperAdmin: isSuperAdmin || false,
+                isApprover: isApprover || false,
                 emailVerified: false,
                 isActive: true,
             });

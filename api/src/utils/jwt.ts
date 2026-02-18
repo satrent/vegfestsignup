@@ -6,6 +6,8 @@ export interface JWTPayload {
     userId: string;
     email: string;
     role: UserRole;
+    isSuperAdmin?: boolean;
+    isApprover?: boolean;
 }
 
 export const generateToken = (payload: JWTPayload): string => {

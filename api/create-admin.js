@@ -9,6 +9,8 @@ const adminUser = {
     firstName: 'Trent',
     lastName: 'Nelson',
     role: 'WEB_ADMIN',
+    isSuperAdmin: true,
+    isApprover: true,
     emailVerified: true,
     isActive: true,
     lastLoginAt: new Date(),

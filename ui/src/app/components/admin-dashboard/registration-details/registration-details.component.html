@@ -38,7 +38,7 @@
                     <div class="form-grid">
                         <div class="field-group">
                             <label>Status</label>
-                            <select [(ngModel)]="tempRegistration.status">
+                            <select [(ngModel)]="tempRegistration.status" [disabled]="!canApprove">
                                 <option value="In Progress">In Progress</option>
                                 <option value="Pending">Pending</option>
                                 <option value="Waiting for Approval">Waiting for Approval</option>
@@ -267,7 +267,7 @@
                         <div class="doc-actions">
                             <span class="badge" [ngClass]="doc.status.toLowerCase()">{{doc.status}}</span>
                             <div style="margin-top: 0.5rem; display: flex; gap: 0.5rem;"
-                                *ngIf="doc.status !== 'Approved' && isApprovalRequired(doc)">
+                                *ngIf="doc.status !== 'Approved' && isApprovalRequired(doc) && canApprove">
                                 <button (click)="updateDocumentStatus(doc, 'Approved')"
                                     class="small-btn approve">Approve</button>
                                 <button (click)="updateDocumentStatus(doc, 'Rejected')"

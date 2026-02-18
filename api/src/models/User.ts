@@ -12,6 +12,8 @@ export interface IUser extends Document {
     createdAt: Date;
     lastLoginAt: Date;
     isActive: boolean;
+    isSuperAdmin: boolean;
+    isApprover: boolean;
 }
 
 const userSchema = new Schema<IUser>(
@@ -53,6 +55,14 @@ const userSchema = new Schema<IUser>(
         isActive: {
             type: Boolean,
             default: true,
+        },
+        isSuperAdmin: {
+            type: Boolean,
+            default: false,
+        },
+        isApprover: {
+            type: Boolean,
+            default: false,
         },
     },
     {

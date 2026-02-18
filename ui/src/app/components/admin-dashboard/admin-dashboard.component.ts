@@ -15,7 +15,7 @@ import { RegistrationDetailsComponent } from './registration-details/registratio
 })
 export class AdminDashboardComponent implements OnInit {
   private storageService = inject(StorageService);
-  private authService = inject(AuthService);
+  public authService = inject(AuthService);
   private router = inject(Router);
 
   allRegistrations: Registration[] = [];

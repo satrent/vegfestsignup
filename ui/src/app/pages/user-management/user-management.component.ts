@@ -1,5 +1,4 @@
 import { Component, OnInit, inject } from '@angular/core';
-
 import { FormsModule } from '@angular/forms';
 import { ApiService } from '../../services/api.service';
 import { AuthService, User, UserRole } from '../../services/auth.service';
@@ -8,13 +7,15 @@ interface AdminUser extends User {
   _id: string;
   createdAt?: string;
   lastLoginAt?: string;
+  isSuperAdmin?: boolean;
+  isApprover?: boolean;
 }
 
 @Component({
-    selector: 'app-user-management',
-    imports: [FormsModule],
-    templateUrl: './user-management.component.html',
-    styleUrl: './user-management.component.css'
+  selector: 'app-user-management',
+  imports: [FormsModule],
+  templateUrl: './user-management.component.html',
+  styleUrl: './user-management.component.css'
 })
 export class UserManagementComponent implements OnInit {
   private api = inject(ApiService);
@@ -34,7 +35,9 @@ export class UserManagementComponent implements OnInit {
     email: '',
     firstName: '',
     lastName: '',
-    role: 'ADMIN' as UserRole
+    role: 'ADMIN' as UserRole,
+    isSuperAdmin: false,
+    isApprover: false
   };
 
   ngOnInit(): void {
@@ -59,7 +62,14 @@ export class UserManagementComponent implements OnInit {
   }
 
   openCreateModal(): void {
-    this.formData = { email: '', firstName: '', lastName: '', role: 'ADMIN' };
+    this.formData = {
+      email: '',
+      firstName: '',
+      lastName: '',
+      role: 'ADMIN',
+      isSuperAdmin: false,
+      isApprover: false
+    };
     this.showCreateModal = true;
   }
 
@@ -69,7 +79,9 @@ export class UserManagementComponent implements OnInit {
       email: user.email,
       firstName: user.firstName || '',
       lastName: user.lastName || '',
-      role: user.role
+      role: user.role,
+      isSuperAdmin: user.isSuperAdmin || false,
+      isApprover: user.isApprover || false
     };
     this.showEditModal = true;
   }
@@ -108,6 +120,8 @@ export class UserManagementComponent implements OnInit {
     this.loading = true;
     this.error = '';
 
+    // We can use the generic PUT endpoint which now handles the new fields if the user is a Super Admin
+    // Or we could use the PATCH /role endpoint if we only wanted to update roles, but PUT updates everything.
     this.api.put(`/admin/users/${this.selectedUser._id}`, this.formData).subscribe({
       next: () => {
         this.closeModals();

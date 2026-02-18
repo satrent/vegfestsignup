@@ -66,6 +66,28 @@
     color: #6a1b9a;
 }
 
+.role-badge {
+    display: inline-block;
+}
+
+.permissions-list {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.badge.super-admin {
+    background-color: #fff3e0;
+    color: #e65100;
+    border: 1px solid #ffcc80;
+}
+
+.badge.approver {
+    background-color: #e8f5e9;
+    color: #2e7d32;
+    border: 1px solid #a5d6a7;
+}
+
 .actions {
     display: flex;
     gap: 0.5rem;
@@ -181,6 +203,33 @@
     border: 1px solid #ddd;
     border-radius: 4px;
     font-size: 1rem;
+}
+
+/* Specific styles for checkbox groups to align checkbox left of label */
+.form-group.checkbox-group {
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.form-group.checkbox-group label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: normal;
+    background-color: #fafafa;
+    padding: 0.5rem;
+    border-radius: 4px;
+    border: 1px solid #eee;
+    cursor: pointer;
+}
+
+.form-group.checkbox-group label:hover {
+    background-color: #f0f0f0;
+}
+
+.form-group.checkbox-group input {
+    width: auto;
+    margin: 0;
 }
 
 .form-group input:focus,

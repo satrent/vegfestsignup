@@ -21,6 +21,7 @@
       </button>
       }
 
+      @if (authService.isSuperAdmin()) {
       <a routerLink="/admin/users" class="icon-btn" title="Manage Users">
         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
           stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -30,6 +31,7 @@
           <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
         </svg>
       </a>
+      }
 
       <button class="export-btn" (click)="exportToQuickBooks()">Export to QuickBooks</button>
       <button class="logout-btn" (click)="logout()">Logout</button>

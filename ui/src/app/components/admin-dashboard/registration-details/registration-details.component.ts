@@ -3,6 +3,7 @@ import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Registration, StorageService } from '../../../services/storage.service';
+import { AuthService } from '../../../services/auth.service';
 
 @Component({
     selector: 'app-registration-details',
@@ -18,6 +19,7 @@ export class RegistrationDetailsComponent {
     @Output() update = new EventEmitter<Registration>();
 
     private storageService = inject(StorageService);
+    private authService = inject(AuthService);
 
     activeTab = 'overview';
     editing = false;
@@ -163,5 +165,8 @@ export class RegistrationDetailsComponent {
                 alert('Failed to open document.');
             }
         });
+    }
+    get canApprove(): boolean {
+        return this.authService.isApprover();
     }
 }
