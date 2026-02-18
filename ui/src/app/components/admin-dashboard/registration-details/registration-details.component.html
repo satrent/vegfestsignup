@@ -219,6 +219,11 @@
                         <label>Products Description</label>
                         <textarea [(ngModel)]="tempRegistration.productsDescription"></textarea>
                     </div>
+                    <div class="field-group">
+                        <label>Values Alignment</label>
+                        <div class="value" style="white-space: pre-wrap;">{{ tempRegistration.valuesDescription || 'No
+                            answer provided.' }}</div>
+                    </div>
                 </div>
 
                 <div class="section-group">
