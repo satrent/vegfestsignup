@@ -50,6 +50,7 @@ router.post('/create-payment-intent', authenticate, async (req, res) => {
         const paymentIntent = await stripe.paymentIntents.create({
             amount: amount,
             currency: 'usd',
+            description: '2026 Veg Fest application fee',
             // In the latest version of the API, specifying the `automatic_payment_methods` parameter is optional because Stripe enables its functionality by default.
             automatic_payment_methods: {
                 enabled: true,
