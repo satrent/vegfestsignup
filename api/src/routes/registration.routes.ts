@@ -1,7 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { body, validationResult } from 'express-validator';
 import { Registration } from '../models/Registration';
-import { authenticate, requireAdmin } from '../middleware/auth.middleware';
+import { authenticate, requireAdmin, requireApprover } from '../middleware/auth.middleware';
 import { AuditService } from '../services/audit.service';
 import { DistanceService } from '../services/distance.service';
 
@@ -241,6 +241,11 @@ router.patch(
                 delete updates.amountPaid;
             }
 
+            // Also protect status if user doesn't have approval permissions
+            if (updates.status && (!req.user?.isApprover && !req.user?.isSuperAdmin && req.user?.role !== 'WEB_ADMIN')) {
+                delete updates.status;
+            }
+
             // Construct the query based on user role
             const query: any = { _id: id };
             // If not admin, restrict to own registration
@@ -368,7 +373,7 @@ router.post(
 router.patch(
     '/:id/status',
     authenticate,
-    requireAdmin,
+    requireApprover,
     [body('status').isIn(['Pending', 'Approved', 'Declined', 'Waiting for Approval'])],
     async (req: Request, res: Response) => {
         try {
