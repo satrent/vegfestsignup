@@ -258,6 +258,19 @@
           <option *ngFor="let tag of availableTags" [value]="tag">{{tag}}</option>
         </select>
       </div>
+      <div class="form-group">
+        <label>Filter by Owner Demographic</label>
+        <select [(ngModel)]="filterDemographic">
+          <option value="">All Demographics</option>
+          <option value="African or Black">African or Black</option>
+          <option value="Asian">Asian</option>
+          <option value="Hispanic/Latinx">Hispanic/Latinx</option>
+          <option value="Indigenous">Indigenous</option>
+          <option value="White">White</option>
+          <option value="Other">Other</option>
+          <option value="Prefer not to say">Prefer not to say</option>
+        </select>
+      </div>
     </div>
     <div class="modal-footer">
       <button class="cancel-btn" (click)="clearFilters()">Clear Filters</button>

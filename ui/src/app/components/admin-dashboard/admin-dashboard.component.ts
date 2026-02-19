@@ -31,6 +31,7 @@ export class AdminDashboardComponent implements OnInit {
   filterInvoiced: 'all' | 'yes' | 'no' = 'all';
   filterStatus: 'all' | 'In Progress' | 'Pending' | 'Approved' | 'Declined' | 'Ready to Add' = 'Pending';
   filterTag = '';
+  filterDemographic = '';
   availableTags: string[] = [];
 
   get filteredRegistrations(): Registration[] {
@@ -60,12 +61,16 @@ export class AdminDashboardComponent implements OnInit {
       // Tag Filter
       const tagMatch = !this.filterTag || (reg.tags && reg.tags.includes(this.filterTag));
 
-      return nameMatch && invoicedMatch && statusMatch && tagMatch;
+      // Demographic Filter
+      const demographicMatch = !this.filterDemographic ||
+        (reg.ownerDemographics && reg.ownerDemographics.includes(this.filterDemographic));
+
+      return nameMatch && invoicedMatch && statusMatch && tagMatch && demographicMatch;
     });
   }
 
   get hasActiveFilters(): boolean {
-    return !!this.filterName || this.filterInvoiced !== 'all' || this.filterStatus !== 'all' || !!this.filterTag;
+    return !!this.filterName || this.filterInvoiced !== 'all' || this.filterStatus !== 'all' || !!this.filterTag || !!this.filterDemographic;
   }
 
   ngOnInit(): void {
@@ -219,6 +224,7 @@ export class AdminDashboardComponent implements OnInit {
     this.filterInvoiced = 'all';
     this.filterStatus = 'all';
     this.filterTag = '';
+    this.filterDemographic = '';
   }
 
   logout(): void {

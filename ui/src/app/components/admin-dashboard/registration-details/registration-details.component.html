@@ -224,6 +224,10 @@
                         <div class="value" style="white-space: pre-wrap;">{{ tempRegistration.valuesDescription || 'No
                             answer provided.' }}</div>
                     </div>
+                    <div class="field-group">
+                        <label>Owner Demographics</label>
+                        <div class="value">{{ tempRegistration.ownerDemographics?.join(', ') || 'Not provided' }}</div>
+                    </div>
                 </div>
 
                 <div class="section-group">
