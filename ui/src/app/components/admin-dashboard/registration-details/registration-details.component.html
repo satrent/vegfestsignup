@@ -260,6 +260,12 @@
 
             <!-- Documents Tab -->
             <div *ngIf="activeTab === 'documents'">
+                <div *ngIf="missingDocuments.length > 0" class="missing-docs-alert">
+                    <strong>Missing Required Documents:</strong>
+                    <ul>
+                        <li *ngFor="let doc of missingDocuments">{{doc}}</li>
+                    </ul>
+                </div>
                 <div class="doc-list">
                     <div *ngIf="!displayedDocuments.length">No documents found.</div>
 

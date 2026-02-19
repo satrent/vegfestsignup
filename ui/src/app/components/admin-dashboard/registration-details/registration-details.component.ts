@@ -169,4 +169,22 @@ export class RegistrationDetailsComponent {
     get canApprove(): boolean {
         return this.authService.isApprover();
     }
+
+    get missingDocuments(): string[] {
+        if (!this.tempRegistration) return [];
+        const missing: string[] = [];
+        const docs = this.tempRegistration.documents || [];
+
+        // Check for COI
+        if (!docs.some(d => d.type === 'COI')) {
+            missing.push('Certificate of Insurance (COI)');
+        }
+
+        // Check for ST-19
+        if (this.tempRegistration.onSiteSales && !docs.some(d => d.type === 'ST-19')) {
+            missing.push('ST-19 Form');
+        }
+
+        return missing;
+    }
 }

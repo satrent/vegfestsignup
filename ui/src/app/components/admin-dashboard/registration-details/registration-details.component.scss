@@ -346,3 +346,21 @@
         }
     }
 }
+
+.missing-docs-alert {
+    background-color: #fffbeb;
+    border-left: 4px solid #f59e0b;
+    color: #92400e;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+    border-radius: 4px;
+
+    ul {
+        margin: 0.5rem 0 0 1.5rem;
+        padding: 0;
+    }
+
+    li {
+        list-style-type: disc;
+    }
+}
