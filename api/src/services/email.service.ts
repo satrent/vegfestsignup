@@ -3,63 +3,63 @@ import config from '../config';
 import nodemailer from 'nodemailer';
 
 export interface EmailOptions {
-    to: string;
-    subject: string;
-    text: string;
-    html?: string;
+  to: string;
+  subject: string;
+  text: string;
+  html?: string;
 }
 
 export class EmailService {
-    private transporter: nodemailer.Transporter | null = null;
+  private transporter: nodemailer.Transporter | null = null;
 
-    constructor() {
-        if (config.email.service !== 'console' && config.email.smtp.host) {
-            this.transporter = nodemailer.createTransport({
-                host: config.email.smtp.host,
-                port: config.email.smtp.port,
-                secure: config.email.smtp.secure, // true for 465, false for other ports
-                auth: {
-                    user: config.email.smtp.user,
-                    pass: config.email.smtp.pass,
-                },
-            });
-        }
+  constructor() {
+    if (config.email.service !== 'console' && config.email.smtp.host) {
+      this.transporter = nodemailer.createTransport({
+        host: config.email.smtp.host,
+        port: config.email.smtp.port,
+        secure: config.email.smtp.secure, // true for 465, false for other ports
+        auth: {
+          user: config.email.smtp.user,
+          pass: config.email.smtp.pass,
+        },
+      });
+    }
+  }
+
+  async sendEmail(options: EmailOptions): Promise<void> {
+    if (config.email.service === 'console') {
+      // For development - just log to console
+      console.log('\n📧 ===== EMAIL =====');
+      console.log(`To: ${options.to}`);
+      console.log(`Subject: ${options.subject}`);
+      console.log(`Body:\n${options.text}`);
+      console.log('==================\n');
+      return;
     }
 
-    async sendEmail(options: EmailOptions): Promise<void> {
-        if (config.email.service === 'console') {
-            // For development - just log to console
-            console.log('\n📧 ===== EMAIL =====');
-            console.log(`To: ${options.to}`);
-            console.log(`Subject: ${options.subject}`);
-            console.log(`Body:\n${options.text}`);
-            console.log('==================\n');
-            return;
-        }
-
-        if (this.transporter) {
-            try {
-                await this.transporter.sendMail({
-                    from: config.email.from,
-                    to: options.to,
-                    subject: options.subject,
-                    text: options.text,
-                    html: options.html,
-                });
-                console.log(`Email sent to ${options.to}`);
-            } catch (error) {
-                console.error('Error sending email:', error);
-                throw error;
-            }
-        } else {
-            console.error('Email service not configured correctly.');
-            throw new Error('Email service not configured. Please check SMTP settings.');
-        }
+    if (this.transporter) {
+      try {
+        await this.transporter.sendMail({
+          from: config.email.from,
+          to: options.to,
+          subject: options.subject,
+          text: options.text,
+          html: options.html,
+        });
+        console.log(`Email sent to ${options.to}`);
+      } catch (error) {
+        console.error('Error sending email:', error);
+        throw error;
+      }
+    } else {
+      console.error('Email service not configured correctly.');
+      throw new Error('Email service not configured. Please check SMTP settings.');
     }
+  }
 
-    async sendVerificationCode(email: string, code: string): Promise<void> {
-        const subject = 'Veg Fest Signup - Verification Code';
-        const text = `
+  async sendVerificationCode(email: string, code: string): Promise<void> {
+    const subject = 'Veg Fest Signup - Verification Code';
+    const text = `
 Your Veg Fest verification code is: ${code}
 
 This code will expire in 10 minutes.
@@ -73,7 +73,7 @@ Thank you,
 VegFest Team
     `.trim();
 
-        const html = `
+    const html = `
 <!DOCTYPE html>
 <html>
 <head>
@@ -119,18 +119,18 @@ VegFest Team
 </html>
     `.trim();
 
-        await this.sendEmail({
-            to: email,
-            subject,
-            text,
-            html,
-        });
-    }
+    await this.sendEmail({
+      to: email,
+      subject,
+      text,
+      html,
+    });
+  }
 
-    async sendWelcomeEmail(email: string, firstName?: string): Promise<void> {
-        const name = firstName || 'there';
-        const subject = 'Welcome to Veg Fest!';
-        const text = `
+  async sendWelcomeEmail(email: string, firstName?: string): Promise<void> {
+    const name = firstName || 'there';
+    const subject = 'Welcome to Veg Fest!';
+    const text = `
 Hi ${name},
 
 Welcome to Veg Fest! Your account has been successfully created.
@@ -142,12 +142,89 @@ Thank you for joining us!
 Veg Fest Team
     `.trim();
 
-        await this.sendEmail({
-            to: email,
-            subject,
-            text,
-        });
-    }
+    await this.sendEmail({
+      to: email,
+      subject,
+      text,
+    });
+  }
+  async sendDocumentReminder(email: string, firstName: string, missingDocs: string[]): Promise<void> {
+    const name = firstName || 'Exhibitor';
+    const docList = missingDocs.map(d => `- ${d}`).join('\n');
+    const docListHtml = missingDocs.map(d => `<li>${d}</li>`).join('');
+    const loginUrl = `${config.frontend.url}/login`;
+
+    const subject = 'Action Required: Missing Documents for Veg Fest';
+
+    const text = `
+Hi ${name},
+
+We noticed that your Veg Fest application is missing some required documents:
+
+${docList}
+
+Please log in to the portal and upload these documents as soon as possible to ensure your application can be fully processed.
+
+Log in here: ${loginUrl}
+
+Thank you,
+Veg Fest Team
+    `.trim();
+
+    const html = `
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; background-color: #f9f9f9; padding: 20px; }
+    .container { max-width: 600px; margin: 0 auto; background: #ffffff; padding: 40px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+    .header { text-align: center; margin-bottom: 30px; }
+    .header h2 { color: #d32f2f; margin: 0; font-size: 24px; }
+    .content { margin: 30px 0; }
+    .docs-list { background: #fff8e1; border-left: 4px solid #ffc107; padding: 15px 20px; border-radius: 4px; }
+    .docs-list ul { margin: 0; padding-left: 20px; }
+    .btn-container { text-align: center; margin-top: 30px; }
+    .button { background-color: #2563eb; color: white !important; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block; transition: background-color 0.3s; }
+    .footer { margin-top: 40px; text-align: center; font-size: 14px; color: #888; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h2>Action Required</h2>
+    </div>
+    <div class="content">
+      <p>Hi ${name},</p>
+      <p>We noticed that your Veg Fest application is missing some required documents:</p>
+      
+      <div class="docs-list">
+        <ul>
+            ${docListHtml}
+        </ul>
+      </div>
+
+      <p>Please log in to the portal and upload these documents as soon as possible to ensure your application can be fully processed.</p>
+    </div>
+    
+    <div class="btn-container">
+      <a href="${loginUrl}" class="button">Log In to Upload</a>
+    </div>
+    
+    <div class="footer">
+      <p>Thank you,<br><strong>Veg Fest Team</strong></p>
+    </div>
+  </div>
+</body>
+</html>
+    `.trim();
+
+    await this.sendEmail({
+      to: email,
+      subject,
+      text,
+      html,
+    });
+  }
 }
 
 export const emailService = new EmailService();

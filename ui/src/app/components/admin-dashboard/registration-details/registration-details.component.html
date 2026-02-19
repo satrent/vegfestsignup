@@ -265,6 +265,14 @@
                     <ul>
                         <li *ngFor="let doc of missingDocuments">{{doc}}</li>
                     </ul>
+                    <div style="margin-top: 1rem; display: flex; align-items: center; gap: 1rem;">
+                        <button class="small-btn" (click)="sendReminder()" [disabled]="sendingReminder">
+                            {{ sendingReminder ? 'Sending...' : 'Send Reminder Email' }}
+                        </button>
+                        <span class="text-sm text-gray-600" *ngIf="tempRegistration?.lastReminderSent">
+                            Reminder last sent: {{ tempRegistration.lastReminderSent | date:'medium' }}
+                        </span>
+                    </div>
                 </div>
                 <div class="doc-list">
                     <div *ngIf="!displayedDocuments.length">No documents found.</div>

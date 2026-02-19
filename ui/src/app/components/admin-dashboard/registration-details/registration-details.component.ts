@@ -187,4 +187,26 @@ export class RegistrationDetailsComponent {
 
         return missing;
     }
+    sendingReminder = false;
+
+    sendReminder(): void {
+        const missing = this.missingDocuments;
+        if (!this.tempRegistration?._id || missing.length === 0) return;
+
+        this.sendingReminder = true;
+        this.storageService.sendDocumentReminder(this.tempRegistration._id, missing).subscribe({
+            next: (updated) => {
+                this.sendingReminder = false;
+                if (this.tempRegistration) {
+                    this.tempRegistration.lastReminderSent = updated.lastReminderSent;
+                }
+                alert('Reminder sent successfully!');
+            },
+            error: (err) => {
+                console.error('Failed to send reminder', err);
+                this.sendingReminder = false;
+                alert('Failed to send reminder.');
+            }
+        });
+    }
 }

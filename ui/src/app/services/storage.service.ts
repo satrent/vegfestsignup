@@ -187,6 +187,7 @@ export interface Registration {
   createdAt?: Date;
   updatedAt?: Date;
   tags?: string[];
+  lastReminderSent?: Date;
 }
 
 @Injectable({
@@ -268,5 +269,9 @@ export class StorageService {
 
   getTags(): Observable<string[]> {
     return this.api.get<string[]>('/registrations/tags');
+  }
+
+  sendDocumentReminder(id: string, missingDocuments: string[]): Observable<Registration> {
+    return this.api.post<Registration>(`/registrations/${id}/send-reminder`, { missingDocuments });
   }
 }

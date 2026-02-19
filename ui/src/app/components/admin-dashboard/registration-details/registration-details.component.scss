@@ -363,4 +363,31 @@
     li {
         list-style-type: disc;
     }
+
+    button.small-btn {
+        background: #f59e0b;
+        color: white;
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: 500;
+
+        &:hover {
+            background: #d97706;
+        }
+
+        &:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+    }
+
+    .text-sm {
+        font-size: 0.875rem;
+    }
+
+    .text-gray-600 {
+        color: #4b5563;
+    }
 }

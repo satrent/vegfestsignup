@@ -184,6 +184,7 @@ export interface IRegistration extends Document {
     createdAt: Date;
     updatedAt: Date;
     tags?: string[];
+    lastReminderSent?: Date;
 }
 
 const registrationSchema = new Schema<IRegistration>(
@@ -452,7 +453,8 @@ const registrationSchema = new Schema<IRegistration>(
             expectations: { type: Boolean, default: false },
             payment: { type: Boolean, default: false },
         },
-        tags: [String]
+        tags: [String],
+        lastReminderSent: Date
     },
     {
         timestamps: true,

@@ -500,4 +500,62 @@ router.get(
     }
 );
 
+// Send document reminder email
+router.post(
+    '/:id/send-reminder',
+    authenticate,
+    requireAdmin,
+    async (req: Request, res: Response) => {
+        try {
+            const { id } = req.params;
+            const { missingDocuments } = req.body;
+
+            const registration = await Registration.findById(id);
+            if (!registration) {
+                res.status(404).json({ error: 'Registration not found' });
+                return;
+            }
+
+            // We could re-calculate missing docs here for security, 
+            // but relying on the frontend's list is acceptable for now as it's just an email content.
+            // Ideally should be validated.
+
+            // Double check email availability
+            if (!registration.email) {
+                res.status(400).json({ error: 'Registration has no email address' });
+                return;
+            }
+
+            await import('../services/email.service').then(m =>
+                m.emailService.sendDocumentReminder(
+                    registration.email,
+                    registration.firstName,
+                    missingDocuments || ['Required Documents']
+                )
+            );
+
+            registration.lastReminderSent = new Date();
+            await registration.save();
+
+            // Log it
+            const adminUser = await import('../models/User').then(m => m.User.findById(req.user!.userId));
+            const adminName = adminUser ? `${adminUser.firstName} ${adminUser.lastName}` : 'Unknown Admin';
+
+            await AuditService.log({
+                adminId: req.user!.userId,
+                actorName: adminName,
+                entityId: registration._id as any,
+                entityType: 'Registration',
+                action: 'SEND_REMINDER',
+                details: `Sent document reminder email. Missing: ${missingDocuments?.join(', ')}`
+            });
+
+            res.json(registration);
+        } catch (error) {
+            console.error('Error sending reminder:', error);
+            res.status(500).json({ error: 'Failed to send reminder' });
+        }
+    }
+);
+
 export default router;
