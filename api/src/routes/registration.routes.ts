@@ -414,6 +414,17 @@ router.patch(
             registration.status = newStatus;
             await registration.save();
 
+            // Send approval email if status changed to Approved
+            if (newStatus === 'Approved' && previousStatus !== 'Approved' && registration.email) {
+                try {
+                    await import('../services/email.service').then(m =>
+                        m.emailService.sendApprovalEmail(registration.email, registration.firstName)
+                    );
+                } catch (emailError) {
+                    console.error('Error sending approval email:', emailError);
+                }
+            }
+
             // Log the action
             try {
                 // Fetch admin user to get their name

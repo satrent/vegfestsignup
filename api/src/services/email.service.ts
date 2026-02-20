@@ -225,6 +225,90 @@ Veg Fest Team
       html,
     });
   }
+  async sendApprovalEmail(email: string, firstName: string): Promise<void> {
+    const name = firstName || 'Veggie Lover';
+    const loginUrl = `${config.frontend.url}/login`;
+    
+    const subject = "You're In! Welcome to the Veg Fest Family! \uD83C\uDF89";
+
+    const text = `
+WOOHOO! \uD83E\uDD73
+
+Hold onto your broccoli, ${name}! Your application has been APPROVED!
+
+We are absolutely thrilled to have you join us for this year's Veg Fest. We did a little happy dance when we pressed the 'Approve' button (don't tell anyone, we have a reputation to maintain... mostly).
+
+You are officially confirmed and good to go! 
+Log in to your portal to see the shiny green 'Approved' badge and manage any final details.
+
+Log in here: ${loginUrl}
+
+Get ready for an amazing event!
+
+High fives and kale vibes,
+The Veg Fest Team
+    `.trim();
+
+    const html = `
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; background-color: #f0f7f4; padding: 20px; }
+    .container { max-width: 600px; margin: 0 auto; background: #ffffff; padding: 0; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); overflow: hidden; }
+    .header { background: linear-gradient(135deg, #4caf50, #8bc34a); padding: 40px 20px; text-align: center; }
+    .header h1 { color: #ffffff; margin: 0; font-size: 32px; text-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+    .emoji-header { font-size: 48px; display: block; margin-bottom: 10px; }
+    .content { padding: 40px 30px; text-align: center; }
+    .content h2 { color: #2e7d32; margin-top: 0; }
+    .highlight-box { background-color: #e8f5e9; border: 2px dashed #4caf50; border-radius: 12px; padding: 20px; margin: 25px 0; font-weight: bold; color: #2e7d32; font-size: 18px; }
+    .btn-container { margin: 35px 0; }
+    .button { background-color: #ff5722; color: white !important; padding: 15px 30px; text-decoration: none; border-radius: 50px; font-weight: bold; font-size: 18px; display: inline-block; transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 4px 6px rgba(255, 87, 34, 0.3); }
+    .button:hover { transform: translateY(-2px); box-shadow: 0 6px 12px rgba(255, 87, 34, 0.4); }
+    .footer { background-color: #333; color: #aaa; padding: 20px; text-align: center; font-size: 14px; }
+    .vibes { font-style: italic; color: #4caf50; font-weight: bold; margin-top: 30px; display: block; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <span class="emoji-header">\uD83E\uDD73</span>
+      <h1>WOOHOO! You're In!</h1>
+    </div>
+    <div class="content">
+      <p>Hold onto your broccoli, <strong>${name}</strong>!</p>
+      
+      <div class="highlight-box">
+        Your application has been OFFICIALLY APPROVED!
+      </div>
+
+      <p>We are absolutely thrilled to have you join us for this year's Veg Fest. We did a little happy dance when we pressed the 'Approve' button (don't tell anyone, we have a reputation to maintain... mostly).</p>
+      
+      <p>Log in to your portal to see that shiny green <strong>'Approved'</strong> badge and manage any final details.</p>
+
+      <div class="btn-container">
+        <a href="${loginUrl}" class="button">Go to My Portal \uD83D\uDE80</a>
+      </div>
+
+      <p>Get ready for an amazing event!</p>
+      
+      <span class="vibes">High fives and kale vibes, \uD83E\uDD66</span>
+    </div>
+    <div class="footer">
+      <p>The Veg Fest Team</p>
+    </div>
+  </div>
+</body>
+</html>
+    `.trim();
+
+    await this.sendEmail({
+      to: email,
+      subject,
+      text,
+      html,
+    });
+  }
 }
 
 export const emailService = new EmailService();
