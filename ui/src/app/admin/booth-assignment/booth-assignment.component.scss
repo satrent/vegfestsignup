@@ -1,0 +1,470 @@
+.booth-assignment-container {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: #f5f7fa;
+  font-family: 'Inter', 'Segoe UI', sans-serif;
+
+  .header {
+    background: white;
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #e0e6ed;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+    z-index: 10;
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+
+      .back-btn {
+        text-decoration: none;
+        color: #4b5563;
+        font-weight: 500;
+        font-size: 0.9rem;
+
+        &:hover {
+          color: #1f2937;
+        }
+      }
+
+      h2 {
+        margin: 0;
+        color: #111827;
+        font-size: 1.5rem;
+      }
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+
+      .btn-toggle-editor {
+        padding: 0.5rem 1rem;
+        border-radius: 6px;
+        background: #4f46e5;
+        color: white;
+        border: none;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background 0.2s;
+
+        &:hover {
+          background: #4338ca;
+        }
+
+        &.active {
+          background: #ef4444;
+
+          &:hover {
+            background: #dc2626;
+          }
+        }
+      }
+
+      .editor-tools {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: #f3f4f6;
+        padding: 0.4rem 0.8rem;
+        border-radius: 6px;
+
+        label {
+          font-size: 0.85rem;
+          color: #4b5563;
+          font-weight: 500;
+        }
+
+        .booth-num-input {
+          width: 60px;
+          padding: 0.3rem;
+          border: 1px solid #d1d5db;
+          border-radius: 4px;
+          text-align: center;
+        }
+
+        .helper-text {
+          font-size: 0.8rem;
+          color: #6b7280;
+          font-style: italic;
+        }
+      }
+    }
+  }
+
+  .loading-state,
+  .error-state {
+    padding: 2rem;
+    text-align: center;
+    color: #4b5563;
+  }
+
+  .error-state {
+    color: #ef4444;
+  }
+
+  .workspace {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+
+    // Sidebar
+    .sidebar {
+      width: 320px;
+      min-width: 320px;
+      background: white;
+      border-right: 1px solid #e0e6ed;
+      display: flex;
+      flex-direction: column;
+
+      h3 {
+        padding: 1.5rem 1.5rem 1rem;
+        margin: 0;
+        font-size: 1.1rem;
+        color: #374151;
+        border-bottom: 1px solid #e5e7eb;
+      }
+
+      .unassigned-list {
+        flex: 1;
+        overflow-y: auto;
+        padding: 1rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        min-height: 100px; // For cdkDropList drop area
+
+        .empty-list {
+          text-align: center;
+          color: #9ca3af;
+          padding: 2rem 0;
+          font-size: 0.9rem;
+        }
+
+        .participant-card {
+          background: white;
+          border: 1px solid #e5e7eb;
+          border-radius: 8px;
+          padding: 1rem;
+          cursor: grab;
+          box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+          transition: transform 0.1s, box-shadow 0.1s;
+
+          &:active {
+            cursor: grabbing;
+          }
+
+          &:hover {
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            border-color: #cbd5e1;
+          }
+
+          .card-title {
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 0.25rem;
+          }
+
+          .card-subtitle {
+            font-size: 0.85rem;
+            color: #6b7280;
+            margin-bottom: 0.75rem;
+          }
+
+          .card-details {
+            font-size: 0.8rem;
+            color: #4b5563;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+
+            .badge {
+              background: #f3f4f6;
+              padding: 0.2rem 0.5rem;
+              border-radius: 9999px;
+              font-weight: 500;
+
+              &.assigned-badge {
+                background: #dbeafe;
+                color: #1e40af;
+              }
+            }
+          }
+        }
+      }
+    }
+
+    // Map Area
+    .map-area {
+      flex: 1;
+      padding: 2rem;
+      overflow: auto;
+      background: #e2e8f0; // Background around the map
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+
+      .map-container {
+        position: relative;
+        width: 1000px; // Fixed reasonable desktop map size, or could be 100% 
+        height: 700px; // To maintain aspect ratio. Let's force a size for now.
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        overflow: hidden; // in case spots go slightly off
+
+        &.editing {
+          cursor: crosshair;
+
+          // grid overlay in editor mode
+          background-image: linear-gradient(to right, #f1f5f9 1px, transparent 1px),
+            linear-gradient(to bottom, #f1f5f9 1px, transparent 1px);
+          background-size: 20px 20px;
+        }
+
+        .map-bg {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          position: absolute;
+          top: 0;
+          left: 0;
+          z-index: 1;
+          pointer-events: none;
+        }
+
+        .map-bg-placeholder {
+          width: 100%;
+          height: 100%;
+          position: absolute;
+          top: 0;
+          left: 0;
+          z-index: 1;
+          background: #d1fae5; // Light green grass feel
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          pointer-events: none;
+
+          .bg-text {
+            font-size: 2rem;
+            color: #a7f3d0;
+            font-weight: bold;
+            opacity: 0.5;
+            user-select: none;
+          }
+        }
+
+        // Spot styling
+        .booth-spot-wrapper {
+          position: absolute;
+          z-index: 10;
+          // Transform so the center point is exactly at x,y
+          transform: translate(-50%, -50%);
+          width: 40px;
+          height: 40px;
+        }
+
+        .drop-zone {
+          width: 100%;
+          height: 100%;
+        }
+
+        .booth-spot {
+          width: 100%;
+          height: 100%;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-weight: bold;
+          font-size: 0.9rem;
+          color: white;
+          box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+          position: relative;
+          transition: transform 0.2s, background-color 0.2s;
+
+          &.empty {
+            background-color: #10b981; // Green for available
+            border: 2px solid white;
+          }
+
+          &.filled {
+            background-color: #f59e0b; // Yellow/Orange for taken
+            border: 2px solid white;
+            cursor: pointer;
+
+            &:hover {
+              .spot-tooltip {
+                visibility: visible;
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+              }
+            }
+          }
+
+          // In editor mode, allow dragging the spot
+          .editing & {
+            cursor: grab;
+
+            &:active {
+              cursor: grabbing;
+            }
+          }
+
+          .spot-number {
+            pointer-events: none;
+          }
+
+          .delete-spot-btn {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #ef4444;
+            color: white;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            padding: 0;
+            line-height: 1;
+
+            &:hover {
+              background: #dc2626;
+              transform: scale(1.1);
+            }
+          }
+
+          .spot-tooltip {
+            visibility: hidden;
+            opacity: 0;
+            position: absolute;
+            bottom: calc(100% + 10px);
+            left: 50%;
+            transform: translateX(-50%) translateY(10px);
+            background: white;
+            color: #1f2937;
+            padding: 1rem;
+            border-radius: 8px;
+            width: 220px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+            font-weight: normal;
+            font-size: 0.85rem;
+            line-height: 1.4;
+            transition: all 0.2s ease;
+            z-index: 100;
+
+            &::after {
+              content: '';
+              position: absolute;
+              top: 100%;
+              left: 50%;
+              transform: translateX(-50%);
+              border-width: 8px;
+              border-style: solid;
+              border-color: white transparent transparent transparent;
+            }
+
+            strong {
+              display: block;
+              font-size: 1rem;
+              margin-bottom: 0.25rem;
+              color: #111827;
+            }
+
+            a {
+              color: #2563eb;
+              text-decoration: none;
+              word-break: break-all;
+
+              &:hover {
+                text-decoration: underline;
+              }
+            }
+
+            .tooltip-actions {
+              margin-top: 1rem;
+              padding-top: 0.75rem;
+              border-top: 1px solid #e5e7eb;
+
+              .unassign-btn {
+                width: 100%;
+                background: #fef2f2;
+                color: #ef4444;
+                border: 1px solid #fecaca;
+                padding: 0.4rem;
+                border-radius: 4px;
+                cursor: pointer;
+                font-weight: 500;
+                transition: all 0.2s;
+
+                &:hover {
+                  background: #fee2e2;
+                  border-color: #fca5a5;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+// Global overrides for CDK drag and drop visuals
+.cdk-drag-preview {
+  box-sizing: border-box;
+  border-radius: 8px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15) !important;
+  opacity: 0.9;
+  background: white !important;
+  border: 1px solid #3b82f6 !important;
+  transform: scale(1.05);
+
+  // keep card style
+  padding: 1rem;
+
+  .card-title {
+    font-weight: 600;
+    color: #1f2937;
+    margin-bottom: 0.25rem;
+  }
+
+  .card-subtitle {
+    font-size: 0.85rem;
+    color: #6b7280;
+    margin-bottom: 0.75rem;
+  }
+
+  .card-details {
+    font-size: 0.8rem;
+    color: #4b5563;
+  }
+
+  .badge {
+    background: #f3f4f6;
+    padding: 0.2rem 0.5rem;
+    border-radius: 9999px;
+  }
+}
+
+.cdk-drag-animating {
+  transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+.booth-spot-wrapper.cdk-drop-list-dragging .booth-spot.empty {
+  // style the spots slightly when hovering during drag
+  transform: scale(1.15);
+  box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.3);
+}

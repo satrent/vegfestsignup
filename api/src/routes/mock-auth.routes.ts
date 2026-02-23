@@ -38,6 +38,8 @@ router.get('/google/callback', async (_req: Request, res: Response) => {
             userId: user._id.toString(),
             email: user.email,
             role: user.role,
+            isSuperAdmin: user.isSuperAdmin,
+            isApprover: user.isApprover,
         });
 
         // Set secure cookie

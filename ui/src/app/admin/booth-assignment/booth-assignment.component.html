@@ -1,0 +1,123 @@
+<div class="booth-assignment-container">
+    <div class="header">
+        <div class="header-left">
+            <a routerLink="/admin" class="back-btn">
+                &larr; Back to Dashboard
+            </a>
+            <h2>Booth Assignment</h2>
+        </div>
+
+        <div class="header-actions">
+            <button class="btn-toggle-editor" (click)="toggleEditorMode()" [class.active]="isEditorMode">
+                {{ isEditorMode ? 'Exit Editor Mode' : 'Enter Map Editor' }}
+            </button>
+
+            @if (isEditorMode) {
+            <div class="editor-tools">
+                <label>Next Booth #:</label>
+                <input type="number" [(ngModel)]="newBoothNumber" class="booth-num-input" />
+                <span class="helper-text">Click map to add</span>
+            </div>
+            }
+        </div>
+    </div>
+
+    @if (loading) {
+    <div class="loading-state">Loading map data...</div>
+    }
+
+    @if (error) {
+    <div class="error-state">{{ error }}</div>
+    }
+
+    <div class="workspace" *ngIf="!loading && !error" cdkDropListGroup>
+
+        <!-- Left Sidebar: Unassigned Participants -->
+        <div class="sidebar">
+            <h3>Unassigned Vendors ({{ unassignedParticipants.length }})</h3>
+
+            <div class="unassigned-list" id="unassignedList" cdkDropList [cdkDropListData]="unassignedParticipants"
+                (cdkDropListDropped)="dropVendor($event)">
+
+                @if (unassignedParticipants.length === 0) {
+                <div class="empty-list">No approved vendors waiting for spots.</div>
+                }
+
+                @for (p of unassignedParticipants; track p._id) {
+                <div class="participant-card" cdkDrag [cdkDragData]="p" [cdkDragDisabled]="isEditorMode">
+                    <div class="card-title">{{ p.organizationName }}</div>
+                    <div class="card-subtitle">{{ p.firstName }} {{ p.lastName }}</div>
+                    <div class="card-details">
+                        Needs: <span class="badge">{{ p.numBoothSpaces }} spot(s)</span>
+                        <!-- If they already have some assigned -->
+                        @if (p.assignedBoothIds && p.assignedBoothIds.length > 0) {
+                        <span class="badge assigned-badge">
+                            {{ p.assignedBoothIds.length }} assigned
+                        </span>
+                        }
+                    </div>
+                </div>
+                }
+            </div>
+        </div>
+
+        <!-- Right Area: The Map -->
+        <div class="map-area">
+            <!-- We scale the map container based on window size -->
+            <div class="map-container" (click)="onMapClick($event)" [class.editing]="isEditorMode">
+
+                <!-- Map Background Image -->
+                <img src="/assets/harriet-island-map.png" alt="Harriet Island Map" class="map-bg"
+                    onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+
+                <div class="map-bg-placeholder" style="display: none;">
+                    <span class="bg-text">Please save the map image as 'assets/harriet-island-map.png'</span>
+                </div>
+
+                <!-- Booth Spots Overlay -->
+                @for (booth of booths; track booth._id) {
+                <div class="booth-spot-wrapper" [style.left.%]="booth.xPercentage" [style.top.%]="booth.yPercentage"
+                    [id]="'wrapper-' + booth._id">
+
+                    @if (!isEditorMode) {
+                    <!-- Drop List for assigning participants -->
+                    <div class="drop-zone" [id]="'spot-' + booth._id" cdkDropList
+                        [cdkDropListDisabled]="!!booth.registrationId" (cdkDropListDropped)="dropVendor($event)">
+
+                        <div class="booth-spot" [class.filled]="!!booth.registrationId"
+                            [class.empty]="!booth.registrationId">
+
+                            <div class="spot-number">{{ booth.boothNumber }}</div>
+
+                            @if (booth.registrationId) {
+                            <!-- Hover popup info -->
+                            <div class="spot-tooltip">
+                                <strong>{{ booth.registrationId.organizationName }}</strong><br>
+                                {{ booth.registrationId.firstName }} {{ booth.registrationId.lastName }}<br>
+                                <a href="mailto:{{ booth.registrationId.email }}">{{ booth.registrationId.email }}</a>
+
+                                <div class="tooltip-actions">
+                                    <button class="unassign-btn" (click)="unassignVendor(booth, $event)">Remove
+                                        Assignment</button>
+                                </div>
+                            </div>
+                            }
+                        </div>
+                    </div>
+                    } @else {
+                    <!-- Draggable element for Map Editor -->
+                    <div class="booth-spot empty editing" cdkDrag [cdkDragBoundary]="'.map-container'"
+                        (cdkDragStarted)="onSpotDragStarted()" (cdkDragEnded)="onSpotDragEnd($event, booth)"
+                        (click)="$event.stopPropagation()">
+
+                        <div class="spot-number">{{ booth.boothNumber }}</div>
+                        <button class="delete-spot-btn" (click)="deleteSpot(booth, $event)">&times;</button>
+                    </div>
+                    }
+                </div>
+                }
+            </div>
+        </div>
+
+    </div>
+</div>

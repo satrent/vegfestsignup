@@ -77,6 +77,12 @@ export const routes: Routes = [
         data: { roles: ['ADMIN', 'WEB_ADMIN'], requiresSuperAdmin: true }
     },
     {
+        path: 'admin/booth-assignment',
+        loadComponent: () => import('./admin/booth-assignment/booth-assignment.component').then(m => m.BoothAssignmentComponent),
+        canActivate: [authGuard, roleGuard],
+        data: { roles: ['ADMIN', 'WEB_ADMIN'], requiresSuperAdmin: true }
+    },
+    {
         path: 'web-admin',
         component: WebAdminDashboardComponent,
         canActivate: [authGuard, roleGuard],

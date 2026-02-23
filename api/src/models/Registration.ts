@@ -157,6 +157,7 @@ export interface IRegistration extends Document {
     // Logistics Counts (Explicit fields for calculation)
     numWeights?: number;
     numExtraSpots?: number;
+    assignedBoothIds?: mongoose.Types.ObjectId[];
 
     // Billing
     initialInvoiceAmount?: number;
@@ -404,6 +405,11 @@ const registrationSchema = new Schema<IRegistration>(
         },
         swagDistributionItem: String,
         palletsDonation: Boolean,
+
+        assignedBoothIds: [{
+            type: Schema.Types.ObjectId,
+            ref: 'Booth'
+        }],
 
         // Admin Fields
         invoiced: {
