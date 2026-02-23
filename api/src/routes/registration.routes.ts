@@ -220,6 +220,17 @@ router.patch(
             delete updates.createdAt;
             delete updates.updatedAt;
 
+            // Clean up optional enum fields that might be sent as empty strings from front-end
+            const optionalEnums = [
+                'onSite', 'powerNeeds', 'loadInVehicle', 'foodOfferings',
+                'menuOption', 'coiOption', 'st19Option', 'swagDistributionInterest'
+            ];
+            optionalEnums.forEach(field => {
+                if (updates[field] === '') {
+                    updates[field] = null;
+                }
+            });
+
             // Sanitize social handles
             if (updates.instagram) {
                 updates.instagram = updates.instagram.replace(/^(?:https?:\/\/)?(?:www\.)?(?:instagram\.com\/)?@?([a-zA-Z0-9._]+)\/?$/, '$1');
