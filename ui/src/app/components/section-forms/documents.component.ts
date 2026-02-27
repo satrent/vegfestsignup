@@ -117,6 +117,10 @@ export class DocumentsComponent implements OnInit {
     }
   }
 
+  onRemoveDoc(type: string) {
+    this.documents = this.documents.filter(d => d.type !== type);
+  }
+
   onSubmit() {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
@@ -143,7 +147,8 @@ export class DocumentsComponent implements OnInit {
       this.saving = true;
       const updates: any = {
         ...this.form.value,
-        'sectionStatus.documents': true
+        'sectionStatus.documents': true,
+        documents: this.documents
       };
 
       this.storageService.updateRegistration(this.registrationId, updates).subscribe({
