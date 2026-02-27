@@ -116,7 +116,7 @@ export class ProductsComponent implements OnInit {
 
       this.storageService.uploadDocument(file, 'product-photo').subscribe({
         next: (res: any) => {
-          this.productPhotos.push(res.key); // storing Key/URL
+          this.productPhotos.push(res.document?.location || res.document?.key || res.key); // storing Key/URL
           completed++;
           if (completed === filesToUpload.length) this.uploadingPhoto = false;
         },
@@ -161,7 +161,7 @@ export class ProductsComponent implements OnInit {
     this.uploadingLogo = true;
     this.storageService.uploadDocument(file, 'Logo').subscribe({
       next: (res: any) => {
-        this.logoUrl = res.key;
+        this.logoUrl = res.document?.location || res.document?.key || res.key;
         this.uploadingLogo = false;
       },
       error: (err) => {

@@ -96,11 +96,8 @@
 
                 <div class="section-group">
                     <h3>Admin Notes</h3>
-                    <div class="field-group">
-                        <label>Notes (Internal Only)</label>
-                        <textarea [(ngModel)]="tempRegistration.otherInfo"
-                            placeholder="Add internal notes..."></textarea>
-                    </div>
+                    <!-- Placeholder if other notes fields are added in the future. 'otherInfo' moved to Profile tab. -->
+                    <p class="text-sm text-gray-500">No editable internal notes fields available yet.</p>
                 </div>
             </div>
 
@@ -234,6 +231,11 @@
                     <div class="field-group">
                         <label>Owner Demographics</label>
                         <div class="value">{{ tempRegistration.ownerDemographics?.join(', ') || 'Not provided' }}</div>
+                    </div>
+                    <div class="field-group">
+                        <label>Additional Information</label>
+                        <div class="value" style="white-space: pre-wrap;">{{ tempRegistration.otherInfo || 'None
+                            provided.' }}</div>
                     </div>
                 </div>
 

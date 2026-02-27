@@ -95,6 +95,12 @@
         </div>
 
         <div class="form-group">
+            <label>Anything else you would like to share with us?</label>
+            <textarea formControlName="otherInfo" rows="4"
+                placeholder="Optional comments or additional information..."></textarea>
+        </div>
+
+        <div class="form-group">
             <label>Type your full name (e-signature) <span class="required">*</span></label>
             <input type="text" formControlName="signature" placeholder="e.g. John Smith">
             @if (form.get('signature')?.touched && form.get('signature')?.invalid) {

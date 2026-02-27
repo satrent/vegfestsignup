@@ -11,6 +11,7 @@ import { StorageService } from '../../../services/storage.service';
         class="drop-zone"
         [class.dragging]="isDragging"
         (dragover)="onDragOver($event)"
+        (dragenter)="onDragOver($event)"
         (dragleave)="onDragLeave($event)"
         (drop)="onDrop($event)"
         (click)="fileInput.click()"

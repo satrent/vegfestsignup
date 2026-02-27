@@ -104,7 +104,7 @@
                     class="required">*</span></label>
 
             <div class="upload-zone" (click)="fileInput.click()" (drop)="onFileDrop($event)"
-                (dragover)="onDragOver($event)">
+                (dragover)="onDragOver($event)" (dragenter)="onDragOver($event)">
                 <input #fileInput type="file" (change)="onFileSelected($event)" accept="image/jpeg,image/png" hidden
                     multiple>
 
@@ -139,7 +139,7 @@
             <label>Logo upload (JPG/PNG) [Optional] <span class="hint">(Max 20MB)</span></label>
 
             <div class="upload-zone" (click)="logoInput.click()" (drop)="onLogoDrop($event)"
-                (dragover)="onDragOver($event)">
+                (dragover)="onDragOver($event)" (dragenter)="onDragOver($event)">
                 <input #logoInput type="file" (change)="onLogoSelected($event)" accept="image/jpeg,image/png" hidden>
 
                 @if (!logoUrl) {
