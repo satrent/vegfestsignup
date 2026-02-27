@@ -45,6 +45,7 @@ export interface Registration {
   organizationCategory?: string;
   productsDescription?: string;
   productPhotos?: string[];
+  needsShade?: boolean;
 
   cbdThcProducts?: string;
   sellingDrinks?: boolean;

@@ -43,6 +43,7 @@ export interface IRegistration extends Document {
     organizationCategory?: string;
     productsDescription?: string;
     productPhotos?: string[];
+    needsShade?: boolean;
 
     cbdThcProducts?: string;
     sellingDrinks?: boolean;
@@ -266,6 +267,7 @@ const registrationSchema = new Schema<IRegistration>(
         // Section 2: Products & Festival Guidelines
         organizationCategory: String, // Moved/Centralized here
         productsDescription: String,
+        needsShade: { type: Boolean, default: false },
         productPhotos: [String], // URL(s) of uploaded photos
         // Legacy/Removed from UI but keeping in schema for safety if needed, or user said they'd clear DB
 

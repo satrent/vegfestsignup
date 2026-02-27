@@ -220,6 +220,13 @@
                         <textarea [(ngModel)]="tempRegistration.productsDescription"></textarea>
                     </div>
                     <div class="field-group">
+                        <label>Needs Shade</label>
+                        <label class="toggle-label">
+                            <input type="checkbox" [(ngModel)]="tempRegistration.needsShade">
+                            <span>{{ tempRegistration.needsShade ? 'Yes' : 'No' }}</span>
+                        </label>
+                    </div>
+                    <div class="field-group">
                         <label>Values Alignment</label>
                         <div class="value" style="white-space: pre-wrap;">{{ tempRegistration.valuesDescription || 'No
                             answer provided.' }}</div>

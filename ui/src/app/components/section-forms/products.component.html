@@ -83,6 +83,21 @@
             }
         </div>
 
+        <!-- Shade Requirements -->
+        <div class="form-group">
+            <label>Are you selling products that need shade?</label>
+            <div class="radio-list radio-inline">
+                <label class="radio-item">
+                    <input type="radio" formControlName="needsShade" [value]="true">
+                    <span>Yes</span>
+                </label>
+                <label class="radio-item">
+                    <input type="radio" formControlName="needsShade" [value]="false">
+                    <span>No</span>
+                </label>
+            </div>
+        </div>
+
         <!-- Photo Upload -->
         <div class="form-group">
             <label>Upload 1–2 photos (booth or products; JPG/PNG) <span class="hint">(Max 20MB per file)</span><span

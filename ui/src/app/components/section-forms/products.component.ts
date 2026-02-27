@@ -30,6 +30,7 @@ export class ProductsComponent implements OnInit {
     this.form = this.fb.group({
       organizationCategory: ['', Validators.required],
       productsDescription: ['', Validators.required],
+      needsShade: [false],
       // Photos and Logo are handled via component state + hidden implementation details, 
       // but we bind them to the form model on submit.
     });
@@ -44,7 +45,8 @@ export class ProductsComponent implements OnInit {
         // Patch simple fields
         this.form.patchValue({
           organizationCategory: reg.organizationCategory || '',
-          productsDescription: reg.productsDescription || ''
+          productsDescription: reg.productsDescription || '',
+          needsShade: reg.needsShade ?? false
         });
 
         // Load files
@@ -53,7 +55,7 @@ export class ProductsComponent implements OnInit {
 
         // Conditional Validation Logic
         if (this.userType === 'Sponsor') {
-          // Sponsors (who are NOT Exhibitors) do not need Org Category or Description
+          // Sponsors (who are NOT Exhibitors) do not need Org Category or Description or Shade req
           this.form.get('organizationCategory')?.clearValidators();
           this.form.get('organizationCategory')?.updateValueAndValidity();
           this.form.get('productsDescription')?.clearValidators();
@@ -224,6 +226,7 @@ export class ProductsComponent implements OnInit {
       const updates: Partial<Registration> = {
         organizationCategory: this.form.value.organizationCategory,
         productsDescription: this.form.value.productsDescription,
+        needsShade: this.form.value.needsShade === 'true' || this.form.value.needsShade === true,
         productPhotos: this.productPhotos,
         logoUrl: this.logoUrl || undefined,
         // sectionStatus is managed by backend merging or we can send it explicitly but StorageService types it well.
