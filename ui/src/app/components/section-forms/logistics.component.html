@@ -18,10 +18,10 @@
         <div class="form-group">
             <label class="section-label">Power needs <span class="required">*</span></label>
             <div class="radio-list">
-                @for (opt of powerOptions; track opt) {
+                @for (opt of powerOptions; track opt.value) {
                 <div class="radio-item">
-                    <input type="radio" [id]="'power-' + opt" formControlName="powerNeeds" [value]="opt">
-                    <label [for]="'power-' + opt">{{ opt }}</label>
+                    <input type="radio" [id]="'power-' + opt.value" formControlName="powerNeeds" [value]="opt.value">
+                    <label [for]="'power-' + opt.value">{{ opt.label }}</label>
                 </div>
                 }
             </div>
