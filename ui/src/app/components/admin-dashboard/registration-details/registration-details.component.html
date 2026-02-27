@@ -278,7 +278,7 @@
                         <button class="small-btn" (click)="sendReminder()" [disabled]="sendingReminder">
                             {{ sendingReminder ? 'Sending...' : 'Send Reminder Email' }}
                         </button>
-                        <span class="text-sm text-gray-600" *ngIf="tempRegistration?.lastReminderSent">
+                        <span class="text-sm text-gray-600" *ngIf="tempRegistration.lastReminderSent">
                             Reminder last sent: {{ tempRegistration.lastReminderSent | date:'medium' }}
                         </span>
                     </div>
