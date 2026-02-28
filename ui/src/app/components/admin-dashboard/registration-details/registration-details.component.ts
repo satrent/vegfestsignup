@@ -47,10 +47,21 @@ export class RegistrationDetailsComponent {
         });
     }
 
+    get isSuperAdmin(): boolean {
+        return this.authService.isSuperAdmin();
+    }
+
     addTag(tag: string): void {
         if (!tag || !this.tempRegistration) return;
         const normalized = tag.trim();
         if (!normalized) return;
+
+        const tagExists = this.availableTags.some(t => t.toLowerCase() === normalized.toLowerCase());
+
+        if (!tagExists && !this.isSuperAdmin) {
+            alert('Only Super Admins can create new tags. Please select an existing tag.');
+            return;
+        }
 
         if (!this.tempRegistration.tags) {
             this.tempRegistration.tags = [];

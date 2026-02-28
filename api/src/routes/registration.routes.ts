@@ -257,6 +257,19 @@ router.patch(
                 delete updates.status;
             }
 
+            // Prevent non-super admins from creating new tags
+            if (updates.tags && (!req.user?.isSuperAdmin && req.user?.role !== 'WEB_ADMIN')) {
+                const existingTags = await Registration.distinct('tags');
+                const lowercaseExistingTags = existingTags.filter(t => t).map((t: string) => t.toLowerCase());
+
+                for (const tag of updates.tags) {
+                    if (!lowercaseExistingTags.includes(tag.toLowerCase())) {
+                        res.status(403).json({ error: 'Only Super Admins can create new tags' });
+                        return;
+                    }
+                }
+            }
+
             // Construct the query based on user role
             const query: any = { _id: id };
             // If not admin, restrict to own registration

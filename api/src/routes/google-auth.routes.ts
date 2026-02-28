@@ -85,6 +85,8 @@ if (config.google.clientId && config.google.clientSecret) {
                     userId: user._id.toString(),
                     email: user.email,
                     role: user.role,
+                    isSuperAdmin: user.isSuperAdmin,
+                    isApprover: user.isApprover,
                 });
 
                 // Set secure cookie
