@@ -55,7 +55,7 @@ router.post(
                 return;
             }
 
-            const allowedTypes = ['Food License', 'COI', 'ST-19', 'Logo', 'Coupon Logo', 'product-photo', 'Menu'];
+            const allowedTypes = ['Food License', 'Food Permit', 'COI', 'ST-19', 'Logo', 'Coupon Logo', 'product-photo', 'Menu'];
 
             if (!allowedTypes.includes(documentType)) {
                 res.status(400).json({ message: 'Invalid document type' });
@@ -71,6 +71,7 @@ router.post(
                 'Logo': imageOnly,
                 'Coupon Logo': imageOnly,
                 'Food License': docOrImage,
+                'Food Permit': docOrImage,
                 'COI': docOrImage,
                 'ST-19': docOrImage,
                 'Menu': docOrImage
@@ -153,7 +154,9 @@ router.post(
                 message: 'File uploaded successfully',
                 document: {
                     type: documentType,
+                    name: storedFile.name,
                     location: storedFile.location,
+                    key: storedFile.key, // Ensure key is returned
                     status: 'Pending'
                 }
             });

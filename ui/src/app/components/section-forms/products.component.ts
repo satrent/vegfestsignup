@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common'; // Important for @if, @for
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { StorageService, Registration } from '../../services/storage.service';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-products',
@@ -23,6 +24,11 @@ export class ProductsComponent implements OnInit {
   // File Upload State
   productPhotos: string[] = [];
   logoUrl: string | null = null;
+
+  // Resolved URLs for display
+  photoUrls: { [key: string]: string } = {};
+  resolvedLogoUrl: string | null = null;
+
   uploadingPhoto = false;
   uploadingLogo = false;
 
@@ -30,6 +36,7 @@ export class ProductsComponent implements OnInit {
     this.form = this.fb.group({
       organizationCategory: ['', Validators.required],
       productsDescription: ['', Validators.required],
+      needsShade: [false],
       // Photos and Logo are handled via component state + hidden implementation details, 
       // but we bind them to the form model on submit.
     });
@@ -44,16 +51,23 @@ export class ProductsComponent implements OnInit {
         // Patch simple fields
         this.form.patchValue({
           organizationCategory: reg.organizationCategory || '',
-          productsDescription: reg.productsDescription || ''
+          productsDescription: reg.productsDescription || '',
+          needsShade: reg.needsShade ?? false
         });
 
         // Load files
         this.productPhotos = reg.productPhotos || [];
         this.logoUrl = reg.logoUrl || null;
 
+        // Resolve URLs for display
+        this.productPhotos.forEach(photoKey => this.resolvePhotoUrl(photoKey));
+        if (this.logoUrl) {
+          this.resolveLogoUrl(this.logoUrl);
+        }
+
         // Conditional Validation Logic
         if (this.userType === 'Sponsor') {
-          // Sponsors (who are NOT Exhibitors) do not need Org Category or Description
+          // Sponsors (who are NOT Exhibitors) do not need Org Category or Description or Shade req
           this.form.get('organizationCategory')?.clearValidators();
           this.form.get('organizationCategory')?.updateValueAndValidity();
           this.form.get('productsDescription')?.clearValidators();
@@ -114,7 +128,9 @@ export class ProductsComponent implements OnInit {
 
       this.storageService.uploadDocument(file, 'product-photo').subscribe({
         next: (res: any) => {
-          this.productPhotos.push(res.key); // storing Key/URL
+          const newKey = res.document?.key || res.document?.location || res.key;
+          this.productPhotos.push(newKey);
+          this.resolvePhotoUrl(newKey); // Fetch actual display URL
           completed++;
           if (completed === filesToUpload.length) this.uploadingPhoto = false;
         },
@@ -130,7 +146,9 @@ export class ProductsComponent implements OnInit {
 
   removePhoto(index: number, event: Event) {
     event.stopPropagation();
+    const removedKey = this.productPhotos[index];
     this.productPhotos.splice(index, 1);
+    delete this.photoUrls[removedKey];
   }
 
   // Logo Logic
@@ -156,10 +174,10 @@ export class ProductsComponent implements OnInit {
       return;
     }
 
-    this.uploadingLogo = true;
     this.storageService.uploadDocument(file, 'Logo').subscribe({
       next: (res: any) => {
-        this.logoUrl = res.key;
+        this.logoUrl = res.document?.key || res.document?.location || res.key;
+        if (this.logoUrl) this.resolveLogoUrl(this.logoUrl);
         this.uploadingLogo = false;
       },
       error: (err) => {
@@ -173,6 +191,7 @@ export class ProductsComponent implements OnInit {
   removeLogo(event: Event) {
     event.stopPropagation();
     this.logoUrl = null;
+    this.resolvedLogoUrl = null;
   }
 
   onDragOver(event: DragEvent) {
@@ -182,18 +201,60 @@ export class ProductsComponent implements OnInit {
   }
 
   // Helpers
-  getPhotoUrl(keyOrUrl: string): string {
-    // In a real app we might need to sign this or prepend the bucket URL.
-    // Assuming the key is enough or the backend returns a full URL.
-    // If `key` is just a key, we might need a helper. 
-    // For now, let's assume the upload returns a usable URL or we use the signed URL endpoint.
-    // BUT, to keep it simple and immediate without async in view:
-    // We'll rely on a presumed public URL structure or that `uploadDocument` returns the full Location.
-    // If it only returns key, we might need to refactor to store full URL.
-    // Let's assume for now `res.location` is what we want, but `uploadDocument` signature returns `any`.
-    // Let's try to just return it.
-    return keyOrUrl.startsWith('http') ? keyOrUrl : `https://veg-fest-hub-assets.s3.us-east-1.amazonaws.com/${keyOrUrl}`;
-    // ^ Hardcoding bucket URL for preview if key is stored, or better yet, update upload to return full `Location`.
+  extractKey(urlOrKey: string): string {
+    if (!urlOrKey) return '';
+    // If it's a full S3 URL, extract the key
+    if (urlOrKey.includes('amazonaws.com/')) {
+      return urlOrKey.split('amazonaws.com/')[1];
+    }
+    // Also handle local uploads that stored the full URL accidentally
+    if (urlOrKey.includes('/uploads/')) {
+      return urlOrKey.split('/uploads/')[1];
+    }
+    return urlOrKey;
+  }
+
+  resolvePhotoUrl(keyOrUrl: string): void {
+    const key = this.extractKey(keyOrUrl);
+
+    // Only short-circuit if it's an external HTTP URL that isn't ours
+    if (key.startsWith('http')) {
+      this.photoUrls[keyOrUrl] = key;
+      return;
+    }
+
+    this.storageService.getDocumentUrl(key).subscribe({
+      next: (res) => {
+        let finalUrl = res.url;
+        if (finalUrl.startsWith('/')) {
+          const baseUrl = environment.apiUrl.replace('/api', '');
+          finalUrl = `${baseUrl}${finalUrl}`;
+        }
+        this.photoUrls[keyOrUrl] = finalUrl;
+      },
+      error: () => this.photoUrls[keyOrUrl] = ''
+    });
+  }
+
+  resolveLogoUrl(keyOrUrl: string): void {
+    const key = this.extractKey(keyOrUrl);
+
+    if (key.startsWith('http')) {
+      this.resolvedLogoUrl = key;
+      return;
+    }
+
+    this.storageService.getDocumentUrl(key).subscribe({
+      next: (res) => {
+        let finalUrl = res.url;
+        if (finalUrl.startsWith('/')) {
+          const baseUrl = environment.apiUrl.replace('/api', '');
+          finalUrl = `${baseUrl}${finalUrl}`;
+        }
+        this.resolvedLogoUrl = finalUrl;
+      },
+      error: () => this.resolvedLogoUrl = null
+    });
   }
 
   isImage(url: string): boolean {
@@ -204,7 +265,17 @@ export class ProductsComponent implements OnInit {
 
   getFileName(url: string): string {
     if (!url) return '';
-    return url.split('/').pop() || 'file';
+    try {
+      const withoutQuery = url.split('?')[0];
+      const decoded = decodeURIComponent(withoutQuery);
+      const parts = decoded.split('/');
+      let filePart = parts[parts.length - 1] || 'file';
+      const match = filePart.match(/^\\d+-(.*)$/);
+      if (match) filePart = match[1];
+      return filePart;
+    } catch {
+      return url.split('/').pop() || 'file';
+    }
   }
 
   onSubmit() {
@@ -224,6 +295,7 @@ export class ProductsComponent implements OnInit {
       const updates: Partial<Registration> = {
         organizationCategory: this.form.value.organizationCategory,
         productsDescription: this.form.value.productsDescription,
+        needsShade: this.form.value.needsShade === 'true' || this.form.value.needsShade === true,
         productPhotos: this.productPhotos,
         logoUrl: this.logoUrl || undefined,
         // sectionStatus is managed by backend merging or we can send it explicitly but StorageService types it well.

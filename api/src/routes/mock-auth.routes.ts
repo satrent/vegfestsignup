@@ -27,6 +27,7 @@ router.get('/google/callback', async (_req: Request, res: Response) => {
                 lastName: 'Admin',
                 emailVerified: true,
                 role: 'ADMIN',
+                isSuperAdmin: true, // Setup mock user as super admin for testing
             });
         }
 

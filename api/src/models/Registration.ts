@@ -21,6 +21,7 @@ export interface IRegistration extends Document {
     establishedDate?: string; // Deprecated
     establishedMonth?: string;
     establishedYear?: string;
+    wantBooth?: boolean;
     email: string;
     phone: string;
     website?: string;
@@ -43,6 +44,7 @@ export interface IRegistration extends Document {
     organizationCategory?: string;
     productsDescription?: string;
     productPhotos?: string[];
+    needsShade?: boolean;
 
     cbdThcProducts?: string;
     sellingDrinks?: boolean;
@@ -208,6 +210,7 @@ const registrationSchema = new Schema<IRegistration>(
             required: true,
             trim: true,
         },
+        wantBooth: Boolean,
         // On Site
         onSite: {
             type: String,
@@ -267,6 +270,7 @@ const registrationSchema = new Schema<IRegistration>(
         // Section 2: Products & Festival Guidelines
         organizationCategory: String, // Moved/Centralized here
         productsDescription: String,
+        needsShade: { type: Boolean, default: false },
         productPhotos: [String], // URL(s) of uploaded photos
         // Legacy/Removed from UI but keeping in schema for safety if needed, or user said they'd clear DB
 
@@ -280,6 +284,10 @@ const registrationSchema = new Schema<IRegistration>(
         animalProductFreeAck: Boolean,
         veganFoodAck: Boolean,
         compostableAck: Boolean,
+
+        // Section 3: Values
+        valuesDescription: String,
+        materialsAck: Boolean,
 
         // Section 4: Booth & Logistics
         numBoothSpaces: { type: Number, default: 0 },

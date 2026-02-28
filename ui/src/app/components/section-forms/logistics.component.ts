@@ -20,7 +20,13 @@ export class LogisticsComponent implements OnInit {
   saving = false;
   registrationId: string = '';
 
-  powerOptions = ['None', '5A ($60)', '10A ($80)', '15A ($100)', '20A ($120)'];
+  powerOptions = [
+    { value: 'None', label: 'None' },
+    { value: '5A', label: '5A ($60)' },
+    { value: '10A', label: '10A ($80)' },
+    { value: '15A', label: '15A ($100)' },
+    { value: '20A', label: '20A ($120)' }
+  ];
   vehicleOptions = ['Car', 'SUV', 'Van', 'Box truck', 'Other'];
   loadInOptions = [
     '2pm to 5pm September 19 (security provided)',
@@ -80,6 +86,7 @@ export class LogisticsComponent implements OnInit {
     this.storageService.getLatestRegistration().subscribe(reg => {
       if (reg && reg._id) {
         this.registrationId = reg._id;
+
         this.form.patchValue({
           numBoothSpaces: reg.numBoothSpaces || 0,
           numTables: reg.numTables || 0,

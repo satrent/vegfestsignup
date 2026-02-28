@@ -83,78 +83,97 @@
             }
         </div>
 
+        <!-- Shade Requirements -->
+        <div class="form-group">
+            <label>Are you selling products that need shade?</label>
+            <div class="radio-list radio-inline">
+                <label class="radio-item">
+                    <input type="radio" formControlName="needsShade" [value]="true">
+                    <span>Yes</span>
+                </label>
+                <label class="radio-item">
+                    <input type="radio" formControlName="needsShade" [value]="false">
+                    <span>No</span>
+                </label>
+            </div>
+        </div>
+
         <!-- Photo Upload -->
         <div class="form-group">
             <label>Upload 1–2 photos (booth or products; JPG/PNG) <span class="hint">(Max 20MB per file)</span><span
                     class="required">*</span></label>
 
-            <div class="upload-zone" (click)="fileInput.click()" (drop)="onFileDrop($event)"
-                (dragover)="onDragOver($event)">
-                <input #fileInput type="file" (change)="onFileSelected($event)" accept="image/jpeg,image/png" hidden
-                    multiple>
+            <input #fileInput type="file" (change)="onFileSelected($event)" accept="image/jpeg,image/png" hidden
+                multiple>
+            @if (productPhotos.length < 2) { <div class="upload-zone" (click)="fileInput.click()"
+                (drop)="onFileDrop($event)" (dragover)="onDragOver($event)" (dragenter)="onDragOver($event)">
 
-                @if (productPhotos.length === 0) {
                 <div class="upload-placeholder">
                     <span class="icon">📷</span>
-                    <p>Click or drag to upload photos</p>
+                    <p>Click or drag to upload {{ productPhotos.length === 1 ? 'another photo' : 'photos' }}</p>
                 </div>
-                }
-
-                <div class="preview-grid">
-                    @for (photo of productPhotos; track photo; let i = $index) {
-                    <div class="preview-container">
-                        <img [src]="getPhotoUrl(photo)" alt="Product preview">
-                        <button type="button" class="remove-btn" (click)="removePhoto(i, $event)">×</button>
-                    </div>
-                    }
-                </div>
-            </div>
-            @if (uploadingPhoto) {
-            <div class="uploading-indicator">Uploading...</div>
-            }
-            @if (productPhotos.length === 0 && (form.touched || form.dirty)) {
-            <!-- Custom validation message if needed, or rely on form valid state -->
-            <div class="error">At least one photo is required</div>
-            }
         </div>
         }
 
-        <!-- Logo Upload -->
-        <div class="form-group">
-            <label>Logo upload (JPG/PNG) [Optional] <span class="hint">(Max 20MB)</span></label>
-
-            <div class="upload-zone" (click)="logoInput.click()" (drop)="onLogoDrop($event)"
-                (dragover)="onDragOver($event)">
-                <input #logoInput type="file" (change)="onLogoSelected($event)" accept="image/jpeg,image/png" hidden>
-
-                @if (!logoUrl) {
-                <div class="upload-placeholder">
-                    <span class="icon">🖼️</span>
-                    <p>Click or drag to upload logo</p>
+        @if (productPhotos.length > 0) {
+        <div class="preview-grid">
+            @for (photo of productPhotos; track photo; let i = $index) {
+            <div class="preview-container">
+                <img [src]="photoUrls[photo]" alt="Product preview" class="actual-image">
+                <div class="filename-overlay" [title]="getFileName(photo)">
+                    {{ getFileName(photo) }}
                 </div>
-                } @else {
-                <div class="preview-container">
-                    <!-- If it's an image, show it. If likely vector/pdf, show icon -->
-                    @if (isImage(logoUrl)) {
-                    <img [src]="getPhotoUrl(logoUrl)" alt="Logo preview">
-                    } @else {
-                    <div class="file-icon">📄 {{ getFileName(logoUrl) }}</div>
-                    }
-                    <button type="button" class="remove-btn" (click)="removeLogo($event)">×</button>
-                </div>
-                }
+                <button type="button" class="remove-btn" (click)="removePhoto(i, $event)">×</button>
             </div>
-            @if (uploadingLogo) {
-            <div class="uploading-indicator">Uploading...</div>
             }
         </div>
+        }
+        @if (uploadingPhoto) {
+        <div class="uploading-indicator">Uploading...</div>
+        }
+        @if (productPhotos.length === 0 && (form.touched || form.dirty)) {
+        <!-- Custom validation message if needed, or rely on form valid state -->
+        <div class="error">At least one photo is required</div>
+        }
+</div>
+}
 
-        <div class="actions">
-            <button type="button" class="secondary" (click)="cancel()">Cancel</button>
-            <button type="submit"
-                [disabled]="form.invalid || saving || (userType !== 'Sponsor' && productPhotos.length === 0)">
-                {{ saving ? 'Saving...' : 'Save & Complete' }}
-            </button>
+<!-- Logo Upload -->
+<div class="form-group">
+    <label>Logo upload (JPG/PNG) [Optional] <span class="hint">(Max 20MB)</span></label>
+
+    <input #logoInput type="file" (change)="onLogoSelected($event)" accept="image/jpeg,image/png" hidden>
+    @if (!logoUrl) {
+    <div class="upload-zone" (click)="logoInput.click()" (drop)="onLogoDrop($event)" (dragover)="onDragOver($event)"
+        (dragenter)="onDragOver($event)">
+
+        <div class="upload-placeholder">
+            <span class="icon">🖼️</span>
+            <p>Click or drag to upload logo</p>
         </div>
-    </form>
+    </div>
+    } @else {
+    <div class="preview-grid" style="align-items: center;">
+        <div class="preview-container">
+            <img [src]="resolvedLogoUrl" alt="Logo preview" class="actual-image">
+            <div class="filename-overlay" [title]="getFileName(logoUrl)">
+                {{ getFileName(logoUrl) }}
+            </div>
+            <button type="button" class="remove-btn" (click)="removeLogo($event)">×</button>
+        </div>
+        <button type="button" class="secondary" style="padding: 0.5rem 1rem; font-size: 0.875rem;"
+            (click)="logoInput.click()">Change Logo</button>
+    </div>
+    }@if (uploadingLogo) {
+    <div class="uploading-indicator">Uploading...</div>
+    }
+</div>
+
+<div class="actions">
+    <button type="button" class="secondary" (click)="cancel()">Cancel</button>
+    <button type="submit" [disabled]="form.invalid || saving || (userType !== 'Sponsor' && productPhotos.length === 0)">
+        {{ saving ? 'Saving...' : 'Save & Complete' }}
+    </button>
+</div>
+</form>
 </div>

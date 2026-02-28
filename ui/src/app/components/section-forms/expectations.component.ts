@@ -31,6 +31,7 @@ export class ExpectationsComponent implements OnInit {
     constructor() {
         this.form = this.fb.group({
             orientationSession: ['', Validators.required],
+            otherInfo: [''],
             termsAgreement: [{ value: false, disabled: true }, Validators.requiredTrue],
             signature: ['', Validators.required]
         });
@@ -43,6 +44,7 @@ export class ExpectationsComponent implements OnInit {
 
                 this.form.patchValue({
                     orientationSession: reg.orientationSession || '',
+                    otherInfo: reg.otherInfo || '',
                     signature: reg.signature || ''
                 });
 

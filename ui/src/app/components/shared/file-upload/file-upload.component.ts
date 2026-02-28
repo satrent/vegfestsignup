@@ -1,49 +1,70 @@
-import { Component, Input, Output, EventEmitter, inject } from '@angular/core';
+import { Component, Input, Output, EventEmitter, inject, OnInit, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { StorageService } from '../../../services/storage.service';
+import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-file-upload',
   imports: [CommonModule],
   template: `
     <div class="file-upload-container">
-      <div
-        class="drop-zone"
-        [class.dragging]="isDragging"
-        (dragover)="onDragOver($event)"
-        (dragleave)="onDragLeave($event)"
-        (drop)="onDrop($event)"
-        (click)="fileInput.click()"
-        >
-        <input #fileInput type="file" (change)="onFileSelected($event)" style="display: none">
-    
-        @if (!currentFile && !isUploading) {
-          <div>
-            <p>Drag & Drop your file here or <span>click to upload</span></p>
-            <small>Supported formats: {{ supportedFormats }} (Max 20MB)</small>
-          </div>
-        }
-    
-        @if (isUploading) {
-          <div>
-            <p>Uploading {{ selectedFile?.name }}...</p>
-            <div class="spinner"></div>
-          </div>
-        }
-    
-        @if (currentFile) {
-          <div class="file-info">
+      <input #fileInput type="file" (change)="onFileSelected($event)" style="display: none">
+
+      @if (!currentFile) {
+        <div
+          class="drop-zone"
+          [class.dragging]="isDragging"
+          (dragover)="onDragOver($event)"
+          (dragenter)="onDragOver($event)"
+          (dragleave)="onDragLeave($event)"
+          (drop)="onDrop($event)"
+          (click)="fileInput.click()"
+          >
+          @if (!isUploading) {
+            <div>
+              <p>Drag & Drop your file here or <span>click to upload</span></p>
+              <small>Supported formats: {{ supportedFormats }} (Max 20MB)</small>
+            </div>
+          }
+      
+          @if (isUploading) {
+            <div>
+              <p>Uploading {{ selectedFile?.name }}...</p>
+              <div class="spinner"></div>
+            </div>
+          }
+        </div>
+      }
+
+      @if (currentFile) {
+        <div class="file-info-container">
+          @if (isImageUrl(secureUrl || currentFile.location)) {
+            <div class="image-preview">
+              @if (!disabled) {
+                <button type="button" class="remove-btn" (click)="removeFile($event)">&times;</button>
+              }
+              <img [src]="secureUrl || currentFile.location" alt="Preview">
+            </div>
+          } @else {
+            @if (!disabled) {
+              <button type="button" class="remove-btn" (click)="removeFile($event)">&times;</button>
+            }
+          }
+          <div class="file-details">
             <div class="status-badge" [ngClass]="currentFile.status.toLowerCase()">
               {{ currentFile.status }}
             </div>
             <p class="filename">{{ currentFile.name }}</p>
-            <a [href]="currentFile.location" target="_blank" (click)="$event.stopPropagation()">View Document</a>
-            @if (!disabled) {
-              <button class="change-btn" (click)="fileInput.click(); $event.stopPropagation()">Change</button>
-            }
+            <div class="file-actions">
+              <a [href]="secureUrl || currentFile.location" target="_blank" (click)="$event.stopPropagation()">View Document</a>
+              @if (!disabled) {
+                <button type="button" class="change-btn" (click)="fileInput.click(); $event.stopPropagation()">Change Document</button>
+              }
+            </div>
           </div>
-        }
-      </div>
+        </div>
+      }
+
       @if (errorMessage) {
         <div class="error-message">
           {{ errorMessage }}
@@ -92,12 +113,18 @@ import { StorageService } from '../../../services/storage.service';
     .status-badge.rejected { background: #f8d7da; color: #721c24; }
     .change-btn {
       margin-left: 1rem;
-      background: none;
-      border: 1px solid #ccc;
-      padding: 0.2rem 0.5rem;
+      background: #718096;
+      color: white;
+      border: none;
+      padding: 0.5rem 1rem;
       cursor: pointer;
-      font-size: 0.8rem;
+      font-size: 0.875rem;
       border-radius: 4px;
+      font-weight: 600;
+      transition: background 0.2s;
+    }
+    .change-btn:hover {
+        background: #4a5568;
     }
     .error-message {
       color: #dc3545;
@@ -105,13 +132,75 @@ import { StorageService } from '../../../services/storage.service';
       margin-top: 0.5rem;
     }
     span { color: #007bff; text-decoration: underline; }
+    
+    .file-info-container {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+      margin-top: 1rem;
+      padding: 1rem;
+      background: #f8fafc;
+      border-radius: 8px;
+      border: 1px solid #e2e8f0;
+    }
+    .remove-btn {
+      position: absolute;
+      top: 4px;
+      right: 4px;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: #e53e3e;
+      color: white;
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+      font-size: 1rem;
+      line-height: 1;
+      cursor: pointer;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    }
+    .remove-btn:hover {
+        background: #c53030;
+    }
+    .image-preview {
+      position: relative;
+    }
+    .image-preview img {
+      width: 100px;
+      height: 100px;
+      object-fit: cover;
+      border-radius: 8px;
+      border: 1px solid #e2e8f0;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      display: block;
+    }
+    .file-details {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.5rem;
+    }
+    .file-actions {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
   `]
 })
-export class FileUploadComponent {
+export class FileUploadComponent implements OnInit, OnChanges {
   @Input() documentType!: string;
-  @Input() currentFile?: { name: string; location: string; status: string };
+  @Input() currentFile?: { name: string; location: string; status: string; key?: string };
   @Input() disabled = false;
   @Output() uploadComplete = new EventEmitter<any>();
+  @Output() fileRemoved = new EventEmitter<string>();
+
+  secureUrl: string | null = null;
 
   isDragging = false;
   isUploading = false;
@@ -120,12 +209,76 @@ export class FileUploadComponent {
 
   private storageService = inject(StorageService);
 
+  ngOnInit() {
+    this.resolveSecureUrl();
+  }
+
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes['currentFile']) {
+      this.resolveSecureUrl();
+    }
+  }
+
+  resolveSecureUrl() {
+    if (!this.currentFile) {
+      this.secureUrl = null;
+      return;
+    }
+
+    const locOrKey = this.currentFile.key || this.currentFile.location;
+    if (!locOrKey) return;
+
+    if (locOrKey.startsWith('http') && !locOrKey.includes('amazonaws.com')) {
+      this.secureUrl = locOrKey;
+      return;
+    }
+
+    let key = locOrKey;
+    if (locOrKey.includes('amazonaws.com/')) {
+      key = locOrKey.split('amazonaws.com/')[1];
+    } else if (locOrKey.includes('/uploads/')) {
+      key = locOrKey.split('/uploads/')[1];
+    }
+
+    this.storageService.getDocumentUrl(key).subscribe({
+      next: (res) => {
+        let finalUrl = res.url;
+        if (finalUrl.startsWith('/')) {
+          const baseUrl = environment.apiUrl.replace('/api', '');
+          finalUrl = `${baseUrl}${finalUrl}`;
+        }
+        this.secureUrl = finalUrl;
+      },
+      error: () => this.secureUrl = null
+    });
+  }
+
+  isImageUrl(url: string | null): boolean {
+    if (!url) return false;
+    const lower = url.toLowerCase();
+    // Some urls from the secure endpoint might not have the extension at the end 
+    // but the backend limits file uploads. We rely on the stored document name.
+    if (this.currentFile?.name) {
+      const nameLower = this.currentFile.name.toLowerCase();
+      return nameLower.endsWith('.jpg') || nameLower.endsWith('.jpeg') || nameLower.endsWith('.png');
+    }
+    return lower.endsWith('.jpg') || lower.endsWith('.jpeg') || lower.endsWith('.png');
+  }
+
   get supportedFormats(): string {
     const imageTypes = ['product-photo', 'Logo', 'logo', 'Coupon Logo'];
     if (imageTypes.includes(this.documentType)) {
       return 'JPG, PNG';
     }
     return 'PDF, JPG, PNG';
+  }
+
+  removeFile(event: Event) {
+    event.stopPropagation();
+    if (this.disabled) return;
+    this.currentFile = undefined;
+    this.secureUrl = null;
+    this.fileRemoved.emit(this.documentType);
   }
 
   onDragOver(event: DragEvent) {
@@ -194,8 +347,10 @@ export class FileUploadComponent {
         this.currentFile = {
           name: file.name,
           location: res.document.location,
-          status: res.document.status
+          status: res.document.status,
+          key: res.document.key || res.document.location
         };
+        this.resolveSecureUrl();
         this.uploadComplete.emit(res);
       },
       error: (err) => {

@@ -96,11 +96,8 @@
 
                 <div class="section-group">
                     <h3>Admin Notes</h3>
-                    <div class="field-group">
-                        <label>Notes (Internal Only)</label>
-                        <textarea [(ngModel)]="tempRegistration.otherInfo"
-                            placeholder="Add internal notes..."></textarea>
-                    </div>
+                    <!-- Placeholder if other notes fields are added in the future. 'otherInfo' moved to Profile tab. -->
+                    <p class="text-sm text-gray-500">No editable internal notes fields available yet.</p>
                 </div>
             </div>
 
@@ -220,6 +217,13 @@
                         <textarea [(ngModel)]="tempRegistration.productsDescription"></textarea>
                     </div>
                     <div class="field-group">
+                        <label>Needs Shade</label>
+                        <label class="toggle-label">
+                            <input type="checkbox" [(ngModel)]="tempRegistration.needsShade">
+                            <span>{{ tempRegistration.needsShade ? 'Yes' : 'No' }}</span>
+                        </label>
+                    </div>
+                    <div class="field-group">
                         <label>Values Alignment</label>
                         <div class="value" style="white-space: pre-wrap;">{{ tempRegistration.valuesDescription || 'No
                             answer provided.' }}</div>
@@ -227,6 +231,11 @@
                     <div class="field-group">
                         <label>Owner Demographics</label>
                         <div class="value">{{ tempRegistration.ownerDemographics?.join(', ') || 'Not provided' }}</div>
+                    </div>
+                    <div class="field-group">
+                        <label>Additional Information</label>
+                        <div class="value" style="white-space: pre-wrap;">{{ tempRegistration.otherInfo || 'None
+                            provided.' }}</div>
                     </div>
                 </div>
 
@@ -269,7 +278,7 @@
                         <button class="small-btn" (click)="sendReminder()" [disabled]="sendingReminder">
                             {{ sendingReminder ? 'Sending...' : 'Send Reminder Email' }}
                         </button>
-                        <span class="text-sm text-gray-600" *ngIf="tempRegistration?.lastReminderSent">
+                        <span class="text-sm text-gray-600" *ngIf="tempRegistration.lastReminderSent">
                             Reminder last sent: {{ tempRegistration.lastReminderSent | date:'medium' }}
                         </span>
                     </div>

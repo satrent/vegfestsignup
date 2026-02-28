@@ -37,7 +37,7 @@
             @if (form.get('st19Option')?.value === 'upload_now') {
             <div class="upload-area">
                 <app-file-upload documentType="ST-19" [currentFile]="getDoc('ST-19')" [disabled]="form.disabled"
-                    (uploadComplete)="onUpload($event)">
+                    (uploadComplete)="onUpload($event)" (fileRemoved)="onRemoveDoc('ST-19')">
                 </app-file-upload>
             </div>
             }
@@ -66,7 +66,8 @@
             @if (form.get('foodPermitOption')?.value === 'upload_now') {
             <div class="upload-area">
                 <app-file-upload documentType="Food Permit" [currentFile]="getDoc('Food Permit')"
-                    [disabled]="form.disabled" (uploadComplete)="onUpload($event)">
+                    [disabled]="form.disabled" (uploadComplete)="onUpload($event)"
+                    (fileRemoved)="onRemoveDoc('Food Permit')">
                 </app-file-upload>
             </div>
             }
@@ -95,7 +96,7 @@
             @if (form.get('coiOption')?.value === 'upload_now') {
             <div class="upload-area">
                 <app-file-upload documentType="COI" [currentFile]="getDoc('COI')" [disabled]="form.disabled"
-                    (uploadComplete)="onUpload($event)">
+                    (uploadComplete)="onUpload($event)" (fileRemoved)="onRemoveDoc('COI')">
                 </app-file-upload>
             </div>
             }

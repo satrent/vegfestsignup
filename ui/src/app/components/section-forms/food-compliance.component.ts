@@ -153,6 +153,9 @@ export class FoodComplianceComponent implements OnInit {
         if (index >= 0) this.documents[index] = doc;
         else this.documents.push(doc);
     }
+    onRemoveDoc(type: string) {
+        this.documents = this.documents.filter(d => d.type !== type);
+    }
 
     onSubmit() {
         // 1. Check Automatic Rejection
@@ -183,7 +186,8 @@ export class FoodComplianceComponent implements OnInit {
             this.saving = true;
             const updates = {
                 ...this.form.value,
-                'sectionStatus.foodCompliance': true
+                'sectionStatus.foodCompliance': true,
+                documents: this.documents
             };
 
             this.storageService.updateRegistration(this.registrationId, updates).subscribe({

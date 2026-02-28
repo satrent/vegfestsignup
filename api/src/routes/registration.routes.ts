@@ -220,6 +220,17 @@ router.patch(
             delete updates.createdAt;
             delete updates.updatedAt;
 
+            // Clean up optional enum fields that might be sent as empty strings from front-end
+            const optionalEnums = [
+                'onSite', 'powerNeeds', 'loadInVehicle', 'foodOfferings',
+                'menuOption', 'coiOption', 'st19Option', 'swagDistributionInterest'
+            ];
+            optionalEnums.forEach(field => {
+                if (updates[field] === '') {
+                    updates[field] = null;
+                }
+            });
+
             // Sanitize social handles
             if (updates.instagram) {
                 updates.instagram = updates.instagram.replace(/^(?:https?:\/\/)?(?:www\.)?(?:instagram\.com\/)?@?([a-zA-Z0-9._]+)\/?$/, '$1');
@@ -244,6 +255,19 @@ router.patch(
             // Also protect status if user doesn't have approval permissions
             if (updates.status && (!req.user?.isApprover && !req.user?.isSuperAdmin && req.user?.role !== 'WEB_ADMIN')) {
                 delete updates.status;
+            }
+
+            // Prevent non-super admins from creating new tags
+            if (updates.tags && (!req.user?.isSuperAdmin && req.user?.role !== 'WEB_ADMIN')) {
+                const existingTags = await Registration.distinct('tags');
+                const lowercaseExistingTags = existingTags.filter(t => t).map((t: string) => t.toLowerCase());
+
+                for (const tag of updates.tags) {
+                    if (!lowercaseExistingTags.includes(tag.toLowerCase())) {
+                        res.status(403).json({ error: 'Only Super Admins can create new tags' });
+                        return;
+                    }
+                }
             }
 
             // Construct the query based on user role
