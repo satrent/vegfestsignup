@@ -19,6 +19,7 @@ import adminRoutes from './routes/admin.routes';
 import uploadRoutes from './routes/upload.routes';
 import paymentRoutes from './routes/payment.routes';
 import boothRoutes from './routes/booth.routes';
+import boothAreaRoutes from './routes/booth-area.routes';
 
 const app = express();
 
@@ -70,6 +71,7 @@ app.use('/api/admin/users', adminRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/payment', paymentRoutes);
 app.use('/api/booths', boothRoutes);
+app.use('/api/booth-areas', boothAreaRoutes);
 
 // 404 handler
 app.use((_req: Request, res: Response) => {

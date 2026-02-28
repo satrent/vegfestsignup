@@ -2,6 +2,8 @@ import mongoose, { Document, Schema } from 'mongoose';
 
 export interface IBooth extends Document {
     boothNumber: number;
+    type: 'regular' | 'foodTruck';
+    areaId?: mongoose.Types.ObjectId;
     xPercentage: number;
     yPercentage: number;
     registrationId?: mongoose.Types.ObjectId;
@@ -14,7 +16,16 @@ const boothSchema = new Schema<IBooth>(
         boothNumber: {
             type: Number,
             required: true,
-            unique: true,
+            index: true // Removed unique because numbers reset per area (A1, B1)
+        },
+        type: {
+            type: String,
+            enum: ['regular', 'foodTruck'],
+            default: 'regular'
+        },
+        areaId: {
+            type: Schema.Types.ObjectId,
+            ref: 'BoothArea',
             index: true
         },
         xPercentage: {

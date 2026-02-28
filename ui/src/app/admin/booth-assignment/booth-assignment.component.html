@@ -8,15 +8,41 @@
         </div>
 
         <div class="header-actions">
-            <button class="btn-toggle-editor" (click)="toggleEditorMode()" [class.active]="isEditorMode">
-                {{ isEditorMode ? 'Exit Editor Mode' : 'Enter Map Editor' }}
-            </button>
+            <!-- Mode Toggles -->
+            <div class="mode-toggles">
+                <button class="btn-toggle-editor" (click)="toggleSpotEditorMode()" [class.active]="isSpotEditorMode"
+                    [disabled]="isAreaEditorMode">
+                    {{ isSpotEditorMode ? 'Exit Spot Editor' : 'Enter Spot Editor' }}
+                </button>
+                <button class="btn-toggle-editor area-btn" (click)="toggleAreaEditorMode()"
+                    [class.active]="isAreaEditorMode" [disabled]="isSpotEditorMode">
+                    {{ isAreaEditorMode ? 'Exit Area Editor' : 'Enter Area Editor' }}
+                </button>
+            </div>
 
-            @if (isEditorMode) {
+            @if (isSpotEditorMode) {
             <div class="editor-tools">
-                <label>Next Booth #:</label>
+                <label>Type:</label>
+                <select [(ngModel)]="newSpotType" class="spot-type-select">
+                    <option value="regular">Regular</option>
+                    <option value="foodTruck">Food Truck</option>
+                </select>
+
+                <label>Next #:</label>
                 <input type="number" [(ngModel)]="newBoothNumber" class="booth-num-input" />
-                <span class="helper-text">Click map to add</span>
+                <span class="helper-text">Click within an Area to add</span>
+            </div>
+            }
+
+            @if (isAreaEditorMode) {
+            <div class="editor-tools area-tools">
+                @if (isDrawingArea) {
+                <span class="helper-text drawing-text">Click the green starting point to finish your shape.</span>
+                <button class="btn-action cancel-btn" (click)="cancelDrawing()">Cancel</button>
+                } @else {
+                <button class="btn-action start-draw-btn" (click)="startDrawing()">+ Draw New Area</button>
+                <span class="helper-text">Select to manage areas</span>
+                }
             </div>
             }
         </div>
@@ -44,7 +70,8 @@
                 }
 
                 @for (p of unassignedParticipants; track p._id) {
-                <div class="participant-card" cdkDrag [cdkDragData]="p" [cdkDragDisabled]="isEditorMode">
+                <div class="participant-card" cdkDrag [cdkDragData]="p"
+                    [cdkDragDisabled]="isSpotEditorMode || isAreaEditorMode">
                     <div class="card-title">{{ p.organizationName }}</div>
                     <div class="card-subtitle">{{ p.firstName }} {{ p.lastName }}</div>
                     <div class="card-details">
@@ -63,61 +90,118 @@
 
         <!-- Right Area: The Map -->
         <div class="map-area">
-            <!-- We scale the map container based on window size -->
-            <div class="map-container" (click)="onMapClick($event)" [class.editing]="isEditorMode">
 
-                <!-- Map Background Image -->
-                <img src="/assets/harriet-island-map.png" alt="Harriet Island Map" class="map-bg"
-                    onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+            <!-- Zoom Controls Overlay -->
+            <div class="zoom-controls">
+                <button (click)="zoomOut()" [disabled]="zoomLevel <= 100" class="zoom-btn">-</button>
+                <span class="zoom-level">{{ zoomLevel }}%</span>
+                <button (click)="zoomIn()" [disabled]="zoomLevel >= 400" class="zoom-btn">+</button>
+                <button (click)="resetZoom()" [disabled]="zoomLevel === 100" class="zoom-btn reset-btn">Reset</button>
+            </div>
 
-                <div class="map-bg-placeholder" style="display: none;">
-                    <span class="bg-text">Please save the map image as 'assets/harriet-island-map.png'</span>
-                </div>
+            <!-- Scrollable Viewport for Zooming -->
+            <div class="map-scroll-viewport" (wheel)="onMapScroll($event)" (mousedown)="onPanStart($event)"
+                (mousemove)="onPanMove($event)" (mouseup)="onPanEnd()" (mouseleave)="onPanEnd()"
+                [class.is-panning]="isPanning">
+                <!-- We scale the map container based on window size -->
+                <div class="map-container" (click)="onMapClick($event)" (mousemove)="onMapMouseMove($event)"
+                    [class.editing-spots]="isSpotEditorMode" [class.editing-areas]="isAreaEditorMode"
+                    [class.drawing]="isDrawingArea" [style.min-width.px]="1000 * (zoomLevel / 100)">
 
-                <!-- Booth Spots Overlay -->
-                @for (booth of booths; track booth._id) {
-                <div class="booth-spot-wrapper" [style.left.%]="booth.xPercentage" [style.top.%]="booth.yPercentage"
-                    [id]="'wrapper-' + booth._id">
+                    <!-- Map Background Image -->
+                    <img src="/assets/harriet-island-map.png" alt="Harriet Island Map" class="map-bg"
+                        onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
 
-                    @if (!isEditorMode) {
-                    <!-- Drop List for assigning participants -->
-                    <div class="drop-zone" [id]="'spot-' + booth._id" cdkDropList
-                        [cdkDropListDisabled]="!!booth.registrationId" (cdkDropListDropped)="dropVendor($event)">
-
-                        <div class="booth-spot" [class.filled]="!!booth.registrationId"
-                            [class.empty]="!booth.registrationId">
-
-                            <div class="spot-number">{{ booth.boothNumber }}</div>
-
-                            @if (booth.registrationId) {
-                            <!-- Hover popup info -->
-                            <div class="spot-tooltip">
-                                <strong>{{ booth.registrationId.organizationName }}</strong><br>
-                                {{ booth.registrationId.firstName }} {{ booth.registrationId.lastName }}<br>
-                                <a href="mailto:{{ booth.registrationId.email }}">{{ booth.registrationId.email }}</a>
-
-                                <div class="tooltip-actions">
-                                    <button class="unassign-btn" (click)="unassignVendor(booth, $event)">Remove
-                                        Assignment</button>
-                                </div>
-                            </div>
-                            }
-                        </div>
+                    <div class="map-bg-placeholder" style="display: none;">
+                        <span class="bg-text">Please save the map image as 'assets/harriet-island-map.png'</span>
                     </div>
-                    } @else {
-                    <!-- Draggable element for Map Editor -->
-                    <div class="booth-spot empty editing" cdkDrag [cdkDragBoundary]="'.map-container'"
-                        (cdkDragStarted)="onSpotDragStarted()" (cdkDragEnded)="onSpotDragEnd($event, booth)"
-                        (click)="$event.stopPropagation()">
 
-                        <div class="spot-number">{{ booth.boothNumber }}</div>
-                        <button class="delete-spot-btn" (click)="deleteSpot(booth, $event)">&times;</button>
+                    <!-- SVG Layer for Areas (viewBox 0 0 100 100 mapping coordinate space exactly to our 0-100% values) -->
+                    <svg class="areas-svg-overlay" width="100%" height="100%" viewBox="0 0 100 100"
+                        preserveAspectRatio="none">
+                        <!-- Saved Areas -->
+                        @for (area of boothAreas; track area._id) {
+                        <polygon [attr.points]="getPolygonPoints(area.polygon)" class="saved-area-polygon"
+                            [class.interactive]="isAreaEditorMode && !isDrawingArea"
+                            (click)="onAreaClick(area, $event)" />
+                        <!-- Area Label positioned at the centroid -->
+                        <text [attr.x]="getCentroid(area.polygon).x" [attr.y]="getCentroid(area.polygon).y"
+                            class="area-label" text-anchor="middle" dominant-baseline="middle">
+                            {{ area.name }}
+                        </text>
+                        }
+
+                        <!-- Currently Drawing Polygon -->
+                        @if (isDrawingArea && currentDrawingPolygon.length > 0) {
+                        <polygon [attr.points]="getDrawingPolygonPoints()" class="drawing-polygon" />
+                        <!-- Drawing points -->
+                        @for (pt of currentDrawingPolygon; track $index) {
+                        @if ($index === 0) {
+                        <circle [attr.cx]="pt.xPercentage" [attr.cy]="pt.yPercentage" r="1.5"
+                            class="drawing-point start-point" (click)="completeDrawing($event)" />
+                        } @else {
+                        <circle [attr.cx]="pt.xPercentage" [attr.cy]="pt.yPercentage" r="0.8" class="drawing-point" />
+                        }
+                        }
+                        <line *ngIf="currentMousePos"
+                            [attr.x1]="currentDrawingPolygon[currentDrawingPolygon.length - 1].xPercentage"
+                            [attr.y1]="currentDrawingPolygon[currentDrawingPolygon.length - 1].yPercentage"
+                            [attr.x2]="currentMousePos.x" [attr.y2]="currentMousePos.y" class="drawing-line" />
+                        }
+                    </svg>
+
+                    <!-- Booth Spots Overlay -->
+                    @for (booth of booths; track booth._id) {
+                    <div class="booth-spot-wrapper" [class.food-truck-wrapper]="booth.type === 'foodTruck'"
+                        [style.left.%]="booth.xPercentage" [style.top.%]="booth.yPercentage"
+                        [id]="'wrapper-' + booth._id">
+
+                        @if (!isSpotEditorMode && !isAreaEditorMode) {
+                        <!-- Drop List for assigning participants -->
+                        <div class="drop-zone" [id]="'spot-' + booth._id" cdkDropList
+                            [cdkDropListDisabled]="!!booth.registrationId" (cdkDropListDropped)="dropVendor($event)"
+                            (mouseenter)="hoveredBoothId = booth._id" (mouseleave)="hoveredBoothId = null">
+
+                            <div class="booth-spot" [class.filled]="!!booth.registrationId"
+                                [class.empty]="!booth.registrationId" [class.food-truck]="booth.type === 'foodTruck'"
+                                [class.is-hovered]="hoveredBoothId === booth._id">
+
+                                <div class="spot-number">{{ getBoothDisplayLabel(booth) }}</div>
+
+                                @if (booth.registrationId) {
+                                <!-- Hover popup info -->
+                                <div class="spot-tooltip">
+                                    <strong>{{ booth.registrationId.organizationName }}</strong><br>
+                                    {{ booth.registrationId.firstName }} {{ booth.registrationId.lastName }}<br>
+                                    <a href="mailto:{{ booth.registrationId.email }}">{{ booth.registrationId.email
+                                        }}</a>
+
+                                    <div class="tooltip-actions">
+                                        <button class="unassign-btn" (click)="unassignVendor(booth, $event)">Remove
+                                            Assignment</button>
+                                    </div>
+                                </div>
+                                }
+                            </div>
+                        </div>
+                        } @else if (isSpotEditorMode) {
+                        <!-- Draggable element for Map Editor -->
+                        <div class="booth-spot empty editing" [class.food-truck]="booth.type === 'foodTruck'" cdkDrag
+                            [cdkDragBoundary]="'.map-container'" (cdkDragStarted)="onSpotDragStarted()"
+                            (cdkDragEnded)="onSpotDragEnd($event, booth)" (click)="$event.stopPropagation()">
+
+                            <div class="spot-number">{{ getBoothDisplayLabel(booth) }}</div>
+                            <button class="delete-spot-btn" (click)="deleteSpot(booth, $event)">&times;</button>
+                        </div>
+                        } @else {
+                        <!-- Area Editor Mode: just show spots statically and slightly faded -->
+                        <div class="booth-spot empty disabled-spot" [class.food-truck]="booth.type === 'foodTruck'">
+                            <div class="spot-number">{{ getBoothDisplayLabel(booth) }}</div>
+                        </div>
+                        }
                     </div>
                     }
                 </div>
-                }
             </div>
         </div>
-
     </div>
-</div>

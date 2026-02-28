@@ -17,7 +17,8 @@ router.get('/', async (_req: Request, res: Response) => {
             .populate({
                 path: 'registrationId',
                 select: 'organizationName firstName lastName email phone numBoothSpaces'
-            });
+            })
+            .populate('areaId');
         res.json(booths);
     } catch (error) {
         console.error('Error fetching booths:', error);
@@ -30,6 +31,8 @@ router.post(
     '/',
     [
         body('boothNumber').isNumeric(),
+        body('type').optional().isIn(['regular', 'foodTruck']),
+        body('areaId').optional().isMongoId(),
         body('xPercentage').isNumeric(),
         body('yPercentage').isNumeric()
     ],
@@ -41,17 +44,26 @@ router.post(
                 return;
             }
 
-            const { boothNumber, xPercentage, yPercentage } = req.body;
+            const { boothNumber, type, areaId, xPercentage, yPercentage } = req.body;
 
-            // Check if boothNumber exists
-            const existingBooth = await Booth.findOne({ boothNumber });
+            // Optional: we removed the global 'unique' constraint in the model,
+            // but we might want to enforce uniqueness per area. Let's do that.
+            let existingBooth;
+            if (areaId) {
+                existingBooth = await Booth.findOne({ boothNumber, areaId });
+            } else {
+                existingBooth = await Booth.findOne({ boothNumber, areaId: null });
+            }
+
             if (existingBooth) {
-                res.status(400).json({ error: 'Booth number already exists' });
+                res.status(400).json({ error: 'Booth number already exists in this area' });
                 return;
             }
 
             const newBooth = new Booth({
                 boothNumber,
+                type: type || 'regular',
+                areaId: areaId || null,
                 xPercentage,
                 yPercentage
             });
@@ -180,10 +192,12 @@ router.put(
             booth.registrationId = registration._id as mongoose.Types.ObjectId;
             await booth.save();
 
-            const populatedBooth = await Booth.findById(booth._id).populate({
-                path: 'registrationId',
-                select: 'organizationName firstName lastName email phone numBoothSpaces'
-            });
+            const populatedBooth = await Booth.findById(booth._id)
+                .populate({
+                    path: 'registrationId',
+                    select: 'organizationName firstName lastName email phone numBoothSpaces'
+                })
+                .populate('areaId');
 
             res.json(populatedBooth);
         } catch (error) {
