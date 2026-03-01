@@ -240,6 +240,18 @@
                 </div>
 
                 <div class="section-group">
+                    <h3>History</h3>
+                    <div class="field-group">
+                        <label>Participated Before</label>
+                        <div class="value">{{ tempRegistration.participatedBefore === undefined ? 'Not answered' : (tempRegistration.participatedBefore ? 'Yes' : 'No') }}</div>
+                    </div>
+                    <div class="field-group" *ngIf="tempRegistration.participatedBefore === false">
+                        <label>Sold Elsewhere</label>
+                        <div class="value">{{ tempRegistration.soldElsewhere || 'Not provided' }}</div>
+                    </div>
+                </div>
+
+                <div class="section-group">
                     <h3>Social Media</h3>
                     <div class="form-grid">
                         <div class="field-group"><label>Facebook</label><input type="text"
