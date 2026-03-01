@@ -78,7 +78,9 @@
         <div class="document-section">
             <h3>Certificate of Insurance (COI) <span class="required">[Required]</span></h3>
             <p class="description">Proof of general liability insurance naming Companion Action for Animals as
-                additional insured.</p>
+                additional insured.<br><a
+                    href="https://drive.google.com/file/d/1CapSr5wl9uVuyKriAeGnH_zSDaKnaiX4/view?usp=drive_link"
+                    target="_blank" rel="noopener noreferrer">See sample</a></p>
 
             <div class="form-group">
                 <div class="radio-list">
@@ -88,10 +90,16 @@
                     </div>
                     <div class="radio-item">
                         <input type="radio" id="coi-later" formControlName="coiOption" value="later">
-                        <label for="coi-later">Will provide by August 10</label>
+                        <label for="coi-later">Will provide by August 24</label>
                     </div>
                 </div>
             </div>
+
+            <p class="description" style="font-size: 0.9em; margin-top: 10px;">
+                <a href="https://partners.insurancecanopy.com/twin-cities-veg-fest" target="_blank"
+                    rel="noopener noreferrer">Buy here.</a> *Some types of insurance only have monthly options. You can
+                purchase a subscription by August 24 and then cancel it.
+            </p>
 
             @if (form.get('coiOption')?.value === 'upload_now') {
             <div class="upload-area">
