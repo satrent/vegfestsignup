@@ -147,22 +147,70 @@ router.get('/export/quickbooks', authenticate, requireAdmin, async (_req: Reques
                 }
             }
 
-            // Calculate Invoice Amount
-            let base = 200;
-            if (isOver100) {
-                base = base * 0.5; // 50% Discount
+            // Calculate Base Fee from Organization Category
+            let base = 200; // default for unknown
+            if (r.organizationCategory) {
+                const match = r.organizationCategory.match(/\$(\d+)/);
+                if (match) {
+                    base = parseInt(match[1], 10);
+                }
             }
 
+            // Calculate BIPGM Start-up discount eligibility
+            // Rule: BIPGM owned AND in business for less than 3 years by 9/20/2026.
+            let startYear = parseInt(r.establishedYear || '0', 10);
+            let isBipgmStartup = false;
+            if (r.bipgmOwned && startYear > 0) {
+                if (startYear > 2023) {
+                    isBipgmStartup = true;
+                } else if (startYear === 2023) {
+                    const monthMap: { [key: string]: number } = {
+                        'january': 0, 'february': 1, 'march': 2, 'april': 3, 'may': 4, 'june': 5,
+                        'july': 6, 'august': 7, 'september': 8, 'october': 9, 'november': 10, 'december': 11
+                    };
+                    if (r.establishedMonth) {
+                        const m = monthMap[r.establishedMonth.toLowerCase().trim()];
+                        if (m !== undefined && m >= 8) { // September or later
+                            isBipgmStartup = true;
+                        }
+                    } else {
+                        isBipgmStartup = true; // Assume eligible if only year is 2023
+                    }
+                }
+            }
+
+            // Calculate Discounts (they do not stack, max 50% off base)
+            let discountAmount = 0;
+            let discountNotes = [];
+
+            if (isBipgmStartup) {
+                discountAmount = base * 0.5;
+                discountNotes.push('BIPGM Start-up 50%');
+            }
+            if (isOver100) {
+                if (discountAmount === 0) {
+                    discountAmount = base * 0.5;
+                    discountNotes.push('Distance 50%');
+                } else {
+                    discountNotes.push('Distance limit reached (No Stack)');
+                }
+            }
+
+            // Calculate Invoice Amount
+            const securityDeposit = 200;
             const extraSiteCost = Math.max(0, (r.numTents || 0) - 1) * 100;
             const tablesCost = (r.numTables || 0) * 20;
             const chairsCost = (r.numChairs || 0) * 5;
-            const total = base + extraSiteCost + tablesCost + chairsCost;
+            const total = (base - discountAmount) + securityDeposit + extraSiteCost + tablesCost + chairsCost;
 
-            const baseNote = isOver100 ? 'Base: $100 (50% Dist Disc)' : 'Base: $200';
-            const calculationNotes = `Total: $${total} (${baseNote}, Extra Sites: $${extraSiteCost}, Tables: $${tablesCost}, Chairs: $${chairsCost})${distanceNote}`;
+            const startDate = (r.establishedMonth ? r.establishedMonth + ' ' : '') + (r.establishedYear || '');
+            const eligibilityInfo = `[BIPGM: ${r.bipgmOwned ? 'Yes' : 'No'}, Start: ${startDate || 'N/A'}]`;
+
+            const baseStr = discountAmount > 0 ? `$${base - discountAmount} ($${base} - 50% ${discountNotes.join(', ')})` : `$${base}`;
+            const calculationNotes = `Total: $${total} (Base: ${baseStr}, Security Deposit: $${securityDeposit}, Extra Sites: $${extraSiteCost}, Tables: $${tablesCost}, Chairs: $${chairsCost})${distanceNote} ${eligibilityInfo}`;
 
             // Escape fields for CSV
-            const escape = (field: string | undefined) => {
+            const escape = (field: string | undefined | null) => {
                 if (!field) return '';
                 const stringField = String(field);
                 if (stringField.includes(',') || stringField.includes('"') || stringField.includes('\n')) {
