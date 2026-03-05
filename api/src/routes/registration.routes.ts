@@ -251,7 +251,20 @@ router.get('/export/quickbooks', authenticate, requireSuperAdmin, async (_req: R
     }
 });
 
+// Get Electricity Requirements Report (Admin only)
+router.get('/reports/electricity', authenticate, requireAdmin, async (_req: Request, res: Response) => {
+    try {
+        const registrations = await Registration.find({
+            powerNeeds: { $exists: true, $ne: 'None' },
+            status: 'Approved'
+        }).sort({ organizationName: 1 }).select('organizationName firstName lastName email phone powerNeeds householdElectric electricNeedsDescription status');
 
+        res.json(registrations);
+    } catch (error) {
+        console.error('Error fetching electricity report:', error);
+        res.status(500).json({ error: 'Failed to fetch electricity report' });
+    }
+});
 
 // Update registration (for saving sections)
 // Modified to prevent regular users from updating invoiced status

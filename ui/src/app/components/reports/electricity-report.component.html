@@ -1,0 +1,74 @@
+<div class="report-wrapper">
+    <!-- Interactive header hidden when printing -->
+    <div class="no-print report-header-controls">
+        <div class="breadcrumb">
+            <a routerLink="/admin">Admin Dashboard</a> &gt; <a routerLink="/admin/reports">Reports</a> &gt; Electricity
+            Requirements
+        </div>
+        <div class="controls-row">
+            <h2>Electricity Requirements Report</h2>
+            <button class="btn-primary" (click)="printReport()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="6 9 6 2 18 2 18 9"></polyline>
+                    <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+                    <rect x="6" y="14" width="12" height="8"></rect>
+                </svg>
+                Print Report
+            </button>
+        </div>
+    </div>
+
+    @if (loading) {
+    <div class="loading no-print">Loading report data...</div>
+    }
+
+    @if (error) {
+    <div class="error-message no-print">{{ error }}</div>
+    }
+
+    @if (!loading && !error) {
+    <div class="print-document">
+        <div class="print-header">
+            <h1>Electricity Requirements Report</h1>
+            <p>Report generated on: {{ today | date:'medium' }}</p>
+            <p>Total Participants Requiring Power: {{ reportData.length }}</p>
+        </div>
+
+        <table class="report-table">
+            <thead>
+                <tr>
+                    <th>Organization Name</th>
+                    <th>Contact</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>Power Needs</th>
+                    <th>Description / Details</th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (row of reportData; track row._id) {
+                <tr>
+                    <td class="org-col">{{ row.organizationName }}</td>
+                    <td>{{ row.firstName }} {{ row.lastName }}</td>
+                    <td class="contact-col">{{ row.email }}</td>
+                    <td class="contact-col">{{ row.phone }}</td>
+                    <td class="power-col">
+                        <span class="power-badge">{{ row.powerNeeds }}</span>
+                        @if (row.householdElectric) {
+                        <div class="sub-detail">Plug into household outlet: Yes</div>
+                        }
+                    </td>
+                    <td class="desc-col">{{ row.electricNeedsDescription || '-' }}</td>
+                </tr>
+                }
+                @if (reportData.length === 0) {
+                <tr>
+                    <td colspan="6" class="empty-state">No approved participants currently require electricity.</td>
+                </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    }
+</div>

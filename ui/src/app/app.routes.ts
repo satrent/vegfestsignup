@@ -3,6 +3,8 @@ import { LoginComponent } from './components/login/login.component';
 import { AdminLoginComponent } from './components/admin-login/admin-login.component';
 import { SignupFormComponent } from './components/signup-form/signup-form.component';
 import { AdminDashboardComponent } from './components/admin-dashboard/admin-dashboard.component';
+import { ReportsComponent } from './components/reports/reports.component';
+import { ElectricityReportComponent } from './components/reports/electricity-report.component';
 import { WebAdminDashboardComponent } from './components/web-admin-dashboard/web-admin-dashboard.component';
 import { GoogleAuthCallbackComponent } from './components/google-auth-callback/google-auth-callback.component';
 import { authGuard } from './guards/auth.guard';
@@ -81,6 +83,18 @@ export const routes: Routes = [
         component: WebAdminDashboardComponent,
         canActivate: [authGuard, roleGuard],
         data: { roles: ['WEB_ADMIN'] }
+    },
+    {
+        path: 'admin/reports',
+        component: ReportsComponent,
+        canActivate: [authGuard, roleGuard],
+        data: { roles: ['ADMIN', 'WEB_ADMIN'] }
+    },
+    {
+        path: 'admin/reports/electricity',
+        component: ElectricityReportComponent,
+        canActivate: [authGuard, roleGuard],
+        data: { roles: ['ADMIN', 'WEB_ADMIN'] }
     },
     { path: '**', redirectTo: '/login' }
 ];

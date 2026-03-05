@@ -209,6 +209,11 @@ export class StorageService {
     return this.http.get(`${this.baseUrl}/registrations/export/quickbooks`, { responseType: 'blob' });
   }
 
+  // Get Electricity Report (Admin only)
+  getElectricityReport(): Observable<any[]> {
+    return this.api.get<any[]>('/registrations/reports/electricity');
+  }
+
   // Get current user's registrations
   getMyRegistrations(): Observable<Registration[]> {
     return this.api.get<Registration[]>('/registrations/my-registrations');
