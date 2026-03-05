@@ -266,6 +266,20 @@ router.get('/reports/electricity', authenticate, requireAdmin, async (_req: Requ
     }
 });
 
+// Get Invoicing Report (Admin only)
+router.get('/reports/invoicing', authenticate, requireAdmin, async (_req: Request, res: Response) => {
+    try {
+        const registrations = await Registration.find({
+            status: 'Approved'
+        }).sort({ organizationName: 1 }).select('organizationName firstName lastName email phone invoiced quickbooksInvoiceLink initialInvoiceAmount amountPaid status type');
+
+        res.json(registrations);
+    } catch (error) {
+        console.error('Error fetching invoicing report:', error);
+        res.status(500).json({ error: 'Failed to fetch invoicing report' });
+    }
+});
+
 // Update registration (for saving sections)
 // Modified to prevent regular users from updating invoiced status
 
@@ -312,6 +326,7 @@ router.patch(
                 delete updates.websiteStatus;
                 delete updates.initialInvoiceAmount;
                 delete updates.amountPaid;
+                delete updates.quickbooksInvoiceLink;
             }
 
             // Also protect status if user doesn't have approval permissions

@@ -166,6 +166,7 @@ export interface IRegistration extends Document {
     paymentId?: string;
     paymentReceipt?: string;
     paymentDate?: Date;
+    quickbooksInvoiceLink?: string;
 
     type: RegistrationType;
     status: RegistrationStatus;
@@ -430,6 +431,7 @@ const registrationSchema = new Schema<IRegistration>(
         paymentId: String,
         paymentReceipt: String,
         paymentDate: Date,
+        quickbooksInvoiceLink: String,
 
         type: {
             type: String,

@@ -70,6 +70,17 @@
                                 style="background: #f3f4f6;">
                         </div>
 
+                        <div class="field-group">
+                            <label>Quickbooks Invoice Link</label>
+                            <input type="url" [(ngModel)]="tempRegistration.quickbooksInvoiceLink"
+                                placeholder="https://...">
+                        </div>
+
+                        <div class="field-group">
+                            <label>Amount Paid</label>
+                            <input type="number" [(ngModel)]="tempRegistration.amountPaid">
+                        </div>
+
                     </div>
                 </div>
 
@@ -243,7 +254,8 @@
                     <h3>History</h3>
                     <div class="field-group">
                         <label>Participated Before</label>
-                        <div class="value">{{ tempRegistration.participatedBefore === undefined ? 'Not answered' : (tempRegistration.participatedBefore ? 'Yes' : 'No') }}</div>
+                        <div class="value">{{ tempRegistration.participatedBefore === undefined ? 'Not answered' :
+                            (tempRegistration.participatedBefore ? 'Yes' : 'No') }}</div>
                     </div>
                     <div class="field-group" *ngIf="tempRegistration.participatedBefore === false">
                         <label>Sold Elsewhere</label>

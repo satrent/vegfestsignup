@@ -171,6 +171,7 @@ export interface Registration {
   paymentId?: string;       // Stripe PaymentIntent ID
   paymentReceipt?: string;  // Receipt Reference
   paymentDate?: Date;
+  quickbooksInvoiceLink?: string;
 
   type: 'Exhibitor' | 'Sponsor' | 'Both';
   status: 'In Progress' | 'Pending' | 'Waiting for Approval' | 'Approved' | 'Declined';
@@ -212,6 +213,11 @@ export class StorageService {
   // Get Electricity Report (Admin only)
   getElectricityReport(): Observable<any[]> {
     return this.api.get<any[]>('/registrations/reports/electricity');
+  }
+
+  // Get Invoicing Report (Admin only)
+  getInvoicingReport(): Observable<any[]> {
+    return this.api.get<any[]>('/registrations/reports/invoicing');
   }
 
   // Get current user's registrations

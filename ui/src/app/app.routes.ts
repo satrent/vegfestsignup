@@ -5,6 +5,7 @@ import { SignupFormComponent } from './components/signup-form/signup-form.compon
 import { AdminDashboardComponent } from './components/admin-dashboard/admin-dashboard.component';
 import { ReportsComponent } from './components/reports/reports.component';
 import { ElectricityReportComponent } from './components/reports/electricity-report.component';
+import { InvoicingReportComponent } from './components/reports/invoicing-report.component';
 import { WebAdminDashboardComponent } from './components/web-admin-dashboard/web-admin-dashboard.component';
 import { GoogleAuthCallbackComponent } from './components/google-auth-callback/google-auth-callback.component';
 import { authGuard } from './guards/auth.guard';
@@ -93,6 +94,12 @@ export const routes: Routes = [
     {
         path: 'admin/reports/electricity',
         component: ElectricityReportComponent,
+        canActivate: [authGuard, roleGuard],
+        data: { roles: ['ADMIN', 'WEB_ADMIN'] }
+    },
+    {
+        path: 'admin/reports/invoicing',
+        component: InvoicingReportComponent,
         canActivate: [authGuard, roleGuard],
         data: { roles: ['ADMIN', 'WEB_ADMIN'] }
     },
