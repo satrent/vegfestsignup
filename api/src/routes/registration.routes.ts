@@ -113,9 +113,10 @@ router.post(
 // Export to QuickBooks (Admin only)
 router.get('/export/quickbooks', authenticate, requireAdmin, async (_req: Request, res: Response) => {
     try {
-        // Filter out registrations that are already invoiced
+        // Filter out registrations that are already invoiced and only export approved ones
         const registrations = await Registration.find({
-            invoiced: { $ne: true }
+            invoiced: { $ne: true },
+            status: 'Approved'
         }).sort({ createdAt: -1 });
 
         // Create bulk operations array
