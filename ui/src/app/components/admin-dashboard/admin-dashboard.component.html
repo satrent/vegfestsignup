@@ -33,7 +33,9 @@
       </a>
       }
 
+      @if (authService.isSuperAdmin()) {
       <button class="export-btn" (click)="exportToQuickBooks()">Export to QuickBooks</button>
+      }
       <button class="logout-btn" (click)="logout()">Logout</button>
     </div>
   </div>

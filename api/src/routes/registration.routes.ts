@@ -1,7 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { body, validationResult } from 'express-validator';
 import { Registration } from '../models/Registration';
-import { authenticate, requireAdmin, requireApprover } from '../middleware/auth.middleware';
+import { authenticate, requireAdmin, requireApprover, requireSuperAdmin } from '../middleware/auth.middleware';
 import { AuditService } from '../services/audit.service';
 import { DistanceService } from '../services/distance.service';
 
@@ -110,8 +110,8 @@ router.post(
     }
 );
 
-// Export to QuickBooks (Admin only)
-router.get('/export/quickbooks', authenticate, requireAdmin, async (_req: Request, res: Response) => {
+// Export to QuickBooks (Super Admin only)
+router.get('/export/quickbooks', authenticate, requireSuperAdmin, async (_req: Request, res: Response) => {
     try {
         // Filter out registrations that are already invoiced and only export approved ones
         const registrations = await Registration.find({
