@@ -202,13 +202,14 @@ router.get('/export/quickbooks', authenticate, requireSuperAdmin, async (_req: R
             const extraSiteCost = Math.max(0, (r.numTents || 0) - 1) * 100;
             const tablesCost = (r.numTables || 0) * 20;
             const chairsCost = (r.numChairs || 0) * 5;
-            const total = (base - discountAmount) + securityDeposit + extraSiteCost + tablesCost + chairsCost;
+            const weightsCost = (r.numWeights || 0) * 25;
+            const total = (base - discountAmount) + securityDeposit + extraSiteCost + tablesCost + chairsCost + weightsCost;
 
             const startDate = (r.establishedMonth ? r.establishedMonth + ' ' : '') + (r.establishedYear || '');
             const eligibilityInfo = `[BIPGM: ${r.bipgmOwned ? 'Yes' : 'No'}, Start: ${startDate || 'N/A'}]`;
 
             const baseStr = discountAmount > 0 ? `$${base - discountAmount} ($${base} - 50% ${discountNotes.join(', ')})` : `$${base}`;
-            const calculationNotes = `Total: $${total} (Base: ${baseStr}, Security Deposit: $${securityDeposit}, Extra Sites: $${extraSiteCost}, Tables: $${tablesCost}, Chairs: $${chairsCost})${distanceNote} ${eligibilityInfo}`;
+            const calculationNotes = `Total: $${total} (Base: ${baseStr}, Security Deposit: $${securityDeposit}, Extra Sites: $${extraSiteCost}, Tables: $${tablesCost}, Chairs: $${chairsCost}, Weights: $${weightsCost})${distanceNote} ${eligibilityInfo}`;
 
             // Escape fields for CSV
             const escape = (field: string | undefined | null) => {

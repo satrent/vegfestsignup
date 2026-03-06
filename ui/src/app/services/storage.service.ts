@@ -68,6 +68,7 @@ export interface Registration {
   numTables?: number;
   numChairs?: number;
   numTents?: number;
+  numWeights?: number;
 
   powerNeeds?: string;
   householdElectric?: boolean;

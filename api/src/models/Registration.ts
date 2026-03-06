@@ -294,6 +294,7 @@ const registrationSchema = new Schema<IRegistration>(
         numTables: { type: Number, default: 0 },
         numChairs: { type: Number, default: 0 },
         numTents: { type: Number, default: 0 },
+        numWeights: { type: Number, default: 0 },
 
         powerNeeds: {
             type: String,

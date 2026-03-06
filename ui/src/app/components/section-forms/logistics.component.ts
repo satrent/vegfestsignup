@@ -41,6 +41,7 @@ export class LogisticsComponent implements OnInit {
       numTables: [0, [Validators.min(0)]],
       numChairs: [0, [Validators.min(0)]],
       numTents: [0, [Validators.min(0)]],
+      numWeights: [0, [Validators.min(0)]],
 
       // Power
       powerNeeds: ['None', Validators.required],
@@ -92,6 +93,7 @@ export class LogisticsComponent implements OnInit {
           numTables: reg.numTables || 0,
           numChairs: reg.numChairs || 0,
           numTents: reg.numTents || 0,
+          numWeights: reg.numWeights || 0,
 
           powerNeeds: reg.powerNeeds || 'None',
           householdElectric: reg.householdElectric,
