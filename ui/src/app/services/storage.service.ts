@@ -216,6 +216,11 @@ export class StorageService {
     return this.api.get<any[]>('/registrations/reports/electricity');
   }
 
+  // Get Rental Equipment Report (Admin only)
+  getRentalEquipmentReport(): Observable<any[]> {
+    return this.api.get<any[]>('/registrations/reports/rental-equipment');
+  }
+
   // Get Invoicing Report (Admin only)
   getInvoicingReport(): Observable<any[]> {
     return this.api.get<any[]>('/registrations/reports/invoicing');

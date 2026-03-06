@@ -267,6 +267,26 @@ router.get('/reports/electricity', authenticate, requireAdmin, async (_req: Requ
     }
 });
 
+// Get Rental Equipment Report (Admin only)
+router.get('/reports/rental-equipment', authenticate, requireAdmin, async (_req: Request, res: Response) => {
+    try {
+        const registrations = await Registration.find({
+            status: 'Approved',
+            $or: [
+                { numTables: { $gt: 0 } },
+                { numChairs: { $gt: 0 } },
+                { numTents: { $gt: 0 } },
+                { numWeights: { $gt: 0 } }
+            ]
+        }).sort({ organizationName: 1 }).select('organizationName firstName lastName email phone numTables numChairs numTents numWeights status');
+
+        res.json(registrations);
+    } catch (error) {
+        console.error('Error fetching rental equipment report:', error);
+        res.status(500).json({ error: 'Failed to fetch rental equipment report' });
+    }
+});
+
 // Get Invoicing Report (Admin only)
 router.get('/reports/invoicing', authenticate, requireAdmin, async (_req: Request, res: Response) => {
     try {

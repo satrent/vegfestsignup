@@ -6,6 +6,7 @@ import { AdminDashboardComponent } from './components/admin-dashboard/admin-dash
 import { ReportsComponent } from './components/reports/reports.component';
 import { ElectricityReportComponent } from './components/reports/electricity-report.component';
 import { InvoicingReportComponent } from './components/reports/invoicing-report.component';
+import { RentalEquipmentReportComponent } from './components/reports/rental-equipment-report.component';
 import { WebAdminDashboardComponent } from './components/web-admin-dashboard/web-admin-dashboard.component';
 import { GoogleAuthCallbackComponent } from './components/google-auth-callback/google-auth-callback.component';
 import { authGuard } from './guards/auth.guard';
@@ -100,6 +101,12 @@ export const routes: Routes = [
     {
         path: 'admin/reports/invoicing',
         component: InvoicingReportComponent,
+        canActivate: [authGuard, roleGuard],
+        data: { roles: ['ADMIN', 'WEB_ADMIN'] }
+    },
+    {
+        path: 'admin/reports/rental-equipment',
+        component: RentalEquipmentReportComponent,
         canActivate: [authGuard, roleGuard],
         data: { roles: ['ADMIN', 'WEB_ADMIN'] }
     },

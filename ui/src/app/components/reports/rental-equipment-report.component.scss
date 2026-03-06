@@ -1,0 +1,184 @@
+// Reuse styles from electricity-report.component.scss where possible or use common report styles.
+// Note: Usually we could import a shared file, but for simplicity, replicating the necessary styles.
+
+.report-wrapper {
+    padding: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+
+    .report-header-controls {
+        margin-bottom: 2rem;
+
+        .breadcrumb {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 1rem;
+
+            a {
+                color: var(--primary-color, #4CAF50);
+                text-decoration: none;
+
+                &:hover {
+                    text-decoration: underline;
+                }
+            }
+        }
+
+        .controls-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+
+            h2 {
+                margin: 0;
+                font-size: 1.8rem;
+                color: #333;
+            }
+
+            .btn-primary {
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+                padding: 0.75rem 1.5rem;
+                background: var(--primary-color, #4CAF50);
+                color: white;
+                border: none;
+                border-radius: 4px;
+                font-size: 1rem;
+                cursor: pointer;
+                transition: background 0.2s, filter 0.2s;
+
+                &:hover {
+                    filter: brightness(0.9);
+                }
+            }
+        }
+    }
+
+    .loading,
+    .error-message {
+        text-align: center;
+        padding: 2rem;
+        font-size: 1.2rem;
+        border-radius: 8px;
+    }
+
+    .error-message {
+        color: #d32f2f;
+        background: #ffebee;
+    }
+
+    .print-document {
+        background: white;
+        padding: 2rem;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+        .print-header {
+            display: none; // Only show when printing
+        }
+
+        .report-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.95rem;
+
+            th,
+            td {
+                padding: 1rem;
+                text-align: left;
+                border-bottom: 1px solid #eee;
+            }
+
+            th {
+                background: #f8f9fa;
+                font-weight: 600;
+                color: #333;
+            }
+
+            .number-col {
+                text-align: center;
+                font-weight: bold;
+            }
+
+            .empty-state {
+                text-align: center;
+                padding: 3rem;
+                color: #666;
+                font-style: italic;
+            }
+        }
+    }
+}
+
+// Print Styles
+@media print {
+    .no-print {
+        display: none !important;
+    }
+
+    @page {
+        margin: 0.5in;
+        size: landscape;
+    }
+
+    body * {
+        visibility: hidden;
+    }
+
+    app-rental-equipment-report,
+    app-rental-equipment-report * {
+        visibility: visible;
+    }
+
+    app-rental-equipment-report {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+    }
+
+    .report-wrapper {
+        padding: 0;
+        max-width: 100%;
+
+        .print-document {
+            padding: 0;
+            box-shadow: none;
+
+            .print-header {
+                display: block;
+                margin-bottom: 2rem;
+                padding-bottom: 1rem;
+                border-bottom: 2px solid #ccc;
+
+                h1 {
+                    margin: 0 0 0.5rem 0;
+                    font-size: 24pt;
+                }
+
+                p {
+                    margin: 0;
+                    color: #666;
+                    font-size: 10pt;
+                }
+            }
+
+            .report-table {
+
+                th,
+                td {
+                    padding: 8px;
+                    border: 1px solid #ccc;
+                    font-size: 9pt;
+                }
+
+                th {
+                    background: #eee !important;
+                    -webkit-print-color-adjust: exact;
+                    print-color-adjust: exact;
+                }
+            }
+        }
+    }
+}
