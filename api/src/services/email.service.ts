@@ -4,6 +4,7 @@ import nodemailer from 'nodemailer';
 
 export interface EmailOptions {
   to: string;
+  cc?: string;
   subject: string;
   text: string;
   html?: string;
@@ -31,6 +32,7 @@ export class EmailService {
       // For development - just log to console
       console.log('\n📧 ===== EMAIL =====');
       console.log(`To: ${options.to}`);
+      if (options.cc) console.log(`Cc: ${options.cc}`);
       console.log(`Subject: ${options.subject}`);
       console.log(`Body:\n${options.text}`);
       console.log('==================\n');
@@ -42,6 +44,7 @@ export class EmailService {
         await this.transporter.sendMail({
           from: config.email.from,
           to: options.to,
+          cc: options.cc,
           subject: options.subject,
           text: options.text,
           html: options.html,
@@ -94,7 +97,7 @@ VegFest Team
 <body>
   <div class="container">
     <div class="header">
-      <h2>Veg Fest Signup</h2>
+      <h2>Twin Cities Veg Fest Signup</h2>
     </div>
     <div class="info">
       <p>Hello,</p>
@@ -112,7 +115,7 @@ VegFest Team
     </div>
     <p class="warning">This is an automated message, please do not reply to this email.</p>
     <div class="footer">
-      <p>Thank you,<br><strong>Veg Fest Team</strong></p>
+      <p>Thank you,<br><strong>Twin Cities Veg Fest Team</strong></p>
     </div>
   </div>
 </body>
@@ -129,17 +132,17 @@ VegFest Team
 
   async sendWelcomeEmail(email: string, firstName?: string): Promise<void> {
     const name = firstName || 'there';
-    const subject = 'Welcome to Veg Fest!';
+    const subject = 'Welcome to Twin Cities Veg Fest!';
     const text = `
 Hi ${name},
 
-Welcome to Veg Fest! Your account has been successfully created.
+Welcome to Twin Cities Veg Fest! Your account has been successfully created.
 
 You can now log in and manage your registrations.
 
 Thank you for joining us!
 
-Veg Fest Team
+Twin Cities Veg Fest Team
     `.trim();
 
     await this.sendEmail({
@@ -159,7 +162,7 @@ Veg Fest Team
     const text = `
 Hi ${name},
 
-We noticed that your Veg Fest application is missing some required documents:
+We noticed that your Twin Cities Veg Fest application is missing some required documents:
 
 ${docList}
 
@@ -168,7 +171,8 @@ Please log in to the portal and upload these documents as soon as possible to en
 Log in here: ${loginUrl}
 
 Thank you,
-Veg Fest Team
+Twin Cities Veg Fest Team
+exhibitors@tcvegfest.com
     `.trim();
 
     const html = `
@@ -195,7 +199,7 @@ Veg Fest Team
     </div>
     <div class="content">
       <p>Hi ${name},</p>
-      <p>We noticed that your Veg Fest application is missing some required documents:</p>
+      <p>We noticed that your Twin Cities Veg Fest application is missing some required documents:</p>
       
       <div class="docs-list">
         <ul>
@@ -211,7 +215,7 @@ Veg Fest Team
     </div>
     
     <div class="footer">
-      <p>Thank you,<br><strong>Veg Fest Team</strong></p>
+      <p>Thank you,<br><strong>Twin Cities Veg Fest Team</strong><br><a href="mailto:exhibitors@tcvegfest.com" style="color: #2563eb; text-decoration: none;">exhibitors@tcvegfest.com</a></p>
     </div>
   </div>
 </body>
@@ -220,6 +224,7 @@ Veg Fest Team
 
     await this.sendEmail({
       to: email,
+      cc: 'exhibitors@tcvegfest.com',
       subject,
       text,
       html,
@@ -228,7 +233,7 @@ Veg Fest Team
   async sendApprovalEmail(email: string, firstName: string): Promise<void> {
     const name = firstName || 'Veggie Lover';
     const loginUrl = `${config.frontend.url}/login`;
-    
+
     const subject = "You're In! Welcome to the Veg Fest Family! \uD83C\uDF89";
 
     const text = `
