@@ -1,6 +1,6 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { ReactiveFormsModule, FormBuilder, FormGroup, FormArray, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { StorageService } from '../../services/storage.service';
 
@@ -47,6 +47,7 @@ export class LogisticsComponent implements OnInit {
       powerNeeds: ['None', Validators.required],
       householdElectric: [null], // Radio Yes/No
       electricNeedsDescription: [''],
+      equipmentList: this.fb.array([]),
 
       // Sales
       onSiteSales: [null, Validators.required],
@@ -107,6 +108,13 @@ export class LogisticsComponent implements OnInit {
           loadInAvailability: reg.loadInAvailability || ''
         });
 
+        // Initialize existing equipment list or empty
+        if (reg.equipmentList && reg.equipmentList.length > 0) {
+          reg.equipmentList.forEach((eq: any) => this.addEquipment(eq));
+        } else {
+          // If none but power needed, maybe add row, but typically just let them add. But to match requirements user might want one row by default if power != None. I won't for now unless required.
+        }
+
         // Trigger updates
         this.updatePowerValidators(reg.powerNeeds || 'None');
 
@@ -116,6 +124,23 @@ export class LogisticsComponent implements OnInit {
         }
       }
     });
+  }
+
+  get equipmentListFormArray() {
+    return this.form.get('equipmentList') as FormArray;
+  }
+
+  addEquipment(eq: any = null) {
+    this.equipmentListFormArray.push(this.fb.group({
+      name: [eq?.name || '', Validators.required],
+      powerAmount: [eq?.powerAmount || '', [Validators.required, Validators.min(0)]],
+      powerType: [eq?.powerType || 'Watts', Validators.required],
+      quantity: [eq?.quantity || 1, [Validators.required, Validators.min(1)]]
+    }));
+  }
+
+  removeEquipment(index: number) {
+    this.equipmentListFormArray.removeAt(index);
   }
 
   updatePowerValidators(powerVal: string) {

@@ -44,6 +44,7 @@
                     <th>Phone</th>
                     <th>Power Needs</th>
                     <th>Description / Details</th>
+                    <th>Equipment List</th>
                 </tr>
             </thead>
             <tbody>
@@ -60,11 +61,22 @@
                         }
                     </td>
                     <td class="desc-col">{{ row.electricNeedsDescription || '-' }}</td>
+                    <td class="equip-col">
+                        @if (row.equipmentList && row.equipmentList.length > 0) {
+                        <ul style="margin: 0; padding-left: 1.2rem; font-size: 0.85rem;">
+                            @for (eq of row.equipmentList; track eq.name) {
+                            <li>{{eq.quantity}}x {{eq.name}} ({{eq.powerAmount}} {{eq.powerType}})</li>
+                            }
+                        </ul>
+                        } @else {
+                        -
+                        }
+                    </td>
                 </tr>
                 }
                 @if (reportData.length === 0) {
                 <tr>
-                    <td colspan="6" class="empty-state">No approved participants currently require electricity.</td>
+                    <td colspan="7" class="empty-state">No approved participants currently require electricity.</td>
                 </tr>
                 }
             </tbody>

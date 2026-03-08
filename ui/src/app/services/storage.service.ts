@@ -73,6 +73,12 @@ export interface Registration {
   powerNeeds?: string;
   householdElectric?: boolean;
   electricNeedsDescription?: string;
+  equipmentList?: {
+    name: string;
+    powerAmount: number;
+    powerType: 'Amps' | 'Volts' | 'Watts';
+    quantity: number;
+  }[];
 
   onSiteSales?: boolean;
   priceRange?: string;

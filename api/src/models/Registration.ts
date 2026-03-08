@@ -71,6 +71,12 @@ export interface IRegistration extends Document {
     powerNeeds?: string;
     householdElectric?: boolean;
     electricNeedsDescription?: string;
+    equipmentList?: {
+        name: string;
+        powerAmount: number;
+        powerType: 'Amps' | 'Volts' | 'Watts';
+        quantity: number;
+    }[];
 
     onSiteSales?: boolean;
     priceRange?: string;
@@ -304,6 +310,15 @@ const registrationSchema = new Schema<IRegistration>(
         },
         householdElectric: Boolean,
         electricNeedsDescription: String,
+        equipmentList: [{
+            name: String,
+            powerAmount: Number,
+            powerType: {
+                type: String,
+                enum: ['Amps', 'Volts', 'Watts']
+            },
+            quantity: Number
+        }],
 
         onSiteSales: { type: Boolean, default: false },
         priceRange: String,

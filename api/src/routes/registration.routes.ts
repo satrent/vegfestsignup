@@ -258,7 +258,7 @@ router.get('/reports/electricity', authenticate, requireAdmin, async (_req: Requ
         const registrations = await Registration.find({
             powerNeeds: { $exists: true, $ne: 'None' },
             status: 'Approved'
-        }).sort({ organizationName: 1 }).select('organizationName firstName lastName email phone powerNeeds householdElectric electricNeedsDescription status');
+        }).sort({ organizationName: 1 }).select('organizationName firstName lastName email phone powerNeeds householdElectric electricNeedsDescription status equipmentList');
 
         res.json(registrations);
     } catch (error) {

@@ -208,7 +208,38 @@
                             <label>Power Needs</label>
                             <div class="value">{{tempRegistration.powerNeeds || 'None'}}</div>
                         </div>
+                        <div class="field-group"
+                            *ngIf="tempRegistration.powerNeeds && tempRegistration.powerNeeds !== 'None'">
+                            <label>Standard Outlet?</label>
+                            <div class="value">{{tempRegistration.householdElectric === true ? 'Yes' :
+                                (tempRegistration.householdElectric === false ? 'No' : 'N/A')}}</div>
+                        </div>
+                        <div class="field-group" *ngIf="tempRegistration.householdElectric === false">
+                            <label>Power Needed</label>
+                            <div class="value">{{tempRegistration.electricNeedsDescription || 'None'}}</div>
+                        </div>
                     </div>
+                </div>
+
+                <div class="section-group"
+                    *ngIf="tempRegistration.equipmentList && tempRegistration.equipmentList.length > 0">
+                    <h3>Electrical Equipment</h3>
+                    <table class="w-full text-left" style="margin-top: 10px; border-collapse: collapse;">
+                        <thead>
+                            <tr>
+                                <th style="border-bottom: 1px solid #e5e7eb; padding: 4px;">Equipment</th>
+                                <th style="border-bottom: 1px solid #e5e7eb; padding: 4px;">Qty</th>
+                                <th style="border-bottom: 1px solid #e5e7eb; padding: 4px;">Power</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let eq of tempRegistration.equipmentList">
+                                <td style="padding: 4px;">{{eq.name}}</td>
+                                <td style="padding: 4px;">{{eq.quantity}}</td>
+                                <td style="padding: 4px;">{{eq.powerAmount}} {{eq.powerType}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
 
                 <div class="section-group">
