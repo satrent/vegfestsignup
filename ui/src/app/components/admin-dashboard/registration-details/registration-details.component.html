@@ -56,6 +56,14 @@
                         </div>
 
                         <div class="field-group">
+                            <label>Approval Email Sent?</label>
+                            <label class="toggle-label">
+                                <input type="checkbox" [(ngModel)]="tempRegistration.approvalEmailSent">
+                                <span>{{ tempRegistration.approvalEmailSent ? 'Yes' : 'No' }}</span>
+                            </label>
+                        </div>
+
+                        <div class="field-group">
                             <label>Website Status</label>
                             <select [ngModel]="tempRegistration.websiteStatus || 'Pending'"
                                 (ngModelChange)="tempRegistration.websiteStatus = $event">

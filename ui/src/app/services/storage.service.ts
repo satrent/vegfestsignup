@@ -173,6 +173,7 @@ export interface Registration {
   paymentReceipt?: string;  // Receipt Reference
   paymentDate?: Date;
   quickbooksInvoiceLink?: string;
+  approvalEmailSent?: boolean;
 
   type: 'Exhibitor' | 'Sponsor' | 'Both';
   status: 'In Progress' | 'Pending' | 'Waiting for Approval' | 'Approved' | 'Declined';

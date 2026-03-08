@@ -394,6 +394,25 @@ router.patch(
                 return;
             }
 
+            // AUTO-SEND APPROVAL EMAIL LOGIC
+            if (
+                registration.status === 'Approved' &&
+                registration.initialInvoiceAmount !== undefined && registration.initialInvoiceAmount > 0 &&
+                registration.quickbooksInvoiceLink &&
+                !originalRegistration.approvalEmailSent &&
+                updates.approvalEmailSent !== true
+            ) {
+                try {
+                    await import('../services/email.service').then(m =>
+                        m.emailService.sendApprovalEmail(registration)
+                    );
+                    registration.approvalEmailSent = true;
+                    await registration.save();
+                } catch (emailError) {
+                    console.error('Error auto-sending approval email:', emailError);
+                }
+            }
+
             // 3. Log Audit Events (Admin Only)
             if (req.user?.role === 'ADMIN') {
                 try {
@@ -536,14 +555,18 @@ router.patch(
             registration.status = newStatus;
             await registration.save();
 
-            // Send approval email if status changed to Approved
+            // Send approval email if status changed to Approved and criteria met
             if (newStatus === 'Approved' && previousStatus !== 'Approved' && registration.email) {
-                try {
-                    await import('../services/email.service').then(m =>
-                        m.emailService.sendApprovalEmail(registration.email, registration.firstName)
-                    );
-                } catch (emailError) {
-                    console.error('Error sending approval email:', emailError);
+                if (registration.initialInvoiceAmount && registration.initialInvoiceAmount > 0 && registration.quickbooksInvoiceLink && !registration.approvalEmailSent) {
+                    try {
+                        await import('../services/email.service').then(m =>
+                            m.emailService.sendApprovalEmail(registration)
+                        );
+                        registration.approvalEmailSent = true;
+                        await registration.save();
+                    } catch (emailError) {
+                        console.error('Error sending approval email:', emailError);
+                    }
                 }
             }
 

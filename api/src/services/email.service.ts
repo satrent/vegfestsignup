@@ -230,28 +230,62 @@ exhibitors@tcvegfest.com
       html,
     });
   }
-  async sendApprovalEmail(email: string, firstName: string): Promise<void> {
-    const name = firstName || 'Veggie Lover';
+  async sendApprovalEmail(registration: any): Promise<void> {
+    const name = registration.firstName || 'Veggie Lover';
+    const businessName = registration.organizationName || 'your business';
     const loginUrl = `${config.frontend.url}/login`;
+    const email = registration.email;
 
-    const subject = "You're In! Welcome to the Veg Fest Family! \uD83C\uDF89";
+    const subject = "Welcome to Twin Cities Veg Fest";
+
+    // Build the required documents list
+    const requiredDocs: string[] = [];
+    const docs = registration.documents || [];
+
+    if (registration.coiOption === 'later' && !docs.some((d: any) => d.type === 'COI')) {
+      requiredDocs.push('Certificate of Insurance (COI)');
+    }
+    if (registration.st19Option === 'later' && registration.onSiteSales && !docs.some((d: any) => d.type === 'ST-19')) {
+      requiredDocs.push('ST-19 Form');
+    }
+    if (registration.menuOption === 'later' && !docs.some((d: any) => d.type === 'Menu')) {
+      requiredDocs.push('Menu');
+    }
+
+    const initialInvoiceAmount = registration.initialInvoiceAmount || 0;
+    const amountPaid = registration.amountPaid || 0;
+    const remainingAmount = Math.max(0, initialInvoiceAmount - amountPaid);
+
+    let requiredDocsText = '';
+    let requiredDocsHtml = '';
+
+    if (requiredDocs.length > 0 || remainingAmount > 0) {
+      requiredDocsText = `\nWe need the following from you:\n`;
+      requiredDocsHtml = `<div class="requirements"><p>We need the following from you:</p><ul>`;
+
+      requiredDocs.forEach(doc => {
+        requiredDocsText += `  - ${doc}\n`;
+        requiredDocsHtml += `<li>${doc}</li>`;
+      });
+
+      if (remainingAmount > 0 && registration.quickbooksInvoiceLink) {
+        requiredDocsText += `  - Payment of $${remainingAmount}; link to invoice: ${registration.quickbooksInvoiceLink}\n`;
+        requiredDocsHtml += `<li>Payment of $${remainingAmount}; <a href="${registration.quickbooksInvoiceLink}">link to invoice</a></li>`;
+      }
+
+      requiredDocsHtml += `</ul></div>\n`;
+    }
 
     const text = `
-WOOHOO! \uD83E\uDD73
+Welcome to Twin Cities Veg Fest
 
-Hold onto your broccoli, ${name}! Your application has been APPROVED!
+${name} we're delighted to welcome ${businessName} to Twin Cities Veg Fest this year!
+${requiredDocsText}
+Login here
+${loginUrl}
 
-We are absolutely thrilled to have you join us for this year's Veg Fest. We did a little happy dance when we pressed the 'Approve' button (don't tell anyone, we have a reputation to maintain... mostly).
-
-You are officially confirmed and good to go! 
-Log in to your portal to see the shiny green 'Approved' badge and manage any final details.
-
-Log in here: ${loginUrl}
-
-Get ready for an amazing event!
-
-High fives and kale vibes,
-The Veg Fest Team
+The Twin Cities Veg Fest Team
+exhibitors@tcvegfest.com
     `.trim();
 
     const html = `
@@ -259,48 +293,29 @@ The Veg Fest Team
 <html>
 <head>
   <style>
-    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; background-color: #f0f7f4; padding: 20px; }
-    .container { max-width: 600px; margin: 0 auto; background: #ffffff; padding: 0; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); overflow: hidden; }
-    .header { background: linear-gradient(135deg, #4caf50, #8bc34a); padding: 40px 20px; text-align: center; }
-    .header h1 { color: #ffffff; margin: 0; font-size: 32px; text-shadow: 0 2px 4px rgba(0,0,0,0.2); }
-    .emoji-header { font-size: 48px; display: block; margin-bottom: 10px; }
-    .content { padding: 40px 30px; text-align: center; }
-    .content h2 { color: #2e7d32; margin-top: 0; }
-    .highlight-box { background-color: #e8f5e9; border: 2px dashed #4caf50; border-radius: 12px; padding: 20px; margin: 25px 0; font-weight: bold; color: #2e7d32; font-size: 18px; }
-    .btn-container { margin: 35px 0; }
-    .button { background-color: #ff5722; color: white !important; padding: 15px 30px; text-decoration: none; border-radius: 50px; font-weight: bold; font-size: 18px; display: inline-block; transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 4px 6px rgba(255, 87, 34, 0.3); }
-    .button:hover { transform: translateY(-2px); box-shadow: 0 6px 12px rgba(255, 87, 34, 0.4); }
-    .footer { background-color: #333; color: #aaa; padding: 20px; text-align: center; font-size: 14px; }
-    .vibes { font-style: italic; color: #4caf50; font-weight: bold; margin-top: 30px; display: block; }
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; background-color: #f9f9f9; padding: 20px; }
+    .container { max-width: 600px; margin: 0 auto; background: #ffffff; padding: 30px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+    .content { padding: 20px 0; }
+    .requirements { background: #fff8e1; border-left: 4px solid #ffc107; padding: 15px 20px; border-radius: 4px; margin: 20px 0; }
+    .requirements ul { margin: 0; padding-left: 20px; }
+    .footer { margin-top: 40px; font-size: 14px; color: #666; }
+    a { color: #2563eb; }
   </style>
 </head>
 <body>
   <div class="container">
-    <div class="header">
-      <span class="emoji-header">\uD83E\uDD73</span>
-      <h1>WOOHOO! You're In!</h1>
-    </div>
     <div class="content">
-      <p>Hold onto your broccoli, <strong>${name}</strong>!</p>
+      <p>Welcome to Twin Cities Veg Fest</p>
       
-      <div class="highlight-box">
-        Your application has been OFFICIALLY APPROVED!
-      </div>
-
-      <p>We are absolutely thrilled to have you join us for this year's Veg Fest. We did a little happy dance when we pressed the 'Approve' button (don't tell anyone, we have a reputation to maintain... mostly).</p>
+      <p>${name} we're delighted to welcome ${businessName} to Twin Cities Veg Fest this year!</p>
       
-      <p>Log in to your portal to see that shiny green <strong>'Approved'</strong> badge and manage any final details.</p>
+      ${requiredDocsHtml}
 
-      <div class="btn-container">
-        <a href="${loginUrl}" class="button">Go to My Portal \uD83D\uDE80</a>
-      </div>
-
-      <p>Get ready for an amazing event!</p>
-      
-      <span class="vibes">High fives and kale vibes, \uD83E\uDD66</span>
+      <p><a href="${loginUrl}">Login here</a></p>
     </div>
+    
     <div class="footer">
-      <p>The Veg Fest Team</p>
+      <p>The Twin Cities Veg Fest Team<br><a href="mailto:exhibitors@tcvegfest.com">exhibitors@tcvegfest.com</a></p>
     </div>
   </div>
 </body>
