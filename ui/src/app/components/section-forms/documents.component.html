@@ -15,11 +15,12 @@
 
     <form [formGroup]="form" (ngSubmit)="onSubmit()">
 
-        <!-- ST-19 Section (Conditional) -->
-        @if (onSiteSales) {
+        <!-- ST-19 Section (Always Required) -->
         <div class="document-section">
             <h3>ST-19 (MN sales tax) <span class="required">[Required]</span></h3>
-            <p class="description">Required for all vendors making taxable sales on-site.</p>
+            <p class="description">All exhibitors must download, complete, and upload this form.<br><a
+                    href="https://drive.google.com/drive/folders/12GViVmRHfc69v1xiCyx5-T4nO9YMk6uy" target="_blank"
+                    rel="noopener noreferrer">Download blank ST-19 form here</a></p>
 
             <div class="form-group">
                 <div class="radio-list">
@@ -42,13 +43,15 @@
             </div>
             }
         </div>
-        }
 
         <!-- Food Permit Section (Conditional) -->
         @if (isFoodVendor) {
         <div class="document-section">
             <h3>State of Minnesota Food Permit <span class="required">[Required]</span></h3>
-            <p class="description">Required for all food and drink vendors.</p>
+            <p class="description">A 2026 State of Minnesota Food Permit is required.<br>
+                <a href="https://www.health.state.mn.us/communities/environment/food/license/specevent.html"
+                    target="_blank" rel="noopener noreferrer">Apply for a special event food permit</a>.
+            </p>
 
             <div class="form-group">
                 <div class="radio-list">

@@ -245,11 +245,20 @@ exhibitors@tcvegfest.com
     if (registration.coiOption === 'later' && !docs.some((d: any) => d.type === 'COI')) {
       requiredDocs.push('Certificate of Insurance (COI)');
     }
-    if (registration.st19Option === 'later' && registration.onSiteSales && !docs.some((d: any) => d.type === 'ST-19')) {
+    if (registration.st19Option === 'later' && !docs.some((d: any) => d.type === 'ST-19')) {
       requiredDocs.push('ST-19 Form');
     }
     if (registration.menuOption === 'later' && !docs.some((d: any) => d.type === 'Menu')) {
       requiredDocs.push('Menu');
+    }
+
+    const cat = registration.organizationCategory || '';
+    const needsFoodPermit = cat === 'On-site food prep & sales $600' ||
+      cat === 'Food business with on-site food prep — not a restaurant or food truck $350';
+
+    // We don't have a 'foodPermitOption' in the schema. If it's missing, require it.
+    if (needsFoodPermit && !docs.some((d: any) => d.type === 'Food Permit')) {
+      requiredDocs.push('State of Minnesota Food Permit');
     }
 
     const initialInvoiceAmount = registration.initialInvoiceAmount || 0;

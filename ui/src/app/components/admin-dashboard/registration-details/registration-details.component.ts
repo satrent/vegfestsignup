@@ -192,8 +192,16 @@ export class RegistrationDetailsComponent {
         }
 
         // Check for ST-19
-        if (this.tempRegistration.onSiteSales && !docs.some(d => d.type === 'ST-19')) {
+        if (!docs.some(d => d.type === 'ST-19')) {
             missing.push('ST-19 Form');
+        }
+
+        // Check for Food Permit
+        const cat = this.tempRegistration.organizationCategory || '';
+        const needsFoodPermit = cat === 'On-site food prep & sales $600' ||
+            cat === 'Food business with on-site food prep — not a restaurant or food truck $350';
+        if (needsFoodPermit && !docs.some(d => d.type === 'Food Permit')) {
+            missing.push('State of Minnesota Food Permit');
         }
 
         return missing;
