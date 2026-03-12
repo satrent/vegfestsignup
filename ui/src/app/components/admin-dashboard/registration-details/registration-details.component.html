@@ -268,6 +268,10 @@
                         <input type="text" [(ngModel)]="tempRegistration.organizationName">
                     </div>
                     <div class="field-group">
+                        <label>Category</label>
+                        <div class="value">{{ tempRegistration.organizationCategory || 'Not provided' }}</div>
+                    </div>
+                    <div class="field-group">
                         <label>Website</label>
                         <input type="text" [(ngModel)]="tempRegistration.website">
                     </div>
