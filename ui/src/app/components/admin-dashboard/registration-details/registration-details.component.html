@@ -367,15 +367,28 @@
                             <span class="doc-name" (click)="viewDocument(doc.key)">{{doc.name}}</span>
                             <span class="doc-meta">{{doc.type}} - {{doc.uploadedAt | date:'short'}}</span>
                         </div>
-                        <div class="doc-actions">
-                            <span class="badge" [ngClass]="doc.status.toLowerCase()">{{doc.status}}</span>
+                        <div class="doc-actions" *ngIf="isApprovalRequired(doc) && canApprove">
+                            <!-- Reviewed Checkbox taking the place of the status badge/Approve button when applicable -->
+                            <label class="toggle-label"
+                                style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem;">
+                                <input type="checkbox" [checked]="doc.status === 'Approved'"
+                                    (change)="updateDocumentStatus(doc, $event.target.checked ? 'Approved' : 'Pending')">
+                                <span style="font-size: 0.9em; font-weight: 500;">Reviewed and accepted</span>
+                            </label>
+
+                            <!-- Optional Badge instead of just floating text if it's already approved? No, just keep the standard badge for un-approvable docs or keep it simple. Let's still show the badge but dynamically. -->
+                            <span class="badge" [ngClass]="doc.status.toLowerCase()"
+                                style="margin-right: 0.5rem;">{{doc.status}}</span>
+
                             <div style="margin-top: 0.5rem; display: flex; gap: 0.5rem;"
-                                *ngIf="doc.status !== 'Approved' && isApprovalRequired(doc) && canApprove">
-                                <button (click)="updateDocumentStatus(doc, 'Approved')"
-                                    class="small-btn approve">Approve</button>
+                                *ngIf="doc.status !== 'Approved'">
+                                <!-- Still provide a raw Reject button if they review it and it's bad -->
                                 <button (click)="updateDocumentStatus(doc, 'Rejected')"
                                     class="small-btn reject">Reject</button>
                             </div>
+                        </div>
+                        <div class="doc-actions" *ngIf="!(isApprovalRequired(doc) && canApprove)">
+                            <span class="badge" [ngClass]="doc.status.toLowerCase()">{{doc.status}}</span>
                         </div>
                     </div>
                 </div>
