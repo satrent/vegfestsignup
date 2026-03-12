@@ -75,8 +75,9 @@ export interface Registration {
   electricNeedsDescription?: string;
   equipmentList?: {
     name: string;
-    powerAmount: number;
-    powerType: 'Amps' | 'Volts' | 'Watts';
+    amps?: number;
+    volts?: number;
+    watts?: number;
     quantity: number;
   }[];
 

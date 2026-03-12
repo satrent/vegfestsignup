@@ -56,8 +56,10 @@
                     <td class="contact-col">{{ row.phone }}</td>
                     <td class="power-col">
                         <span class="power-badge">{{ row.powerNeeds }}</span>
-                        @if (row.householdElectric) {
+                        @if (row.householdElectric === true) {
                         <div class="sub-detail">Plug into household outlet: Yes</div>
+                        } @else if (row.householdElectric === false) {
+                        <div class="sub-detail">Special power needs</div>
                         }
                     </td>
                     <td class="desc-col">{{ row.electricNeedsDescription || '-' }}</td>
@@ -65,7 +67,9 @@
                         @if (row.equipmentList && row.equipmentList.length > 0) {
                         <ul style="margin: 0; padding-left: 1.2rem; font-size: 0.85rem;">
                             @for (eq of row.equipmentList; track eq.name) {
-                            <li>{{eq.quantity}}x {{eq.name}} ({{eq.powerAmount}} {{eq.powerType}})</li>
+                            <li>{{eq.quantity}}x {{eq.name}} ({{eq.amps ? eq.amps + 'A' : ''}}{{eq.volts ? (eq.amps ? ',
+                                ' : '') + eq.volts + 'V' : ''}}{{eq.watts ? (eq.amps || eq.volts ? ', ' : '') + eq.watts
+                                + 'W' : ''}})</li>
                             }
                         </ul>
                         } @else {

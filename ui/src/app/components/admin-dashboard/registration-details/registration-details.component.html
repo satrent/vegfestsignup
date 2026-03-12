@@ -229,14 +229,18 @@
                             <tr>
                                 <th style="border-bottom: 1px solid #e5e7eb; padding: 4px;">Equipment</th>
                                 <th style="border-bottom: 1px solid #e5e7eb; padding: 4px;">Qty</th>
-                                <th style="border-bottom: 1px solid #e5e7eb; padding: 4px;">Power</th>
+                                <th style="border-bottom: 1px solid #e5e7eb; padding: 4px;">Amps</th>
+                                <th style="border-bottom: 1px solid #e5e7eb; padding: 4px;">Volts</th>
+                                <th style="border-bottom: 1px solid #e5e7eb; padding: 4px;">Watts</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr *ngFor="let eq of tempRegistration.equipmentList">
                                 <td style="padding: 4px;">{{eq.name}}</td>
                                 <td style="padding: 4px;">{{eq.quantity}}</td>
-                                <td style="padding: 4px;">{{eq.powerAmount}} {{eq.powerType}}</td>
+                                <td style="padding: 4px;">{{eq.amps || '-'}}</td>
+                                <td style="padding: 4px;">{{eq.volts || '-'}}</td>
+                                <td style="padding: 4px;">{{eq.watts || '-'}}</td>
                             </tr>
                         </tbody>
                     </table>

@@ -30,23 +30,17 @@
         @if (showElectricQuestions) {
         <div class="sub-section">
             <div class="form-group">
-                <label>Will your equipment plug into a standard home outlet?</label>
-                <div class="radio-group-inline">
-                    <div class="radio-item">
-                        <input type="radio" id="household-yes" formControlName="householdElectric" [value]="true">
-                        <label for="household-yes">Yes</label>
-                    </div>
-                    <div class="radio-item">
-                        <input type="radio" id="household-no" formControlName="householdElectric" [value]="false">
-                        <label for="household-no">No</label>
-                    </div>
-                </div>
+                <label>What kind of power do you need?</label>
+                <select formControlName="householdElectric">
+                    <option [ngValue]="null">Select an option</option>
+                    <option [ngValue]="true">I can plug my equipment into regular home outlets</option>
+                    <option [ngValue]="false">I have special power needs</option>
+                </select>
             </div>
 
             @if (form.get('householdElectric')?.value === false) {
             <div class="form-group">
-                <label for="electricNeedsDescription">What kind of power do you need? <span
-                        class="required">*</span></label>
+                <label for="electricNeedsDescription">Describe <span class="required">*</span></label>
                 <input id="electricNeedsDescription" type="text" formControlName="electricNeedsDescription">
                 @if (form.get('electricNeedsDescription')?.touched && form.get('electricNeedsDescription')?.invalid) {
                 <div class="error">This field is required</div>
@@ -61,9 +55,11 @@
                         <thead>
                             <tr>
                                 <th>Equipment</th>
-                                <th>Power Amount</th>
-                                <th>Units</th>
                                 <th>Qty</th>
+                                <th>Amps (preferred)</th>
+                                <th>Volts</th>
+                                <th>Watts</th>
+                                <th>Amps Needed (Auto)</th>
                                 <th></th>
                             </tr>
                         </thead>
@@ -74,19 +70,23 @@
                                         style="width:100%">
                                 </td>
                                 <td>
-                                    <input type="number" formControlName="powerAmount" placeholder="0" min="0"
+                                    <input type="number" formControlName="quantity" placeholder="1" min="1"
+                                        style="width:60px">
+                                </td>
+                                <td>
+                                    <input type="number" formControlName="amps" placeholder="0" min="0"
                                         style="width:100%">
                                 </td>
                                 <td>
-                                    <select formControlName="powerType" style="width:100%">
-                                        <option value="Amps">Amps</option>
-                                        <option value="Volts">Volts</option>
-                                        <option value="Watts">Watts</option>
-                                    </select>
+                                    <input type="number" formControlName="volts" placeholder="0" min="0"
+                                        style="width:100%">
                                 </td>
                                 <td>
-                                    <input type="number" formControlName="quantity" placeholder="1" min="1"
-                                        style="width:60px">
+                                    <input type="number" formControlName="watts" placeholder="0" min="0"
+                                        style="width:100%">
+                                </td>
+                                <td>
+                                    {{ calculateAmps(eq.value) | number:'1.0-2' }}
                                 </td>
                                 <td>
                                     <button type="button" class="btn-remove" (click)="removeEquipment(i)"
@@ -95,6 +95,10 @@
                             </tr>
                         </tbody>
                     </table>
+                    <div class="total-amps" *ngIf="equipmentListFormArray.length > 0"
+                        style="margin-top: 10px; font-weight: bold;">
+                        Total Amps Needed By All Equipment: {{ totalAmps | number:'1.0-2' }}
+                    </div>
                     <button type="button" class="btn-secondary add-equipment-btn" (click)="addEquipment()"
                         style="margin-top: 10px;">+ Add Equipment</button>
                 </div>

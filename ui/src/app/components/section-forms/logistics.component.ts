@@ -133,14 +133,33 @@ export class LogisticsComponent implements OnInit {
   addEquipment(eq: any = null) {
     this.equipmentListFormArray.push(this.fb.group({
       name: [eq?.name || '', Validators.required],
-      powerAmount: [eq?.powerAmount || '', [Validators.required, Validators.min(0)]],
-      powerType: [eq?.powerType || 'Watts', Validators.required],
+      amps: [eq?.amps || null, [Validators.min(0)]],
+      volts: [eq?.volts || null, [Validators.min(0)]],
+      watts: [eq?.watts || null, [Validators.min(0)]],
       quantity: [eq?.quantity || 1, [Validators.required, Validators.min(1)]]
     }));
   }
 
   removeEquipment(index: number) {
     this.equipmentListFormArray.removeAt(index);
+  }
+
+  calculateAmps(eq: any): number {
+    const qty = eq.quantity || 0;
+    if (eq.amps) {
+      return eq.amps * qty;
+    } else if (eq.watts && eq.volts) {
+      return (eq.watts / eq.volts) * qty;
+    }
+    return 0;
+  }
+
+  get totalAmps(): number {
+    let total = 0;
+    for (let i = 0; i < this.equipmentListFormArray.length; i++) {
+      total += this.calculateAmps(this.equipmentListFormArray.at(i).value);
+    }
+    return total;
   }
 
   updatePowerValidators(powerVal: string) {

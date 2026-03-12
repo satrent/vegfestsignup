@@ -73,8 +73,9 @@ export interface IRegistration extends Document {
     electricNeedsDescription?: string;
     equipmentList?: {
         name: string;
-        powerAmount: number;
-        powerType: 'Amps' | 'Volts' | 'Watts';
+        amps?: number;
+        volts?: number;
+        watts?: number;
         quantity: number;
     }[];
 
@@ -312,11 +313,9 @@ const registrationSchema = new Schema<IRegistration>(
         electricNeedsDescription: String,
         equipmentList: [{
             name: String,
-            powerAmount: Number,
-            powerType: {
-                type: String,
-                enum: ['Amps', 'Volts', 'Watts']
-            },
+            amps: Number,
+            volts: Number,
+            watts: Number,
             quantity: Number
         }],
 
