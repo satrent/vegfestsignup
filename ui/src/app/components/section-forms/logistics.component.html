@@ -30,28 +30,79 @@
         @if (showElectricQuestions) {
         <div class="sub-section">
             <div class="form-group">
-                <label>Can your equipment be plugged into household outlets?</label>
-                <div class="radio-group-inline">
-                    <div class="radio-item">
-                        <input type="radio" id="household-yes" formControlName="householdElectric" [value]="true">
-                        <label for="household-yes">Yes</label>
-                    </div>
-                    <div class="radio-item">
-                        <input type="radio" id="household-no" formControlName="householdElectric" [value]="false">
-                        <label for="household-no">No</label>
-                    </div>
-                </div>
+                <label>What kind of power do you need?</label>
+                <select formControlName="householdElectric">
+                    <option [ngValue]="null">Select an option</option>
+                    <option [ngValue]="true">I can plug my equipment into regular home outlets</option>
+                    <option [ngValue]="false">I have special power needs</option>
+                </select>
             </div>
 
             @if (form.get('householdElectric')?.value === false) {
             <div class="form-group">
-                <label for="electricNeedsDescription">Describe your power needs <span class="required">*</span></label>
+                <label for="electricNeedsDescription">Describe <span class="required">*</span></label>
                 <input id="electricNeedsDescription" type="text" formControlName="electricNeedsDescription">
                 @if (form.get('electricNeedsDescription')?.touched && form.get('electricNeedsDescription')?.invalid) {
                 <div class="error">This field is required</div>
                 }
             </div>
             }
+
+            <div class="form-group">
+                <label>List the equipment you will bring and approximately how much electricity it uses</label>
+                <div formArrayName="equipmentList" class="equipment-list">
+                    <table class="equipment-table" *ngIf="equipmentListFormArray.length > 0">
+                        <thead>
+                            <tr>
+                                <th>Equipment</th>
+                                <th>Qty</th>
+                                <th>Amps (preferred)</th>
+                                <th>Volts</th>
+                                <th>Watts</th>
+                                <th>Amps Needed (Auto)</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let eq of equipmentListFormArray.controls; let i = index" [formGroupName]="i">
+                                <td>
+                                    <input type="text" formControlName="name" placeholder="e.g. Crockpot"
+                                        style="width:100%">
+                                </td>
+                                <td>
+                                    <input type="number" formControlName="quantity" placeholder="1" min="1"
+                                        style="width:60px">
+                                </td>
+                                <td>
+                                    <input type="number" formControlName="amps" placeholder="0" min="0"
+                                        style="width:100%">
+                                </td>
+                                <td>
+                                    <input type="number" formControlName="volts" placeholder="0" min="0"
+                                        style="width:100%">
+                                </td>
+                                <td>
+                                    <input type="number" formControlName="watts" placeholder="0" min="0"
+                                        style="width:100%">
+                                </td>
+                                <td>
+                                    {{ calculateAmps(eq.value) | number:'1.0-2' }}
+                                </td>
+                                <td>
+                                    <button type="button" class="btn-remove" (click)="removeEquipment(i)"
+                                        title="Remove">&times;</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="total-amps" *ngIf="equipmentListFormArray.length > 0"
+                        style="margin-top: 10px; font-weight: bold;">
+                        Total Amps Needed By All Equipment: {{ totalAmps | number:'1.0-2' }}
+                    </div>
+                    <button type="button" class="btn-secondary add-equipment-btn" (click)="addEquipment()"
+                        style="margin-top: 10px;">+ Add Equipment</button>
+                </div>
+            </div>
         </div>
         }
 
@@ -98,6 +149,11 @@
                 <div class="form-group">
                     <label for="numTents">Tents ($200 each)</label>
                     <input id="numTents" type="number" min="0" formControlName="numTents">
+                </div>
+
+                <div class="form-group">
+                    <label for="numWeights">Weights (Set of 4, $25 per set)</label>
+                    <input id="numWeights" type="number" min="0" formControlName="numWeights">
                 </div>
 
                 <div class="form-group">

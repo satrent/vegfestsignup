@@ -1,0 +1,222 @@
+.report-wrapper {
+    padding: 2rem;
+    max-width: 1400px;
+    margin: 0 auto;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+.report-header-controls {
+    margin-bottom: 2rem;
+
+    .breadcrumb {
+        font-size: 0.9rem;
+        color: #666;
+        margin-bottom: 0.5rem;
+
+        a {
+            color: #0066cc;
+            text-decoration: none;
+
+            &:hover {
+                text-decoration: underline;
+            }
+        }
+    }
+
+    .controls-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+
+        h2 {
+            margin: 0;
+            color: #333;
+        }
+
+        .btn-primary {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background-color: #0066cc;
+            color: white;
+            text-decoration: none;
+            border: none;
+            border-radius: 4px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s;
+
+            &:hover {
+                background-color: #0052a3;
+            }
+
+            svg {
+                width: 16px;
+                height: 16px;
+            }
+        }
+    }
+}
+
+.print-document {
+    background: white;
+    border-radius: 8px;
+    padding: 2rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.print-header {
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid #eee;
+
+    h1 {
+        margin: 0 0 0.5rem 0;
+        font-size: 1.5rem;
+        color: #333;
+    }
+
+    p {
+        margin: 0 0 0.25rem 0;
+        color: #666;
+        font-size: 0.9rem;
+    }
+}
+
+.report-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.95rem;
+
+    th,
+    td {
+        padding: 0.75rem 1rem;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+        vertical-align: top;
+    }
+
+    th {
+        background-color: #f8f9fa;
+        font-weight: 600;
+        color: #333;
+        border-bottom: 2px solid #ddd;
+    }
+
+    .org-col {
+        font-weight: 500;
+        color: #000;
+        width: 20%;
+    }
+
+    .contact-col {
+        width: 15%;
+        word-break: break-all;
+    }
+
+    .power-col {
+        width: 15%;
+    }
+
+    .desc-col {
+        width: 20%;
+        color: #444;
+    }
+
+    .power-badge {
+        display: inline-block;
+        padding: 0.25rem 0.5rem;
+        background: #e3f2fd;
+        color: #0d47a1;
+        border-radius: 4px;
+        font-weight: 500;
+        margin-bottom: 0.25rem;
+    }
+
+    .sub-detail {
+        font-size: 0.8rem;
+        color: #666;
+        margin-top: 0.25rem;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 2rem;
+        color: #666;
+        font-style: italic;
+    }
+}
+
+/* Print Specific Styles */
+@media print {
+
+    /* Hide UI Elements */
+    .no-print,
+    nav,
+    footer,
+    app-header,
+    .sidebar,
+    .modal-overlay {
+        display: none !important;
+    }
+
+    @page {
+        size: letter;
+        /* 8.5in x 11in */
+        margin: 0.5in;
+    }
+
+    html,
+    body {
+        margin: 0 !important;
+        padding: 0 !important;
+        background: white !important;
+        color: black;
+        font-size: 12pt;
+        width: 100%;
+    }
+
+    .report-wrapper {
+        padding: 0;
+        margin: 0;
+        max-width: none;
+    }
+
+    .print-document {
+        padding: 0;
+        box-shadow: none;
+        border: none;
+        border-radius: 0;
+    }
+
+    .print-header {
+        margin-bottom: 1.5rem;
+        border-bottom: 1px solid #ccc;
+    }
+
+    .report-table {
+        font-size: 10pt;
+        /* smaller font for print to fit columns */
+
+        th,
+        td {
+            padding: 0.5rem;
+            /* tighter padding */
+            border: 1px solid #ddd;
+            /* Add borders for print readability */
+        }
+
+        th {
+            background-color: #f8f9fa !important;
+            /* Force background color if browser allows printable backgrounds */
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+    }
+
+    /* Prevent page breaks inside rows */
+    tr {
+        page-break-inside: avoid;
+    }
+}

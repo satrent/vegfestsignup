@@ -15,11 +15,12 @@
 
     <form [formGroup]="form" (ngSubmit)="onSubmit()">
 
-        <!-- ST-19 Section (Conditional) -->
-        @if (onSiteSales) {
+        <!-- ST-19 Section (Always Required) -->
         <div class="document-section">
             <h3>ST-19 (MN sales tax) <span class="required">[Required]</span></h3>
-            <p class="description">Required for all vendors making taxable sales on-site.</p>
+            <p class="description">All exhibitors must download, complete, and upload this form.<br><a
+                    href="https://drive.google.com/drive/folders/12GViVmRHfc69v1xiCyx5-T4nO9YMk6uy" target="_blank"
+                    rel="noopener noreferrer">Download blank ST-19 form here</a></p>
 
             <div class="form-group">
                 <div class="radio-list">
@@ -42,13 +43,15 @@
             </div>
             }
         </div>
-        }
 
         <!-- Food Permit Section (Conditional) -->
         @if (isFoodVendor) {
         <div class="document-section">
             <h3>State of Minnesota Food Permit <span class="required">[Required]</span></h3>
-            <p class="description">Required for all food and drink vendors.</p>
+            <p class="description">A 2026 State of Minnesota Food Permit is required.<br>
+                <a href="https://www.health.state.mn.us/communities/environment/food/license/specevent.html"
+                    target="_blank" rel="noopener noreferrer">Apply for a special event food permit</a>.
+            </p>
 
             <div class="form-group">
                 <div class="radio-list">
@@ -78,7 +81,9 @@
         <div class="document-section">
             <h3>Certificate of Insurance (COI) <span class="required">[Required]</span></h3>
             <p class="description">Proof of general liability insurance naming Companion Action for Animals as
-                additional insured.</p>
+                additional insured.<br><a
+                    href="https://drive.google.com/file/d/1CapSr5wI9uVuyKriAeGnH_zSDaKnaiX4/view?usp=drive_link"
+                    target="_blank" rel="noopener noreferrer">See sample</a></p>
 
             <div class="form-group">
                 <div class="radio-list">
@@ -88,7 +93,7 @@
                     </div>
                     <div class="radio-item">
                         <input type="radio" id="coi-later" formControlName="coiOption" value="later">
-                        <label for="coi-later">Will provide by August 10</label>
+                        <label for="coi-later">Will provide by August 24</label>
                     </div>
                 </div>
             </div>
@@ -100,6 +105,13 @@
                 </app-file-upload>
             </div>
             }
+
+            <p class="description" style="font-size: 0.9em; margin-top: 10px;">
+                <a href="https://partners.insurancecanopy.com/twin-cities-veg-fest" target="_blank"
+                    rel="noopener noreferrer">Buy here.</a><br>
+                *Some types of insurance only have monthly options. You can purchase a subscription by August 24 and
+                then cancel it.
+            </p>
         </div>
 
         <div class="actions">

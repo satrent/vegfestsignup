@@ -1,6 +1,6 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { ReactiveFormsModule, FormBuilder, FormGroup, FormArray, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { StorageService } from '../../services/storage.service';
 
@@ -41,11 +41,13 @@ export class LogisticsComponent implements OnInit {
       numTables: [0, [Validators.min(0)]],
       numChairs: [0, [Validators.min(0)]],
       numTents: [0, [Validators.min(0)]],
+      numWeights: [0, [Validators.min(0)]],
 
       // Power
       powerNeeds: ['None', Validators.required],
       householdElectric: [null], // Radio Yes/No
       electricNeedsDescription: [''],
+      equipmentList: this.fb.array([]),
 
       // Sales
       onSiteSales: [null, Validators.required],
@@ -92,6 +94,7 @@ export class LogisticsComponent implements OnInit {
           numTables: reg.numTables || 0,
           numChairs: reg.numChairs || 0,
           numTents: reg.numTents || 0,
+          numWeights: reg.numWeights || 0,
 
           powerNeeds: reg.powerNeeds || 'None',
           householdElectric: reg.householdElectric,
@@ -105,6 +108,13 @@ export class LogisticsComponent implements OnInit {
           loadInAvailability: reg.loadInAvailability || ''
         });
 
+        // Initialize existing equipment list or empty
+        if (reg.equipmentList && reg.equipmentList.length > 0) {
+          reg.equipmentList.forEach((eq: any) => this.addEquipment(eq));
+        } else {
+          // If none but power needed, maybe add row, but typically just let them add. But to match requirements user might want one row by default if power != None. I won't for now unless required.
+        }
+
         // Trigger updates
         this.updatePowerValidators(reg.powerNeeds || 'None');
 
@@ -114,6 +124,42 @@ export class LogisticsComponent implements OnInit {
         }
       }
     });
+  }
+
+  get equipmentListFormArray() {
+    return this.form.get('equipmentList') as FormArray;
+  }
+
+  addEquipment(eq: any = null) {
+    this.equipmentListFormArray.push(this.fb.group({
+      name: [eq?.name || '', Validators.required],
+      amps: [eq?.amps || null, [Validators.min(0)]],
+      volts: [eq?.volts || null, [Validators.min(0)]],
+      watts: [eq?.watts || null, [Validators.min(0)]],
+      quantity: [eq?.quantity || 1, [Validators.required, Validators.min(1)]]
+    }));
+  }
+
+  removeEquipment(index: number) {
+    this.equipmentListFormArray.removeAt(index);
+  }
+
+  calculateAmps(eq: any): number {
+    const qty = eq.quantity || 0;
+    if (eq.amps) {
+      return eq.amps * qty;
+    } else if (eq.watts && eq.volts) {
+      return (eq.watts / eq.volts) * qty;
+    }
+    return 0;
+  }
+
+  get totalAmps(): number {
+    let total = 0;
+    for (let i = 0; i < this.equipmentListFormArray.length; i++) {
+      total += this.calculateAmps(this.equipmentListFormArray.at(i).value);
+    }
+    return total;
   }
 
   updatePowerValidators(powerVal: string) {

@@ -71,6 +71,13 @@ export interface IRegistration extends Document {
     powerNeeds?: string;
     householdElectric?: boolean;
     electricNeedsDescription?: string;
+    equipmentList?: {
+        name: string;
+        amps?: number;
+        volts?: number;
+        watts?: number;
+        quantity: number;
+    }[];
 
     onSiteSales?: boolean;
     priceRange?: string;
@@ -153,8 +160,16 @@ export interface IRegistration extends Document {
     swagDistributionItem?: string;
     palletsDonation?: boolean;
 
-    // Admin Fields
     invoiced?: boolean;
+    invoiceBreakdown?: {
+        baseFee: number;
+        discountAmount: number;
+        discountNotes: string[];
+        securityDeposit: number;
+        extraSiteCost: number;
+        equipmentCost: number;
+        specialPowerFee: number;
+    };
 
     // Logistics Counts (Explicit fields for calculation)
     numWeights?: number;
@@ -167,6 +182,8 @@ export interface IRegistration extends Document {
     paymentId?: string;
     paymentReceipt?: string;
     paymentDate?: Date;
+    quickbooksInvoiceLink?: string;
+    approvalEmailSent?: boolean;
 
     type: RegistrationType;
     status: RegistrationStatus;
@@ -294,6 +311,7 @@ const registrationSchema = new Schema<IRegistration>(
         numTables: { type: Number, default: 0 },
         numChairs: { type: Number, default: 0 },
         numTents: { type: Number, default: 0 },
+        numWeights: { type: Number, default: 0 },
 
         powerNeeds: {
             type: String,
@@ -302,6 +320,13 @@ const registrationSchema = new Schema<IRegistration>(
         },
         householdElectric: Boolean,
         electricNeedsDescription: String,
+        equipmentList: [{
+            name: String,
+            amps: Number,
+            volts: Number,
+            watts: Number,
+            quantity: Number
+        }],
 
         onSiteSales: { type: Boolean, default: false },
         priceRange: String,
@@ -425,6 +450,15 @@ const registrationSchema = new Schema<IRegistration>(
             default: false,
             index: true
         },
+        invoiceBreakdown: {
+            baseFee: { type: Number, default: 0 },
+            discountAmount: { type: Number, default: 0 },
+            discountNotes: [String],
+            securityDeposit: { type: Number, default: 0 },
+            extraSiteCost: { type: Number, default: 0 },
+            equipmentCost: { type: Number, default: 0 },
+            specialPowerFee: { type: Number, default: 0 }
+        },
         initialInvoiceAmount: {
             type: Number,
             default: 0
@@ -436,6 +470,11 @@ const registrationSchema = new Schema<IRegistration>(
         paymentId: String,
         paymentReceipt: String,
         paymentDate: Date,
+        quickbooksInvoiceLink: String,
+        approvalEmailSent: {
+            type: Boolean,
+            default: false
+        },
 
         type: {
             type: String,

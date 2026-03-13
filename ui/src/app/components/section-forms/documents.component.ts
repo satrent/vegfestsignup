@@ -49,7 +49,8 @@ export class DocumentsComponent implements OnInit {
 
         // Check for Food Vendor status
         const cat = reg.organizationCategory || '';
-        this.isFoodVendor = cat.toLowerCase().includes('food') || cat.toLowerCase().includes('drink') || cat.toLowerCase().includes('ice cream');
+        this.isFoodVendor = cat === 'On-site food prep & sales $600' ||
+          cat === 'Food business with on-site food prep — not a restaurant or food truck $350';
 
         this.form.patchValue({
           coiOption: reg.coiOption || 'upload_now',
@@ -74,18 +75,14 @@ export class DocumentsComponent implements OnInit {
 
   checkMissingDocs(): boolean {
     const missingCOI = !this.hasDoc('COI');
-    const missingST19 = this.onSiteSales && !this.hasDoc('ST-19');
+    const missingST19 = !this.hasDoc('ST-19');
     const missingFoodPermit = this.isFoodVendor && !this.hasDoc('Food Permit');
     return missingCOI || missingST19 || missingFoodPermit;
   }
 
   updateValidators() {
     const st19Ctrl = this.form.get('st19Option');
-    if (this.onSiteSales) {
-      st19Ctrl?.setValidators(Validators.required);
-    } else {
-      st19Ctrl?.clearValidators();
-    }
+    st19Ctrl?.setValidators(Validators.required);
     st19Ctrl?.updateValueAndValidity();
 
     const foodCtrl = this.form.get('foodPermitOption');
@@ -133,7 +130,7 @@ export class DocumentsComponent implements OnInit {
       return;
     }
 
-    if (this.onSiteSales && this.form.get('st19Option')?.value === 'upload_now' && !this.hasDoc('ST-19')) {
+    if (this.form.get('st19Option')?.value === 'upload_now' && !this.hasDoc('ST-19')) {
       alert('Please upload your ST-19 form.');
       return;
     }

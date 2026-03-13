@@ -198,3 +198,54 @@ button {
     color: #856404;
     border: 1px solid #ffeeba;
 }
+
+.equipment-list {
+    margin-top: 0.5rem;
+}
+
+.equipment-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1rem;
+
+    th,
+    td {
+        padding: 0.5rem;
+        text-align: left;
+        border-bottom: 1px solid #e2e8f0;
+    }
+
+    th {
+        font-weight: 600;
+        color: #4a5568;
+        font-size: 0.9rem;
+    }
+
+    td {
+        vertical-align: middle;
+    }
+}
+
+.btn-secondary {
+    background: #edf2f7;
+    color: #2d3748;
+    border: 1px solid #cbd5e0;
+
+    &:hover {
+        background: #e2e8f0;
+    }
+}
+
+.btn-remove {
+    background: transparent;
+    color: #e53e3e;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 0 0.5rem;
+    line-height: 1;
+
+    &:hover {
+        color: #c53030;
+    }
+}

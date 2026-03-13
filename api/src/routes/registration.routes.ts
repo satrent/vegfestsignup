@@ -1,7 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { body, validationResult } from 'express-validator';
 import { Registration } from '../models/Registration';
-import { authenticate, requireAdmin, requireApprover } from '../middleware/auth.middleware';
+import { authenticate, requireAdmin, requireApprover, requireSuperAdmin } from '../middleware/auth.middleware';
 import { AuditService } from '../services/audit.service';
 import { DistanceService } from '../services/distance.service';
 
@@ -110,12 +110,13 @@ router.post(
     }
 );
 
-// Export to QuickBooks (Admin only)
-router.get('/export/quickbooks', authenticate, requireAdmin, async (_req: Request, res: Response) => {
+// Export to QuickBooks (Super Admin only)
+router.get('/export/quickbooks', authenticate, requireSuperAdmin, async (_req: Request, res: Response) => {
     try {
-        // Filter out registrations that are already invoiced
+        // Filter out registrations that are already invoiced and only export approved ones
         const registrations = await Registration.find({
-            invoiced: { $ne: true }
+            invoiced: { $ne: true },
+            status: 'Approved'
         }).sort({ createdAt: -1 });
 
         // Create bulk operations array
@@ -147,22 +148,76 @@ router.get('/export/quickbooks', authenticate, requireAdmin, async (_req: Reques
                 }
             }
 
-            // Calculate Invoice Amount
-            let base = 200;
-            if (isOver100) {
-                base = base * 0.5; // 50% Discount
+            // Calculate Base Fee from Organization Category
+            let base = 200; // default for unknown
+            if (r.organizationCategory) {
+                const match = r.organizationCategory.match(/\$(\d+)/);
+                if (match) {
+                    base = parseInt(match[1], 10);
+                }
             }
 
+            // Calculate BIPGM Start-up discount eligibility
+            // Rule: BIPGM owned AND in business for less than 3 years by 9/20/2026.
+            let startYear = parseInt(r.establishedYear || '0', 10);
+            let isBipgmStartup = false;
+            if (r.bipgmOwned && startYear > 0) {
+                if (startYear > 2023) {
+                    isBipgmStartup = true;
+                } else if (startYear === 2023) {
+                    const monthMap: { [key: string]: number } = {
+                        'january': 0, 'february': 1, 'march': 2, 'april': 3, 'may': 4, 'june': 5,
+                        'july': 6, 'august': 7, 'september': 8, 'october': 9, 'november': 10, 'december': 11
+                    };
+                    if (r.establishedMonth) {
+                        const m = monthMap[r.establishedMonth.toLowerCase().trim()];
+                        if (m !== undefined && m >= 8) { // September or later
+                            isBipgmStartup = true;
+                        }
+                    } else {
+                        isBipgmStartup = true; // Assume eligible if only year is 2023
+                    }
+                }
+            }
+
+            // Calculate Discounts (they do not stack, max 50% off base)
+            let discountAmount = 0;
+            let discountNotes = [];
+
+            if (isBipgmStartup) {
+                discountAmount = base * 0.5;
+                discountNotes.push('BIPGM Start-up 50%');
+            }
+            if (isOver100) {
+                if (discountAmount === 0) {
+                    discountAmount = base * 0.5;
+                    discountNotes.push('Distance 50%');
+                } else {
+                    discountNotes.push('Distance limit reached (No Stack)');
+                }
+            }
+
+            // Calculate Invoice Amount
+            const securityDeposit = 200;
             const extraSiteCost = Math.max(0, (r.numTents || 0) - 1) * 100;
             const tablesCost = (r.numTables || 0) * 20;
             const chairsCost = (r.numChairs || 0) * 5;
-            const total = base + extraSiteCost + tablesCost + chairsCost;
+            const weightsCost = (r.numWeights || 0) * 25;
 
-            const baseNote = isOver100 ? 'Base: $100 (50% Dist Disc)' : 'Base: $200';
-            const calculationNotes = `Total: $${total} (${baseNote}, Extra Sites: $${extraSiteCost}, Tables: $${tablesCost}, Chairs: $${chairsCost})${distanceNote}`;
+            // Special power fee
+            const specialPowerFee = (r.householdElectric === false || r.householdElectric === 'false' as any) ? 100 : 0;
+
+            const total = (base - discountAmount) + securityDeposit + extraSiteCost + tablesCost + chairsCost + weightsCost + specialPowerFee;
+
+            const startDate = (r.establishedMonth ? r.establishedMonth + ' ' : '') + (r.establishedYear || '');
+            const eligibilityInfo = `[BIPGM: ${r.bipgmOwned ? 'Yes' : 'No'}, Start: ${startDate || 'N/A'}]`;
+
+            const baseStr = discountAmount > 0 ? `$${base - discountAmount} ($${base} - 50% ${discountNotes.join(', ')})` : `$${base}`;
+            const specialPowerStr = specialPowerFee > 0 ? `, Special Power: $${specialPowerFee}` : '';
+            const calculationNotes = `Total: $${total} (Base: ${baseStr}, Security Deposit: $${securityDeposit}, Extra Sites: $${extraSiteCost}, Tables: $${tablesCost}, Chairs: $${chairsCost}, Weights: $${weightsCost}${specialPowerStr})${distanceNote} ${eligibilityInfo}`;
 
             // Escape fields for CSV
-            const escape = (field: string | undefined) => {
+            const escape = (field: string | undefined | null) => {
                 if (!field) return '';
                 const stringField = String(field);
                 if (stringField.includes(',') || stringField.includes('"') || stringField.includes('\n')) {
@@ -180,6 +235,15 @@ router.get('/export/quickbooks', authenticate, requireAdmin, async (_req: Reques
                         $set: {
                             invoiced: true,
                             initialInvoiceAmount: total,
+                            invoiceBreakdown: {
+                                baseFee: base,
+                                discountAmount,
+                                discountNotes,
+                                securityDeposit,
+                                extraSiteCost,
+                                equipmentCost: tablesCost + chairsCost + weightsCost,
+                                specialPowerFee
+                            },
                             travelingOver100Miles: isOver100 // Optionally update the record with the verified status
                         }
                     }
@@ -202,7 +266,54 @@ router.get('/export/quickbooks', authenticate, requireAdmin, async (_req: Reques
     }
 });
 
+// Get Electricity Requirements Report (Admin only)
+router.get('/reports/electricity', authenticate, requireAdmin, async (_req: Request, res: Response) => {
+    try {
+        const registrations = await Registration.find({
+            powerNeeds: { $exists: true, $ne: 'None' },
+            status: 'Approved'
+        }).sort({ organizationName: 1 }).select('organizationName firstName lastName email phone powerNeeds householdElectric electricNeedsDescription status equipmentList');
 
+        res.json(registrations);
+    } catch (error) {
+        console.error('Error fetching electricity report:', error);
+        res.status(500).json({ error: 'Failed to fetch electricity report' });
+    }
+});
+
+// Get Rental Equipment Report (Admin only)
+router.get('/reports/rental-equipment', authenticate, requireAdmin, async (_req: Request, res: Response) => {
+    try {
+        const registrations = await Registration.find({
+            status: 'Approved',
+            $or: [
+                { numTables: { $gt: 0 } },
+                { numChairs: { $gt: 0 } },
+                { numTents: { $gt: 0 } },
+                { numWeights: { $gt: 0 } }
+            ]
+        }).sort({ organizationName: 1 }).select('organizationName firstName lastName email phone numTables numChairs numTents numWeights status');
+
+        res.json(registrations);
+    } catch (error) {
+        console.error('Error fetching rental equipment report:', error);
+        res.status(500).json({ error: 'Failed to fetch rental equipment report' });
+    }
+});
+
+// Get Invoicing Report (Admin only)
+router.get('/reports/invoicing', authenticate, requireAdmin, async (_req: Request, res: Response) => {
+    try {
+        const registrations = await Registration.find({
+            status: 'Approved'
+        }).sort({ organizationName: 1 }).select('organizationName firstName lastName email phone invoiced quickbooksInvoiceLink initialInvoiceAmount amountPaid status type invoiceBreakdown');
+
+        res.json(registrations);
+    } catch (error) {
+        console.error('Error fetching invoicing report:', error);
+        res.status(500).json({ error: 'Failed to fetch invoicing report' });
+    }
+});
 
 // Update registration (for saving sections)
 // Modified to prevent regular users from updating invoiced status
@@ -250,6 +361,7 @@ router.patch(
                 delete updates.websiteStatus;
                 delete updates.initialInvoiceAmount;
                 delete updates.amountPaid;
+                delete updates.quickbooksInvoiceLink;
             }
 
             // Also protect status if user doesn't have approval permissions
@@ -294,6 +406,25 @@ router.patch(
             if (!registration) {
                 res.status(404).json({ error: 'Registration not found' });
                 return;
+            }
+
+            // AUTO-SEND APPROVAL EMAIL LOGIC
+            if (
+                registration.status === 'Approved' &&
+                registration.initialInvoiceAmount !== undefined && registration.initialInvoiceAmount > 0 &&
+                registration.quickbooksInvoiceLink &&
+                !originalRegistration.approvalEmailSent &&
+                updates.approvalEmailSent !== true
+            ) {
+                try {
+                    await import('../services/email.service').then(m =>
+                        m.emailService.sendApprovalEmail(registration)
+                    );
+                    registration.approvalEmailSent = true;
+                    await registration.save();
+                } catch (emailError) {
+                    console.error('Error auto-sending approval email:', emailError);
+                }
             }
 
             // 3. Log Audit Events (Admin Only)
@@ -438,14 +569,18 @@ router.patch(
             registration.status = newStatus;
             await registration.save();
 
-            // Send approval email if status changed to Approved
+            // Send approval email if status changed to Approved and criteria met
             if (newStatus === 'Approved' && previousStatus !== 'Approved' && registration.email) {
-                try {
-                    await import('../services/email.service').then(m =>
-                        m.emailService.sendApprovalEmail(registration.email, registration.firstName)
-                    );
-                } catch (emailError) {
-                    console.error('Error sending approval email:', emailError);
+                if (registration.initialInvoiceAmount && registration.initialInvoiceAmount > 0 && registration.quickbooksInvoiceLink && !registration.approvalEmailSent) {
+                    try {
+                        await import('../services/email.service').then(m =>
+                            m.emailService.sendApprovalEmail(registration)
+                        );
+                        registration.approvalEmailSent = true;
+                        await registration.save();
+                    } catch (emailError) {
+                        console.error('Error sending approval email:', emailError);
+                    }
                 }
             }
 

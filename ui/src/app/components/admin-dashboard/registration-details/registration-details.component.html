@@ -56,6 +56,15 @@
                         </div>
 
                         <div class="field-group">
+                            <label>Approval Email Sent?</label>
+                            <label class="toggle-label">
+                                <input type="checkbox" [(ngModel)]="tempRegistration.approvalEmailSent">
+                                <span>{{ tempRegistration.approvalEmailSent ? 'Yes' : 'Mark as sent (skip email)'
+                                    }}</span>
+                            </label>
+                        </div>
+
+                        <div class="field-group">
                             <label>Website Status</label>
                             <select [ngModel]="tempRegistration.websiteStatus || 'Pending'"
                                 (ngModelChange)="tempRegistration.websiteStatus = $event">
@@ -68,6 +77,17 @@
                             <label>Initial Invoice Amount</label>
                             <input type="number" [(ngModel)]="tempRegistration.initialInvoiceAmount" readonly
                                 style="background: #f3f4f6;">
+                        </div>
+
+                        <div class="field-group">
+                            <label>Quickbooks Invoice Link</label>
+                            <input type="url" [(ngModel)]="tempRegistration.quickbooksInvoiceLink"
+                                placeholder="https://...">
+                        </div>
+
+                        <div class="field-group">
+                            <label>Amount Paid</label>
+                            <input type="number" [(ngModel)]="tempRegistration.amountPaid">
                         </div>
 
                     </div>
@@ -181,10 +201,49 @@
                             <input type="number" [(ngModel)]="tempRegistration.numTents">
                         </div>
                         <div class="field-group">
+                            <label>Number of Weights (Sets of 4)</label>
+                            <input type="number" [(ngModel)]="tempRegistration.numWeights">
+                        </div>
+                        <div class="field-group">
                             <label>Power Needs</label>
                             <div class="value">{{tempRegistration.powerNeeds || 'None'}}</div>
                         </div>
+                        <div class="field-group"
+                            *ngIf="tempRegistration.powerNeeds && tempRegistration.powerNeeds !== 'None'">
+                            <label>Standard Outlet?</label>
+                            <div class="value">{{tempRegistration.householdElectric === true ? 'Yes' :
+                                (tempRegistration.householdElectric === false ? 'No' : 'N/A')}}</div>
+                        </div>
+                        <div class="field-group" *ngIf="tempRegistration.householdElectric === false">
+                            <label>Power Needed</label>
+                            <div class="value">{{tempRegistration.electricNeedsDescription || 'None'}}</div>
+                        </div>
                     </div>
+                </div>
+
+                <div class="section-group"
+                    *ngIf="tempRegistration.equipmentList && tempRegistration.equipmentList.length > 0">
+                    <h3>Electrical Equipment</h3>
+                    <table class="w-full text-left" style="margin-top: 10px; border-collapse: collapse;">
+                        <thead>
+                            <tr>
+                                <th style="border-bottom: 1px solid #e5e7eb; padding: 4px;">Equipment</th>
+                                <th style="border-bottom: 1px solid #e5e7eb; padding: 4px;">Qty</th>
+                                <th style="border-bottom: 1px solid #e5e7eb; padding: 4px;">Amps</th>
+                                <th style="border-bottom: 1px solid #e5e7eb; padding: 4px;">Volts</th>
+                                <th style="border-bottom: 1px solid #e5e7eb; padding: 4px;">Watts</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let eq of tempRegistration.equipmentList">
+                                <td style="padding: 4px;">{{eq.name}}</td>
+                                <td style="padding: 4px;">{{eq.quantity}}</td>
+                                <td style="padding: 4px;">{{eq.amps || '-'}}</td>
+                                <td style="padding: 4px;">{{eq.volts || '-'}}</td>
+                                <td style="padding: 4px;">{{eq.watts || '-'}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
 
                 <div class="section-group">
@@ -207,6 +266,10 @@
                     <div class="field-group">
                         <label>Organization Name</label>
                         <input type="text" [(ngModel)]="tempRegistration.organizationName">
+                    </div>
+                    <div class="field-group">
+                        <label>Category</label>
+                        <div class="value">{{ tempRegistration.organizationCategory || 'Not provided' }}</div>
                     </div>
                     <div class="field-group">
                         <label>Website</label>
@@ -236,6 +299,19 @@
                         <label>Additional Information</label>
                         <div class="value" style="white-space: pre-wrap;">{{ tempRegistration.otherInfo || 'None
                             provided.' }}</div>
+                    </div>
+                </div>
+
+                <div class="section-group">
+                    <h3>History</h3>
+                    <div class="field-group">
+                        <label>Participated Before</label>
+                        <div class="value">{{ tempRegistration.participatedBefore === undefined ? 'Not answered' :
+                            (tempRegistration.participatedBefore ? 'Yes' : 'No') }}</div>
+                    </div>
+                    <div class="field-group" *ngIf="tempRegistration.participatedBefore === false">
+                        <label>Sold Elsewhere</label>
+                        <div class="value">{{ tempRegistration.soldElsewhere || 'Not provided' }}</div>
                     </div>
                 </div>
 
@@ -291,15 +367,28 @@
                             <span class="doc-name" (click)="viewDocument(doc.key)">{{doc.name}}</span>
                             <span class="doc-meta">{{doc.type}} - {{doc.uploadedAt | date:'short'}}</span>
                         </div>
-                        <div class="doc-actions">
-                            <span class="badge" [ngClass]="doc.status.toLowerCase()">{{doc.status}}</span>
+                        <div class="doc-actions" *ngIf="isApprovalRequired(doc) && canApprove">
+                            <!-- Reviewed Checkbox taking the place of the status badge/Approve button when applicable -->
+                            <label class="toggle-label"
+                                style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem;">
+                                <input type="checkbox" [checked]="doc.status === 'Approved'"
+                                    (change)="updateDocumentStatus(doc, $event.target.checked ? 'Approved' : 'Pending')">
+                                <span style="font-size: 0.9em; font-weight: 500;">Reviewed and accepted</span>
+                            </label>
+
+                            <!-- Optional Badge instead of just floating text if it's already approved? No, just keep the standard badge for un-approvable docs or keep it simple. Let's still show the badge but dynamically. -->
+                            <span class="badge" [ngClass]="doc.status.toLowerCase()"
+                                style="margin-right: 0.5rem;">{{doc.status}}</span>
+
                             <div style="margin-top: 0.5rem; display: flex; gap: 0.5rem;"
-                                *ngIf="doc.status !== 'Approved' && isApprovalRequired(doc) && canApprove">
-                                <button (click)="updateDocumentStatus(doc, 'Approved')"
-                                    class="small-btn approve">Approve</button>
+                                *ngIf="doc.status !== 'Approved'">
+                                <!-- Still provide a raw Reject button if they review it and it's bad -->
                                 <button (click)="updateDocumentStatus(doc, 'Rejected')"
                                     class="small-btn reject">Reject</button>
                             </div>
+                        </div>
+                        <div class="doc-actions" *ngIf="!(isApprovalRequired(doc) && canApprove)">
+                            <span class="badge" [ngClass]="doc.status.toLowerCase()">{{doc.status}}</span>
                         </div>
                     </div>
                 </div>
@@ -307,6 +396,42 @@
 
             <!-- Billing Tab -->
             <div *ngIf="activeTab === 'billing'">
+                <div class="section-group" *ngIf="tempRegistration.invoiceBreakdown">
+                    <h3>Historical Invoice Breakdown</h3>
+                    <div class="form-grid">
+                        <div class="field-group">
+                            <label>Base Fee</label>
+                            <div class="value">{{ tempRegistration.invoiceBreakdown.baseFee | currency }}</div>
+                        </div>
+                        <div class="field-group">
+                            <label>Discount</label>
+                            <div class="value">
+                                <span *ngIf="tempRegistration.invoiceBreakdown.discountAmount > 0">
+                                    -{{ tempRegistration.invoiceBreakdown.discountAmount | currency }}
+                                    <span class="text-sm text-gray-500 block">{{ tempRegistration.invoiceBreakdown.discountNotes.join(', ') }}</span>
+                                </span>
+                                <span *ngIf="!tempRegistration.invoiceBreakdown.discountAmount || tempRegistration.invoiceBreakdown.discountAmount === 0">$0.00</span>
+                            </div>
+                        </div>
+                        <div class="field-group">
+                            <label>Security Deposit</label>
+                            <div class="value">{{ tempRegistration.invoiceBreakdown.securityDeposit | currency }}</div>
+                        </div>
+                        <div class="field-group">
+                            <label>Extra Site Cost</label>
+                            <div class="value">{{ tempRegistration.invoiceBreakdown.extraSiteCost | currency }}</div>
+                        </div>
+                        <div class="field-group">
+                            <label>Equipment Cost</label>
+                            <div class="value">{{ tempRegistration.invoiceBreakdown.equipmentCost | currency }}</div>
+                        </div>
+                        <div class="field-group">
+                            <label>Special Power Fee</label>
+                            <div class="value">{{ tempRegistration.invoiceBreakdown.specialPowerFee | currency }}</div>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="section-group">
                     <h3>Payments</h3>
                     <div class="form-grid">

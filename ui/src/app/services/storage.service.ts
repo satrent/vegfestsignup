@@ -68,10 +68,18 @@ export interface Registration {
   numTables?: number;
   numChairs?: number;
   numTents?: number;
+  numWeights?: number;
 
   powerNeeds?: string;
   householdElectric?: boolean;
   electricNeedsDescription?: string;
+  equipmentList?: {
+    name: string;
+    amps?: number;
+    volts?: number;
+    watts?: number;
+    quantity: number;
+  }[];
 
   onSiteSales?: boolean;
   priceRange?: string;
@@ -171,6 +179,17 @@ export interface Registration {
   paymentId?: string;       // Stripe PaymentIntent ID
   paymentReceipt?: string;  // Receipt Reference
   paymentDate?: Date;
+  quickbooksInvoiceLink?: string;
+  approvalEmailSent?: boolean;
+  invoiceBreakdown?: {
+    baseFee: number;
+    discountAmount: number;
+    discountNotes: string[];
+    securityDeposit: number;
+    extraSiteCost: number;
+    equipmentCost: number;
+    specialPowerFee: number;
+  };
 
   type: 'Exhibitor' | 'Sponsor' | 'Both';
   status: 'In Progress' | 'Pending' | 'Waiting for Approval' | 'Approved' | 'Declined';
@@ -207,6 +226,21 @@ export class StorageService {
   // Export to QuickBooks
   exportQuickBooks(): Observable<Blob> {
     return this.http.get(`${this.baseUrl}/registrations/export/quickbooks`, { responseType: 'blob' });
+  }
+
+  // Get Electricity Report (Admin only)
+  getElectricityReport(): Observable<any[]> {
+    return this.api.get<any[]>('/registrations/reports/electricity');
+  }
+
+  // Get Rental Equipment Report (Admin only)
+  getRentalEquipmentReport(): Observable<any[]> {
+    return this.api.get<any[]>('/registrations/reports/rental-equipment');
+  }
+
+  // Get Invoicing Report (Admin only)
+  getInvoicingReport(): Observable<any[]> {
+    return this.api.get<any[]>('/registrations/reports/invoicing');
   }
 
   // Get current user's registrations
