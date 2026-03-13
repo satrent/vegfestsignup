@@ -235,6 +235,15 @@ router.get('/export/quickbooks', authenticate, requireSuperAdmin, async (_req: R
                         $set: {
                             invoiced: true,
                             initialInvoiceAmount: total,
+                            invoiceBreakdown: {
+                                baseFee: base,
+                                discountAmount,
+                                discountNotes,
+                                securityDeposit,
+                                extraSiteCost,
+                                equipmentCost: tablesCost + chairsCost + weightsCost,
+                                specialPowerFee
+                            },
                             travelingOver100Miles: isOver100 // Optionally update the record with the verified status
                         }
                     }
@@ -297,7 +306,7 @@ router.get('/reports/invoicing', authenticate, requireAdmin, async (_req: Reques
     try {
         const registrations = await Registration.find({
             status: 'Approved'
-        }).sort({ organizationName: 1 }).select('organizationName firstName lastName email phone invoiced quickbooksInvoiceLink initialInvoiceAmount amountPaid status type');
+        }).sort({ organizationName: 1 }).select('organizationName firstName lastName email phone invoiced quickbooksInvoiceLink initialInvoiceAmount amountPaid status type invoiceBreakdown');
 
         res.json(registrations);
     } catch (error) {

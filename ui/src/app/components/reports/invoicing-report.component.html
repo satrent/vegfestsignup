@@ -52,6 +52,10 @@
                     <th>Contact</th>
                     <th>Type / Status</th>
                     <th>Invoiced</th>
+                    <th>Base Fee</th>
+                    <th>Discount</th>
+                    <th>Security Deposit</th>
+                    <th>Logistics (Site/Equip/Power)</th>
                     <th>Amount Due</th>
                     <th>Amount Paid</th>
                     <th>Quickbooks Link</th>
@@ -75,6 +79,10 @@
                             {{ row.invoiced ? 'Yes' : 'No' }}
                         </span>
                     </td>
+                    <td class="amount-col">{{ (row.invoiceBreakdown?.baseFee || 0) | currency }}</td>
+                    <td class="amount-col">{{ (row.invoiceBreakdown?.discountAmount || 0) | currency }}</td>
+                    <td class="amount-col">{{ (row.invoiceBreakdown?.securityDeposit || 0) | currency }}</td>
+                    <td class="amount-col">{{ ((row.invoiceBreakdown?.extraSiteCost || 0) + (row.invoiceBreakdown?.equipmentCost || 0) + (row.invoiceBreakdown?.specialPowerFee || 0)) | currency }}</td>
                     <td class="amount-col">{{ (row.initialInvoiceAmount || 0) | currency }}</td>
                     <td class="amount-col">{{ (row.amountPaid || 0) | currency }}</td>
                     <td class="link-col">

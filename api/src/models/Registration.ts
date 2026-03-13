@@ -160,8 +160,16 @@ export interface IRegistration extends Document {
     swagDistributionItem?: string;
     palletsDonation?: boolean;
 
-    // Admin Fields
     invoiced?: boolean;
+    invoiceBreakdown?: {
+        baseFee: number;
+        discountAmount: number;
+        discountNotes: string[];
+        securityDeposit: number;
+        extraSiteCost: number;
+        equipmentCost: number;
+        specialPowerFee: number;
+    };
 
     // Logistics Counts (Explicit fields for calculation)
     numWeights?: number;
@@ -435,6 +443,15 @@ const registrationSchema = new Schema<IRegistration>(
             type: Boolean,
             default: false,
             index: true
+        },
+        invoiceBreakdown: {
+            baseFee: { type: Number, default: 0 },
+            discountAmount: { type: Number, default: 0 },
+            discountNotes: [String],
+            securityDeposit: { type: Number, default: 0 },
+            extraSiteCost: { type: Number, default: 0 },
+            equipmentCost: { type: Number, default: 0 },
+            specialPowerFee: { type: Number, default: 0 }
         },
         initialInvoiceAmount: {
             type: Number,

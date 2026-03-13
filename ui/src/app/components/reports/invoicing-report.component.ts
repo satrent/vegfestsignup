@@ -46,16 +46,26 @@ export class InvoicingReportComponent implements OnInit {
     exportCsv(): void {
         if (this.reportData.length === 0) return;
 
-        let csvContent = 'Organization Name,Contact Name,Email,Phone,Type,Status,Invoiced,Initial Invoice Amount,Amount Paid,Quickbooks Invoice Link\n';
+        let csvContent = 'Organization Name,Contact Name,Email,Phone,Type,Status,Invoiced,Base Fee,Discount,Security Deposit,Extra Site Cost,Equipment Cost,Special Power Fee,Initial Invoice Amount,Amount Paid,Quickbooks Invoice Link\n';
 
         this.reportData.forEach(row => {
             const contactName = `${row.firstName} ${row.lastName}`;
             const invoiced = row.invoiced ? 'Yes' : 'No';
+            
+            // Historical breakdown fields (or 0 if missing/not yet exported)
+            const bd = row.invoiceBreakdown || {};
+            const baseFee = bd.baseFee || 0;
+            const discount = bd.discountAmount || 0;
+            const secDep = bd.securityDeposit || 0;
+            const extraSite = bd.extraSiteCost || 0;
+            const equip = bd.equipmentCost || 0;
+            const specPower = bd.specialPowerFee || 0;
+
             const initialAmount = row.initialInvoiceAmount || 0;
             const amountPaid = row.amountPaid || 0;
             const qbLink = row.quickbooksInvoiceLink || '';
 
-            csvContent += `${this.escapeCsv(row.organizationName)},${this.escapeCsv(contactName)},${this.escapeCsv(row.email)},${this.escapeCsv(row.phone)},${this.escapeCsv(row.type)},${this.escapeCsv(row.status)},${invoiced},${initialAmount},${amountPaid},${this.escapeCsv(qbLink)}\n`;
+            csvContent += `${this.escapeCsv(row.organizationName)},${this.escapeCsv(contactName)},${this.escapeCsv(row.email)},${this.escapeCsv(row.phone)},${this.escapeCsv(row.type)},${this.escapeCsv(row.status)},${invoiced},${baseFee},${discount},${secDep},${extraSite},${equip},${specPower},${initialAmount},${amountPaid},${this.escapeCsv(qbLink)}\n`;
         });
 
         const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });

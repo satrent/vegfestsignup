@@ -396,6 +396,42 @@
 
             <!-- Billing Tab -->
             <div *ngIf="activeTab === 'billing'">
+                <div class="section-group" *ngIf="tempRegistration.invoiceBreakdown">
+                    <h3>Historical Invoice Breakdown</h3>
+                    <div class="form-grid">
+                        <div class="field-group">
+                            <label>Base Fee</label>
+                            <div class="value">{{ tempRegistration.invoiceBreakdown.baseFee | currency }}</div>
+                        </div>
+                        <div class="field-group">
+                            <label>Discount</label>
+                            <div class="value">
+                                <span *ngIf="tempRegistration.invoiceBreakdown.discountAmount > 0">
+                                    -{{ tempRegistration.invoiceBreakdown.discountAmount | currency }}
+                                    <span class="text-sm text-gray-500 block">{{ tempRegistration.invoiceBreakdown.discountNotes.join(', ') }}</span>
+                                </span>
+                                <span *ngIf="!tempRegistration.invoiceBreakdown.discountAmount || tempRegistration.invoiceBreakdown.discountAmount === 0">$0.00</span>
+                            </div>
+                        </div>
+                        <div class="field-group">
+                            <label>Security Deposit</label>
+                            <div class="value">{{ tempRegistration.invoiceBreakdown.securityDeposit | currency }}</div>
+                        </div>
+                        <div class="field-group">
+                            <label>Extra Site Cost</label>
+                            <div class="value">{{ tempRegistration.invoiceBreakdown.extraSiteCost | currency }}</div>
+                        </div>
+                        <div class="field-group">
+                            <label>Equipment Cost</label>
+                            <div class="value">{{ tempRegistration.invoiceBreakdown.equipmentCost | currency }}</div>
+                        </div>
+                        <div class="field-group">
+                            <label>Special Power Fee</label>
+                            <div class="value">{{ tempRegistration.invoiceBreakdown.specialPowerFee | currency }}</div>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="section-group">
                     <h3>Payments</h3>
                     <div class="form-grid">

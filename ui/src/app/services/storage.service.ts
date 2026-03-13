@@ -181,6 +181,15 @@ export interface Registration {
   paymentDate?: Date;
   quickbooksInvoiceLink?: string;
   approvalEmailSent?: boolean;
+  invoiceBreakdown?: {
+    baseFee: number;
+    discountAmount: number;
+    discountNotes: string[];
+    securityDeposit: number;
+    extraSiteCost: number;
+    equipmentCost: number;
+    specialPowerFee: number;
+  };
 
   type: 'Exhibitor' | 'Sponsor' | 'Both';
   status: 'In Progress' | 'Pending' | 'Waiting for Approval' | 'Approved' | 'Declined';
