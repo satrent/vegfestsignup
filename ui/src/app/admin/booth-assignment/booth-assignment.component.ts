@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
@@ -7,13 +7,16 @@ import {
   moveItemInArray,
   CdkDrag,
   CdkDropList,
+  CdkDropListGroup,
 } from '@angular/cdk/drag-drop';
+import { CdkScrollable } from '@angular/cdk/scrolling';
 import { BoothService, Booth, BoothArea, UnassignedRegistration } from '../../services/booth.service';
+import { StorageService } from '../../services/storage.service';
 
 @Component({
   selector: 'app-booth-assignment',
   standalone: true,
-  imports: [CommonModule, FormsModule, CdkDropList, CdkDrag, RouterLink],
+  imports: [CommonModule, FormsModule, CdkDropList, CdkDrag, CdkDropListGroup, CdkScrollable, RouterLink],
   templateUrl: './booth-assignment.component.html',
   styleUrls: ['./booth-assignment.component.scss']
 })
@@ -21,6 +24,11 @@ export class BoothAssignmentComponent implements OnInit {
   booths: Booth[] = [];
   boothAreas: BoothArea[] = [];
   unassignedParticipants: UnassignedRegistration[] = [];
+
+  // Filter state
+  availableTags: string[] = [];
+  selectedTag = '';
+  private storageService = inject(StorageService);
 
   // Editor mode state
   isSpotEditorMode = false;
@@ -111,6 +119,13 @@ export class BoothAssignmentComponent implements OnInit {
 
   ngOnInit() {
     this.loadData();
+    this.loadTags();
+  }
+
+  loadTags() {
+    this.storageService.getTags().subscribe(tags => {
+      this.availableTags = tags;
+    });
   }
 
   loadData() {
@@ -151,6 +166,17 @@ export class BoothAssignmentComponent implements OnInit {
         this.loading = false;
       }
     });
+  }
+
+  isBoothFilteredOut(booth: Booth): boolean {
+    if (!this.selectedTag) return false;
+    
+    // If it has no vendor, it's filtered out because we're looking for vendors with this tag
+    if (!booth.registrationId) return true;
+
+    // If they have no tags array or it doesn't include the selected tag, filter out
+    const tags = booth.registrationId.tags || [];
+    return !tags.includes(this.selectedTag);
   }
 
   toggleSpotEditorMode() {
@@ -419,34 +445,53 @@ export class BoothAssignmentComponent implements OnInit {
 
   // Drag and drop assignment logic
   dropVendor(event: CdkDragDrop<any>) {
+    console.log('--- dropVendor triggered ---');
+    console.log('Event item data:', event.item.data);
+    console.log('Previous container ID:', event.previousContainer.id);
+    console.log('Target container ID:', event.container.id);
+
     // If dropped in the same container, handle list reordering if needed (optional)
     if (event.previousContainer === event.container && event.container.id === 'unassignedList') {
+      console.log('Dropped inside same container (unassignedList). Reordering.');
       moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
       return;
     }
 
     // We can't drag FROM a spot TO another spot easily yet, so let's stick to Unassigned -> Spot
-    if (event.previousContainer.id === 'unassignedList' && event.container.id.startsWith('spot-')) {
-      const participant = event.previousContainer.data[event.previousIndex];
+    if (event.previousContainer.id === 'unassignedList') {
+      console.log('Dragging from Unassigned List to...', event.container.id);
+      
+      const participant = event.item.data || event.previousContainer.data[event.previousIndex];
       const boothIdMap = event.container.id.replace('spot-', '');
 
       const booth = this.booths.find(b => b._id === boothIdMap);
-      if (booth && !booth.registrationId) {
-        this.boothService.assignRegistration(booth._id, participant._id).subscribe({
-          next: (updatedBooth) => {
-            const idx = this.booths.findIndex(b => b._id === updatedBooth._id);
-            if (idx > -1) {
-              this.booths[idx] = updatedBooth;
+      console.log('Resolved booth:', booth);
+      
+      if (event.container.id.startsWith('spot-')) {
+        if (booth && !booth.registrationId) {
+          console.log(`Assigning registration ${participant._id} to booth ${booth._id}`);
+          this.boothService.assignRegistration(booth._id, participant._id).subscribe({
+            next: (updatedBooth) => {
+              console.log('Successfully assigned:', updatedBooth);
+              const idx = this.booths.findIndex(b => b._id === updatedBooth._id);
+              if (idx > -1) {
+                this.booths[idx] = updatedBooth;
+              }
+              this.loadUnassigned(); // refresh unassigned list to properly reflect state 
+            },
+            error: (err) => {
+              console.error('Assignment failed:', err);
+              alert('Assignment failed: ' + (err.error?.error || err.message));
             }
-            this.loadUnassigned(); // refresh unassigned list to properly reflect state 
-            // (we might only want to remove it if they filled all requested booth spots)
-          },
-          error: (err) => {
-            console.error(err);
-            alert('Assignment failed: ' + (err.error?.error || err.message));
-          }
-        });
+          });
+        } else {
+          console.warn('Booth not found or already has a registrationId. Booth:', booth);
+        }
+      } else {
+        console.warn('Target container ID does not start with "spot-". Target ID:', event.container.id);
       }
+    } else {
+      console.warn('Dropped from container other than unassignedList. Previous:', event.previousContainer.id);
     }
   }
 

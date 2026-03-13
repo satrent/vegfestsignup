@@ -16,7 +16,7 @@ export interface Booth {
   areaId?: BoothArea; // populated with area details
   xPercentage: number;
   yPercentage: number;
-  registrationId?: any; // populated with registration details
+  registrationId?: any; // populated with registration details (including tags)
   createdAt?: string;
   updatedAt?: string;
 }

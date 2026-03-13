@@ -16,7 +16,7 @@ router.get('/', async (_req: Request, res: Response) => {
         const booths = await Booth.find()
             .populate({
                 path: 'registrationId',
-                select: 'organizationName firstName lastName email phone numBoothSpaces'
+                select: 'organizationName firstName lastName email phone numBoothSpaces tags'
             })
             .populate('areaId');
         res.json(booths);
@@ -195,7 +195,7 @@ router.put(
             const populatedBooth = await Booth.findById(booth._id)
                 .populate({
                     path: 'registrationId',
-                    select: 'organizationName firstName lastName email phone numBoothSpaces'
+                    select: 'organizationName firstName lastName email phone numBoothSpaces tags'
                 })
                 .populate('areaId');
 

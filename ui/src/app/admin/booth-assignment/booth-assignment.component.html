@@ -20,6 +20,18 @@
                 </button>
             </div>
 
+            @if (!isSpotEditorMode && !isAreaEditorMode) {
+              <div class="editor-tools filter-tools">
+                  <label>Filter Tag:</label>
+                  <select [(ngModel)]="selectedTag" class="spot-type-select">
+                      <option value="">-- All Tags --</option>
+                      @for (tag of availableTags; track tag) {
+                        <option [value]="tag">{{tag}}</option>
+                      }
+                  </select>
+              </div>
+            }
+
             @if (isSpotEditorMode) {
             <div class="editor-tools">
                 <label>Type:</label>
@@ -100,7 +112,7 @@
             </div>
 
             <!-- Scrollable Viewport for Zooming -->
-            <div class="map-scroll-viewport" (wheel)="onMapScroll($event)" (mousedown)="onPanStart($event)"
+            <div class="map-scroll-viewport" cdkScrollable (wheel)="onMapScroll($event)" (mousedown)="onPanStart($event)"
                 (mousemove)="onPanMove($event)" (mouseup)="onPanEnd()" (mouseleave)="onPanEnd()"
                 [class.is-panning]="isPanning">
                 <!-- We scale the map container based on window size -->
@@ -164,7 +176,8 @@
 
                             <div class="booth-spot" [class.filled]="!!booth.registrationId"
                                 [class.empty]="!booth.registrationId" [class.food-truck]="booth.type === 'foodTruck'"
-                                [class.is-hovered]="hoveredBoothId === booth._id">
+                                [class.is-hovered]="hoveredBoothId === booth._id"
+                                [class.filtered-out]="isBoothFilteredOut(booth)">
 
                                 <div class="spot-number">{{ getBoothDisplayLabel(booth) }}</div>
 
@@ -175,6 +188,14 @@
                                     {{ booth.registrationId.firstName }} {{ booth.registrationId.lastName }}<br>
                                     <a href="mailto:{{ booth.registrationId.email }}">{{ booth.registrationId.email
                                         }}</a>
+
+                                    @if (booth.registrationId.tags && booth.registrationId.tags.length > 0) {
+                                      <div class="tooltip-tags">
+                                        @for(tag of booth.registrationId.tags; track tag) {
+                                          <span class="tooltip-tag">{{tag}}</span>
+                                        }
+                                      </div>
+                                    }
 
                                     <div class="tooltip-actions">
                                         <button class="unassign-btn" (click)="unassignVendor(booth, $event)">Remove

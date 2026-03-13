@@ -360,6 +360,7 @@
 
   .map-container {
     position: relative;
+    container-type: inline-size;
     // Keep the base aspect ratio math intact.
     // We set a base max-width so 100% zoom = 1000px.
     width: 1000px;
@@ -498,12 +499,16 @@
       z-index: 10;
       // Transform so the center point is exactly at x,y
       transform: translate(-50%, -50%);
-      width: 16px; // ~50% smaller regular spots
-      height: 16px;
+      width: 1.5cqw; // ~10' booth size
+      height: 1.5cqw;
+
+      &:hover, &:focus-within {
+        z-index: 100;
+      }
 
       &.food-truck-wrapper {
-        width: 32px; // 2x size
-        height: 32px;
+        width: 3cqw; // 2x size
+        height: 3cqw;
 
         .delete-spot-btn {
           top: -6px;
@@ -525,7 +530,6 @@
       align-items: center;
       justify-content: center;
       font-weight: bold;
-      font-size: 0.45rem; // Shrunk font to match smaller spots
       color: white;
       box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
       position: relative;
@@ -564,14 +568,20 @@
         cursor: not-allowed;
       }
 
+      &.filtered-out {
+        opacity: 0.25;
+        filter: grayscale(100%);
+        pointer-events: none; // Prevent hover interactions when filtered out
+      }
+
       .spot-number {
         pointer-events: none;
-        font-size: 0.8rem;
+        font-size: 0.7cqw;
       }
 
       // Adjust font size for larger food trucks
       &.food-truck .spot-number {
-        font-size: 1.1rem;
+        font-size: 1.1cqw;
       }
 
       .delete-spot-btn {
@@ -634,6 +644,22 @@
           font-size: 1rem;
           margin-bottom: 0.25rem;
           color: #111827;
+        }
+
+        .tooltip-tags {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 0.25rem;
+          margin-top: 0.75rem;
+
+          .tooltip-tag {
+            background: #e0e7ff;
+            color: #4338ca;
+            padding: 0.15rem 0.5rem;
+            border-radius: 9999px;
+            font-size: 0.7rem;
+            font-weight: 500;
+          }
         }
 
         a {
