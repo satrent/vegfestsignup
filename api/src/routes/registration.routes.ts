@@ -3,7 +3,7 @@ import { body, validationResult } from 'express-validator';
 import { Registration } from '../models/Registration';
 import { authenticate, requireAdmin, requireApprover, requireSuperAdmin } from '../middleware/auth.middleware';
 import { AuditService } from '../services/audit.service';
-import { DistanceService } from '../services/distance.service';
+import { FeeService } from '../services/fee.service';
 
 const router = Router();
 
@@ -127,94 +127,9 @@ router.get('/export/quickbooks', authenticate, requireSuperAdmin, async (_req: R
 
         // Process registrations sequentially to respect API rate limits
         for (const r of registrations) {
-            // Determine distance
-            // We default to the checkbox if we can't calculate, or prioritize calculation?
-            // User asked to "determine if the address... is 100 miles or more".
-            // We'll try to calculate logic.
-
-            let isOver100 = r.travelingOver100Miles || false;
-            let distanceNote = '';
-
-            // Attempt to verify distance if address is present
-            if (r.address && r.city && r.state && r.zip) {
-                // Rate limit: OpenStreetMap Nominatim requires 1 second between requests
-                await new Promise(resolve => setTimeout(resolve, 1100));
-
-                const distance = await DistanceService.getDistanceInMiles(r.address, r.city, r.state, r.zip);
-
-                if (distance !== null) {
-                    isOver100 = distance >= 100;
-                    distanceNote = ` (Dist: ${distance.toFixed(1)} mi)`;
-                }
-            }
-
-            // Calculate Base Fee from Organization Category
-            let base = 200; // default for unknown
-            if (r.organizationCategory) {
-                const match = r.organizationCategory.match(/\$(\d+)/);
-                if (match) {
-                    base = parseInt(match[1], 10);
-                }
-            }
-
-            // Calculate BIPGM Start-up discount eligibility
-            // Rule: BIPGM owned AND in business for less than 3 years by 9/20/2026.
-            let startYear = parseInt(r.establishedYear || '0', 10);
-            let isBipgmStartup = false;
-            if (r.bipgmOwned && startYear > 0) {
-                if (startYear > 2023) {
-                    isBipgmStartup = true;
-                } else if (startYear === 2023) {
-                    const monthMap: { [key: string]: number } = {
-                        'january': 0, 'february': 1, 'march': 2, 'april': 3, 'may': 4, 'june': 5,
-                        'july': 6, 'august': 7, 'september': 8, 'october': 9, 'november': 10, 'december': 11
-                    };
-                    if (r.establishedMonth) {
-                        const m = monthMap[r.establishedMonth.toLowerCase().trim()];
-                        if (m !== undefined && m >= 8) { // September or later
-                            isBipgmStartup = true;
-                        }
-                    } else {
-                        isBipgmStartup = true; // Assume eligible if only year is 2023
-                    }
-                }
-            }
-
-            // Calculate Discounts (they do not stack, max 50% off base)
-            let discountAmount = 0;
-            let discountNotes = [];
-
-            if (isBipgmStartup) {
-                discountAmount = base * 0.5;
-                discountNotes.push('BIPGM Start-up 50%');
-            }
-            if (isOver100) {
-                if (discountAmount === 0) {
-                    discountAmount = base * 0.5;
-                    discountNotes.push('Distance 50%');
-                } else {
-                    discountNotes.push('Distance limit reached (No Stack)');
-                }
-            }
-
-            // Calculate Invoice Amount
-            const securityDeposit = 200;
-            const extraSiteCost = Math.max(0, (r.numTents || 0) - 1) * 100;
-            const tablesCost = (r.numTables || 0) * 20;
-            const chairsCost = (r.numChairs || 0) * 5;
-            const weightsCost = (r.numWeights || 0) * 25;
-
-            // Special power fee
-            const specialPowerFee = (r.householdElectric === false || r.householdElectric === 'false' as any) ? 100 : 0;
-
-            const total = (base - discountAmount) + securityDeposit + extraSiteCost + tablesCost + chairsCost + weightsCost + specialPowerFee;
-
-            const startDate = (r.establishedMonth ? r.establishedMonth + ' ' : '') + (r.establishedYear || '');
-            const eligibilityInfo = `[BIPGM: ${r.bipgmOwned ? 'Yes' : 'No'}, Start: ${startDate || 'N/A'}]`;
-
-            const baseStr = discountAmount > 0 ? `$${base - discountAmount} ($${base} - 50% ${discountNotes.join(', ')})` : `$${base}`;
-            const specialPowerStr = specialPowerFee > 0 ? `, Special Power: $${specialPowerFee}` : '';
-            const calculationNotes = `Total: $${total} (Base: ${baseStr}, Security Deposit: $${securityDeposit}, Extra Sites: $${extraSiteCost}, Tables: $${tablesCost}, Chairs: $${chairsCost}, Weights: $${weightsCost}${specialPowerStr})${distanceNote} ${eligibilityInfo}`;
+            
+            // Calculate fees and distance internally (with live distance API check)
+            const feeData = await FeeService.calculateRegistrationFees(r, false);
 
             // Escape fields for CSV
             const escape = (field: string | undefined | null) => {
@@ -226,7 +141,7 @@ router.get('/export/quickbooks', authenticate, requireSuperAdmin, async (_req: R
                 return stringField;
             };
 
-            csv += `${escape(r.organizationName)},${escape(r.firstName)},${escape(r.lastName)},${escape(r.email)},${escape(r.phone)},${escape(r.address)},${escape(r.city)},${escape(r.state)},${escape(r.zip)},${escape(calculationNotes)}\n`;
+            csv += `${escape(r.organizationName)},${escape(r.firstName)},${escape(r.lastName)},${escape(r.email)},${escape(r.phone)},${escape(r.address)},${escape(r.city)},${escape(r.state)},${escape(r.zip)},${escape(feeData.calculationNotes)}\n`;
 
             bulkOps.push({
                 updateOne: {
@@ -234,17 +149,17 @@ router.get('/export/quickbooks', authenticate, requireSuperAdmin, async (_req: R
                     update: {
                         $set: {
                             invoiced: true,
-                            initialInvoiceAmount: total,
+                            initialInvoiceAmount: feeData.total,
                             invoiceBreakdown: {
-                                baseFee: base,
-                                discountAmount,
-                                discountNotes,
-                                securityDeposit,
-                                extraSiteCost,
-                                equipmentCost: tablesCost + chairsCost + weightsCost,
-                                specialPowerFee
+                                baseFee: feeData.baseFee,
+                                discountAmount: feeData.discountAmount,
+                                discountNotes: feeData.discountNotes,
+                                securityDeposit: feeData.securityDeposit,
+                                extraSiteCost: feeData.extraSiteCost,
+                                equipmentCost: feeData.equipmentCost,
+                                specialPowerFee: feeData.specialPowerFee
                             },
-                            travelingOver100Miles: isOver100 // Optionally update the record with the verified status
+                            travelingOver100Miles: feeData.isOver100 // Optionally update the record with the verified status
                         }
                     }
                 }
@@ -306,9 +221,30 @@ router.get('/reports/invoicing', authenticate, requireAdmin, async (_req: Reques
     try {
         const registrations = await Registration.find({
             status: 'Approved'
-        }).sort({ organizationName: 1 }).select('organizationName firstName lastName email phone invoiced quickbooksInvoiceLink initialInvoiceAmount amountPaid status type invoiceBreakdown');
+        }).sort({ organizationName: 1 }).lean();
 
-        res.json(registrations);
+        // Calculate missing breakdown on the fly for preview purposes (skip slow distance lookup)
+        const mappedRegistrations = await Promise.all(registrations.map(async (r: any) => {
+            if (!r.invoiced || !r.invoiceBreakdown || (r.invoiceBreakdown.baseFee === 0 && r.invoiceBreakdown.securityDeposit === 0)) {
+                const computedFees = await FeeService.calculateRegistrationFees(r, true);
+                return {
+                    ...r,
+                    initialInvoiceAmount: computedFees.total, // Override zero/old invoice with computed total
+                    invoiceBreakdown: {
+                        baseFee: computedFees.baseFee,
+                        discountAmount: computedFees.discountAmount,
+                        discountNotes: computedFees.discountNotes,
+                        securityDeposit: computedFees.securityDeposit,
+                        extraSiteCost: computedFees.extraSiteCost,
+                        equipmentCost: computedFees.equipmentCost,
+                        specialPowerFee: computedFees.specialPowerFee
+                    }
+                };
+            }
+            return r;
+        }));
+
+        res.json(mappedRegistrations);
     } catch (error) {
         console.error('Error fetching invoicing report:', error);
         res.status(500).json({ error: 'Failed to fetch invoicing report' });
