@@ -196,6 +196,30 @@ router.get('/reports/electricity', authenticate, requireAdmin, async (_req: Requ
     }
 });
 
+// Get To-Do Report (Admin only)
+router.get('/reports/todos', authenticate, requireAdmin, async (_req: Request, res: Response) => {
+    try {
+        // Find registrations that have at least one uncompleted todo item
+        const registrations = await Registration.find({
+            'todoItems.isCompleted': false
+        }).sort({ organizationName: 1 }).select('organizationName firstName lastName email phone todoItems status');
+
+        // Filter out completed todos from the response so the report only shows outstanding ones
+        const filteredRegistrations = registrations.map(reg => {
+            const r = reg.toObject();
+            if (r.todoItems) {
+                r.todoItems = r.todoItems.filter((t: any) => !t.isCompleted);
+            }
+            return r;
+        });
+
+        res.json(filteredRegistrations);
+    } catch (error) {
+        console.error('Error fetching to-do report:', error);
+        res.status(500).json({ error: 'Failed to fetch to-do report' });
+    }
+});
+
 // Get Rental Equipment Report (Admin only)
 router.get('/reports/rental-equipment', authenticate, requireAdmin, async (_req: Request, res: Response) => {
     try {
@@ -660,6 +684,108 @@ router.post(
         } catch (error) {
             console.error('Error sending reminder:', error);
             res.status(500).json({ error: 'Failed to send reminder' });
+        }
+    }
+);
+
+// Add a To-Do item (Admin only)
+router.post(
+    '/:id/todos',
+    authenticate,
+    requireAdmin,
+    [body('text').trim().notEmpty()],
+    async (req: Request, res: Response) => {
+        try {
+            const { id } = req.params;
+            const { text } = req.body;
+
+            const registration = await Registration.findById(id);
+            if (!registration) {
+                res.status(404).json({ error: 'Registration not found' });
+                return;
+            }
+
+            if (!registration.todoItems) {
+                registration.todoItems = [];
+            }
+
+            registration.todoItems.push({ text, isCompleted: false });
+            await registration.save();
+
+            res.status(201).json(registration.todoItems[registration.todoItems.length - 1]);
+        } catch (error) {
+            console.error('Error adding to-do:', error);
+            res.status(500).json({ error: 'Failed to add to-do' });
+        }
+    }
+);
+
+// Update a To-Do item (Admin only)
+router.patch(
+    '/:id/todos/:todoId',
+    authenticate,
+    requireAdmin,
+    [body('isCompleted').isBoolean()],
+    async (req: Request, res: Response) => {
+        try {
+            const { id, todoId } = req.params;
+            const { isCompleted } = req.body;
+
+            const registration = await Registration.findById(id);
+            if (!registration) {
+                res.status(404).json({ error: 'Registration not found' });
+                return;
+            }
+
+            if (!registration.todoItems) {
+                res.status(404).json({ error: 'To-Do item not found' });
+                return;
+            }
+
+            const todo = registration.todoItems.find(t => t._id?.toString() === todoId);
+            if (!todo) {
+                res.status(404).json({ error: 'To-Do item not found' });
+                return;
+            }
+
+            todo.isCompleted = isCompleted;
+            await registration.save();
+
+            res.json(todo);
+        } catch (error) {
+            console.error('Error updating to-do:', error);
+            res.status(500).json({ error: 'Failed to update to-do' });
+        }
+    }
+);
+
+// Delete a To-Do item (Admin only)
+router.delete(
+    '/:id/todos/:todoId',
+    authenticate,
+    requireAdmin,
+    async (req: Request, res: Response) => {
+        try {
+            const { id, todoId } = req.params;
+
+            const registration = await Registration.findById(id);
+            if (!registration) {
+                res.status(404).json({ error: 'Registration not found' });
+                return;
+            }
+
+            if (!registration.todoItems) {
+                res.status(404).json({ error: 'To-Do item not found' });
+                return;
+            }
+
+            registration.todoItems = registration.todoItems.filter(t => t._id?.toString() !== todoId);
+            await registration.save();
+
+            res.json({ message: 'To-Do item deleted' });
+        } catch (error) {
+            console.error('Error deleting to-do:', error);
+            res.status(500).json({ error: 'Failed to delete to-do' });
         }
     }
 );

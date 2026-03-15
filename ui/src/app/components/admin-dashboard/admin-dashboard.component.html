@@ -123,6 +123,12 @@
                 Pending Docs
               </span>
               }
+              <!-- Open To-Dos Badge -->
+              @if (hasOpenTodos(reg)) {
+              <span class="todos-status-badge">
+                Open To-Dos
+              </span>
+              }
             </div>
             <span class="status-badge" [ngClass]="reg.status.toLowerCase()">{{ reg.status }}</span>
           </div>
@@ -199,9 +205,14 @@
             @if (reg.status === 'Pending' || reg.status === 'Waiting for Approval') {
             <div class="actions">
               @if (canApprove(reg)) {
-              <button (click)="updateStatus(reg._id!, 'Approved')" class="approve-btn">
-                Approve
-              </button>
+              <div style="display: flex; flex-direction: column; align-items: stretch; gap: 0.25rem;">
+                <button (click)="updateStatus(reg._id!, 'Approved')" class="approve-btn">
+                  Approve
+                </button>
+                @if (hasOpenTodos(reg)) {
+                <div style="color: #d97706; font-size: 0.75rem; font-weight: 500; text-align: center;">⚠️ Has open to-dos</div>
+                }
+              </div>
               }
               <button (click)="openRejectModal(reg._id!)" class="reject-btn">Decline</button>
             </div>
@@ -271,6 +282,10 @@
           <option value="Declined">Declined</option>
           <option value="Ready to Add">Ready to Add to Website</option>
         </select>
+      </div>
+      <div class="form-group checkbox-group">
+        <label>Has Open To-Dos</label>
+        <input type="checkbox" [(ngModel)]="filterTodosOpen">
       </div>
       <div class="form-group">
         <label>Filter by Tag</label>

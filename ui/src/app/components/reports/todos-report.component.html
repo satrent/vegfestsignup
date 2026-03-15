@@ -1,0 +1,81 @@
+<div class="report-wrapper">
+    <!-- Interactive header hidden when printing -->
+    <div class="no-print report-header-controls">
+        <div class="breadcrumb">
+            <a routerLink="/admin">Admin Dashboard</a> &gt; <a routerLink="/admin/reports">Reports</a> &gt; Outstanding To-Dos
+        </div>
+        <div class="controls-row">
+            <h2>Outstanding To-Dos Report</h2>
+            <button class="btn-primary" (click)="printReport()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="6 9 6 2 18 2 18 9"></polyline>
+                    <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+                    <rect x="6" y="14" width="12" height="8"></rect>
+                </svg>
+                Print Report
+            </button>
+        </div>
+    </div>
+
+    @if (loading) {
+    <div class="loading no-print">Loading report data...</div>
+    }
+
+    @if (error) {
+    <div class="error-message no-print">{{ error }}</div>
+    }
+
+    @if (!loading && !error) {
+    <div class="print-document">
+        <div class="print-header">
+            <h1>Outstanding To-Dos Report</h1>
+            <p>Report generated on: {{ today | date:'medium' }}</p>
+            <p>Total Participants with To-Dos: {{ reportData.length }}</p>
+        </div>
+
+        <table class="report-table">
+            <thead>
+                <tr>
+                    <th>Organization Name</th>
+                    <th>Contact</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>Status</th>
+                    <th>Outstanding To-Dos</th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (row of reportData; track row._id) {
+                <tr>
+                    <td class="org-col">{{ row.organizationName }}</td>
+                    <td>{{ row.firstName }} {{ row.lastName }}</td>
+                    <td class="contact-col">{{ row.email }}</td>
+                    <td class="contact-col">{{ row.phone }}</td>
+                    <td><span class="power-badge">{{ row.status }}</span></td>
+                    <td class="desc-col">
+                        @if (row.todoItems && row.todoItems.length > 0) {
+                        <ul style="margin: 0; padding-left: 1.2rem; font-size: 0.85rem;">
+                            @for (todo of row.todoItems; track todo._id) {
+                            <li style="margin-bottom: 0.25rem;">
+                                {{ todo.text }}
+                                <span style="color: #666; font-size: 0.75rem;"> (added {{ todo.createdAt | date:'shortDate' }})</span>
+                            </li>
+                            }
+                        </ul>
+                        } @else {
+                        -
+                        }
+                    </td>
+                </tr>
+                }
+                @if (reportData.length === 0) {
+                <tr>
+                    <td colspan="6" class="empty-state">No outstanding to-dos found for any participants.</td>
+                </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    }
+</div>

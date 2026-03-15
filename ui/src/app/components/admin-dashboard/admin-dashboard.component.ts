@@ -30,6 +30,7 @@ export class AdminDashboardComponent implements OnInit {
   filterName = '';
   filterInvoiced: 'all' | 'yes' | 'no' = 'all';
   filterStatus: 'all' | 'In Progress' | 'Pending' | 'Approved' | 'Declined' | 'Ready to Add' = 'Pending';
+  filterTodosOpen = false;
   filterTag = '';
   filterDemographic = '';
   availableTags: string[] = [];
@@ -65,12 +66,15 @@ export class AdminDashboardComponent implements OnInit {
       const demographicMatch = !this.filterDemographic ||
         (reg.ownerDemographics && reg.ownerDemographics.includes(this.filterDemographic));
 
-      return nameMatch && invoicedMatch && statusMatch && tagMatch && demographicMatch;
+      // Todos Filter
+      const todosMatch = !this.filterTodosOpen || (reg.todoItems?.some(t => !t.isCompleted) || false);
+
+      return nameMatch && invoicedMatch && statusMatch && tagMatch && demographicMatch && todosMatch;
     });
   }
 
   get hasActiveFilters(): boolean {
-    return !!this.filterName || this.filterInvoiced !== 'all' || this.filterStatus !== 'all' || !!this.filterTag || !!this.filterDemographic;
+    return !!this.filterName || this.filterInvoiced !== 'all' || this.filterStatus !== 'all' || this.filterTodosOpen || !!this.filterTag || !!this.filterDemographic;
   }
 
   ngOnInit(): void {
@@ -223,6 +227,7 @@ export class AdminDashboardComponent implements OnInit {
     this.filterName = '';
     this.filterInvoiced = 'all';
     this.filterStatus = 'all';
+    this.filterTodosOpen = false;
     this.filterTag = '';
     this.filterDemographic = '';
   }
@@ -234,6 +239,10 @@ export class AdminDashboardComponent implements OnInit {
 
   hasPendingDocuments(reg: Registration): boolean {
     return !!reg.documents?.some(doc => doc.status === 'Pending');
+  }
+
+  hasOpenTodos(reg: Registration): boolean {
+    return !!reg.todoItems?.some(t => !t.isCompleted);
   }
 
   // Reject Modal

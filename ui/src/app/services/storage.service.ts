@@ -208,6 +208,12 @@ export interface Registration {
   updatedAt?: Date;
   tags?: string[];
   lastReminderSent?: Date;
+  todoItems?: {
+    _id?: string;
+    text: string;
+    isCompleted: boolean;
+    createdAt?: Date;
+  }[];
 }
 
 @Injectable({
@@ -241,6 +247,11 @@ export class StorageService {
   // Get Invoicing Report (Admin only)
   getInvoicingReport(): Observable<any[]> {
     return this.api.get<any[]>('/registrations/reports/invoicing');
+  }
+
+  // Get To-Do Report (Admin only)
+  getTodoReport(): Observable<any[]> {
+    return this.api.get<any[]>('/registrations/reports/todos');
   }
 
   // Get current user's registrations
@@ -308,5 +319,18 @@ export class StorageService {
 
   sendDocumentReminder(id: string, missingDocuments: string[]): Observable<Registration> {
     return this.api.post<Registration>(`/registrations/${id}/send-reminder`, { missingDocuments });
+  }
+
+  // To-Do Methods
+  addTodo(id: string, text: string): Observable<any> {
+    return this.api.post<any>(`/registrations/${id}/todos`, { text });
+  }
+
+  updateTodo(id: string, todoId: string, isCompleted: boolean): Observable<any> {
+    return this.api.patch<any>(`/registrations/${id}/todos/${todoId}`, { isCompleted });
+  }
+
+  deleteTodo(id: string, todoId: string): Observable<any> {
+    return this.api.delete<any>(`/registrations/${id}/todos/${todoId}`);
   }
 }

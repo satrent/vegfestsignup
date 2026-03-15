@@ -228,4 +228,59 @@ export class RegistrationDetailsComponent {
             }
         });
     }
+
+    // --- To-Do Methods ---
+    get hasOpenTodos(): boolean {
+        return this.tempRegistration?.todoItems?.some(t => !t.isCompleted) || false;
+    }
+
+    newTodoText = '';
+    isAddingTodo = false;
+    togglingTodos = new Set<string>();
+
+    isTogglingTodo(id?: string): boolean {
+        return id ? this.togglingTodos.has(id) : false;
+    }
+
+    addTodo(): void {
+        const text = this.newTodoText.trim();
+        if (!text || !this.tempRegistration?._id) return;
+        
+        this.isAddingTodo = true;
+        this.storageService.addTodo(this.tempRegistration._id, text).subscribe({
+            next: (todo) => {
+                if (!this.tempRegistration!.todoItems) {
+                    this.tempRegistration!.todoItems = [];
+                }
+                this.tempRegistration!.todoItems.push(todo);
+                this.newTodoText = '';
+                this.isAddingTodo = false;
+            },
+            error: (err) => {
+                console.error('Failed to add to-do', err);
+                alert('Failed to add to-do');
+                this.isAddingTodo = false;
+            }
+        });
+    }
+
+    toggleTodo(todo: any, event: Event): void {
+        if (!this.tempRegistration?._id || !todo._id) return;
+        const isCompleted = (event.target as HTMLInputElement).checked;
+        
+        this.togglingTodos.add(todo._id);
+        this.storageService.updateTodo(this.tempRegistration._id, todo._id, isCompleted).subscribe({
+            next: (updated) => {
+                todo.isCompleted = updated.isCompleted;
+                this.togglingTodos.delete(todo._id);
+            },
+            error: (err) => {
+                console.error('Failed to update to-do', err);
+                // Revert checkbox
+                (event.target as HTMLInputElement).checked = !isCompleted;
+                todo.isCompleted = !isCompleted;
+                this.togglingTodos.delete(todo._id);
+            }
+        });
+    }
 }

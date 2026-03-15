@@ -205,6 +205,12 @@ export interface IRegistration extends Document {
     updatedAt: Date;
     tags?: string[];
     lastReminderSent?: Date;
+    todoItems?: {
+        _id?: mongoose.Types.ObjectId;
+        text: string;
+        isCompleted: boolean;
+        createdAt?: Date;
+    }[];
 }
 
 const registrationSchema = new Schema<IRegistration>(
@@ -507,7 +513,13 @@ const registrationSchema = new Schema<IRegistration>(
             payment: { type: Boolean, default: false },
         },
         tags: [String],
-        lastReminderSent: Date
+        lastReminderSent: Date,
+        todoItems: [{
+            text: { type: String, required: true },
+            isCompleted: { type: Boolean, default: false },
+            createdAt: { type: Date, default: Date.now }
+            // _id is automatically added by mongoose for subdocuments
+        }]
     },
     {
         timestamps: true,
