@@ -82,14 +82,16 @@ export class FeeService {
 
         // Calculate Invoice Amount
         const securityDeposit = 200;
-        const extraSiteCost = Math.max(0, (r.numTents || 0) - 1) * 100;
-        const tablesCost = (r.numTables || 0) * 20;
-        const chairsCost = (r.numChairs || 0) * 5;
+        const extraSiteCost = 0;
+        const tablesCost = (r.numTables || 0) * 15;
+        const chairsCost = (r.numChairs || 0) * 2;
+        const tentsCost = (r.numTents || 0) * 200;
         const weightsCost = (r.numWeights || 0) * 25;
-        const equipmentCost = tablesCost + chairsCost + weightsCost;
+        const equipmentCost = tablesCost + chairsCost + tentsCost + weightsCost;
 
-        // Special power fee
-        const specialPowerFee = (r.householdElectric === false || r.householdElectric === 'false' as any) ? 100 : 0;
+        // Electricity fee based on requested power level
+        const powerFeeMap: { [key: string]: number } = { '5A': 60, '10A': 80, '15A': 100, '20A': 120 };
+        const specialPowerFee = powerFeeMap[r.powerNeeds] || 0;
 
         const total = (base - discountAmount) + securityDeposit + extraSiteCost + equipmentCost + specialPowerFee;
 
@@ -97,8 +99,8 @@ export class FeeService {
         const eligibilityInfo = `[BIPGM: ${r.bipgmOwned ? 'Yes' : 'No'}, Start: ${startDate || 'N/A'}]`;
 
         const baseStr = discountAmount > 0 ? `$${base - discountAmount} ($${base} - 50% ${discountNotes.join(', ')})` : `$${base}`;
-        const specialPowerStr = specialPowerFee > 0 ? `, Special Power: $${specialPowerFee}` : '';
-        const calculationNotes = `Total: $${total} (Base: ${baseStr}, Security Deposit: $${securityDeposit}, Extra Sites: $${extraSiteCost}, Tables: $${tablesCost}, Chairs: $${chairsCost}, Weights: $${weightsCost}${specialPowerStr})${distanceNote} ${eligibilityInfo}`;
+        const specialPowerStr = specialPowerFee > 0 ? `, Electricity (${r.powerNeeds}): $${specialPowerFee}` : '';
+        const calculationNotes = `Total: $${total} (Base: ${baseStr}, Security Deposit: $${securityDeposit}, Tables: $${tablesCost}, Chairs: $${chairsCost}, Tents: $${tentsCost}, Weights: $${weightsCost}${specialPowerStr})${distanceNote} ${eligibilityInfo}`;
 
         return {
             baseFee: base,
