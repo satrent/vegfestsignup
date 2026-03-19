@@ -130,6 +130,27 @@
                     font-variant-numeric: tabular-nums;
                 }
 
+                &.discount-col {
+                    .sub-detail {
+                        color: #6b7280;
+                        font-size: 0.75rem;
+                        margin-top: 0.25rem;
+                        text-align: right;
+
+                        .bipgm-tag {
+                            display: inline-block;
+                            background: #ede9fe;
+                            color: #5b21b6;
+                            border-radius: 9999px;
+                            padding: 0 0.4rem;
+                            font-size: 0.65rem;
+                            font-weight: 600;
+                            margin-right: 0.25rem;
+                            vertical-align: middle;
+                        }
+                    }
+                }
+
                 &.link-col {
                     a {
                         color: #4f46e5;

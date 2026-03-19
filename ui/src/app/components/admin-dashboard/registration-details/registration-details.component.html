@@ -300,6 +300,15 @@
                         <div class="value">{{ tempRegistration.ownerDemographics?.join(', ') || 'Not provided' }}</div>
                     </div>
                     <div class="field-group">
+                        <label>Year Established</label>
+                        <div class="value">
+                            <ng-container *ngIf="tempRegistration.establishedYear; else noEstYear">
+                                {{ tempRegistration.establishedMonth ? (tempRegistration.establishedMonth | titlecase) + ' ' : '' }}{{ tempRegistration.establishedYear }}
+                            </ng-container>
+                            <ng-template #noEstYear>Not provided</ng-template>
+                        </div>
+                    </div>
+                    <div class="field-group">
                         <label>Additional Information</label>
                         <div class="value" style="white-space: pre-wrap;">{{ tempRegistration.otherInfo || 'None
                             provided.' }}</div>
