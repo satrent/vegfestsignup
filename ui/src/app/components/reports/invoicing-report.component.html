@@ -82,10 +82,9 @@
                     <td class="amount-col">{{ (row.invoiceBreakdown?.baseFee || 0) | currency }}</td>
                     <td class="amount-col discount-col">
                         <div>{{ (row.invoiceBreakdown?.discountAmount || 0) | currency }}</div>
-                        @if (row.bipgmOwned || row.establishedYear) {
+                        @if (row.bipgmOwned) {
                         <div class="sub-detail">
-                            @if (row.bipgmOwned) {<span class="bipgm-tag">BIPGM</span>}
-                            @if (row.establishedYear) {<span>Est. {{ row.establishedMonth ? (row.establishedMonth | titlecase) + ' ' : '' }}{{ row.establishedYear }}</span>}
+                            <span class="bipgm-tag">BIPGM</span>
                         </div>
                         }
                     </td>
