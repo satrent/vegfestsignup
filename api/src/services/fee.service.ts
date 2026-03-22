@@ -42,9 +42,14 @@ export class FeeService {
 
         // Calculate BIPGM Start-up discount eligibility
         // Rule: BIPGM owned AND in business for less than 3 years by 9/20/2026.
+        // Derive BIPGM status from bipgmOwned flag OR ownerDemographics selection.
+        const bipgmDemographics = ['African or Black', 'Indigenous', 'Asian', 'Hispanic/Latinx', 'Other'];
+        const isBipgmOwned = r.bipgmOwned ||
+            (Array.isArray(r.ownerDemographics) && r.ownerDemographics.some((d: string) => bipgmDemographics.includes(d)));
+
         let startYear = parseInt(r.establishedYear || '0', 10);
         let isBipgmStartup = false;
-        if (r.bipgmOwned && startYear > 0) {
+        if (isBipgmOwned && startYear > 0) {
             if (startYear > 2023) {
                 isBipgmStartup = true;
             } else if (startYear === 2023) {
@@ -96,7 +101,7 @@ export class FeeService {
         const total = (base - discountAmount) + securityDeposit + extraSiteCost + equipmentCost + specialPowerFee;
 
         const startDate = (r.establishedMonth ? r.establishedMonth + ' ' : '') + (r.establishedYear || '');
-        const eligibilityInfo = `[BIPGM: ${r.bipgmOwned ? 'Yes' : 'No'}, Start: ${startDate || 'N/A'}]`;
+        const eligibilityInfo = `[BIPGM: ${isBipgmOwned ? 'Yes' : 'No'}, Start: ${startDate || 'N/A'}]`;
 
         const baseStr = discountAmount > 0 ? `$${base - discountAmount} ($${base} - 50% ${discountNotes.join(', ')})` : `$${base}`;
         const specialPowerStr = specialPowerFee > 0 ? `, Electricity (${r.powerNeeds}): $${specialPowerFee}` : '';

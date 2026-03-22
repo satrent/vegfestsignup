@@ -2,7 +2,13 @@
   "permissions": {
     "allow": [
       "Bash(npx ng:*)",
-      "Bash(npx tsc:*)"
+      "Bash(npx tsc:*)",
+      "Bash(xargs wc:*)",
+      "Bash(grep -rn \"$.*each\\\\|price.*$\\\\|cost.*$\" /c/code/vegfestsignup/ui/src/app/components/section-forms/logistics.component.html)",
+      "Bash(xargs grep:*)",
+      "Bash(xargs ls:*)",
+      "Bash(grep -r \"ownerDemographics\\\\|culturalIdentity\\\\|slidingScaleDiscount\" /c/code/vegfestsignup --include=*.ts --include=*.html)",
+      "Bash(grep -r \"BIPGM\\\\|bipgm\\\\|owned\" /c/code/vegfestsignup/ui/src/app/components/section-forms --include=*.html -A 2 -B 2)"
     ]
   }
 }
