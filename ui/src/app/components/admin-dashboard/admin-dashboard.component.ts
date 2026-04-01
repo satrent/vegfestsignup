@@ -33,10 +33,14 @@ export class AdminDashboardComponent implements OnInit {
   filterTodosOpen = false;
   filterTag = '';
   filterDemographic = '';
+  filterAlphaGroup: '' | 'A-J' | 'K-S' | 'T-Z' = '';
   availableTags: string[] = [];
 
+  // Sort Properties
+  sortAlpha = false;
+
   get filteredRegistrations(): Registration[] {
-    return this.allRegistrations.filter(reg => {
+    const filtered = this.allRegistrations.filter(reg => {
       // Name Filter (Organization or Contact Name)
       const search = this.filterName.toLowerCase();
       const nameMatch = !search ||
@@ -69,12 +73,38 @@ export class AdminDashboardComponent implements OnInit {
       // Todos Filter
       const todosMatch = !this.filterTodosOpen || (reg.todoItems?.some(t => !t.isCompleted) || false);
 
-      return nameMatch && invoicedMatch && statusMatch && tagMatch && demographicMatch && todosMatch;
+      // Alpha Group Filter
+      let alphaGroupMatch = true;
+      if (this.filterAlphaGroup) {
+        const firstChar = reg.organizationName.trim().charAt(0).toUpperCase();
+        const isLetter = /[A-Z]/.test(firstChar);
+        if (this.filterAlphaGroup === 'A-J') {
+          alphaGroupMatch = isLetter && firstChar >= 'A' && firstChar <= 'J';
+        } else if (this.filterAlphaGroup === 'K-S') {
+          alphaGroupMatch = isLetter && firstChar >= 'K' && firstChar <= 'S';
+        } else if (this.filterAlphaGroup === 'T-Z') {
+          alphaGroupMatch = !isLetter || (firstChar >= 'T' && firstChar <= 'Z');
+        }
+      }
+
+      return nameMatch && invoicedMatch && statusMatch && tagMatch && demographicMatch && todosMatch && alphaGroupMatch;
     });
+
+    if (this.sortAlpha) {
+      return [...filtered].sort((a, b) =>
+        a.organizationName.localeCompare(b.organizationName, undefined, { sensitivity: 'base' })
+      );
+    }
+
+    return filtered;
   }
 
   get hasActiveFilters(): boolean {
-    return !!this.filterName || this.filterInvoiced !== 'all' || this.filterStatus !== 'all' || this.filterTodosOpen || !!this.filterTag || !!this.filterDemographic;
+    return !!this.filterName || this.filterInvoiced !== 'all' || this.filterStatus !== 'all' || this.filterTodosOpen || !!this.filterTag || !!this.filterDemographic || !!this.filterAlphaGroup || this.sortAlpha;
+  }
+
+  toggleSortAlpha(): void {
+    this.sortAlpha = !this.sortAlpha;
   }
 
   ngOnInit(): void {
@@ -230,6 +260,8 @@ export class AdminDashboardComponent implements OnInit {
     this.filterTodosOpen = false;
     this.filterTag = '';
     this.filterDemographic = '';
+    this.filterAlphaGroup = '';
+    this.sortAlpha = false;
   }
 
   logout(): void {
