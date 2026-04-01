@@ -347,6 +347,48 @@
     }
 }
 
+/* Email History */
+.email-log-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+.email-log-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 0.65rem 0;
+    border-bottom: 1px solid #f3f4f6;
+
+    &:last-child {
+        border-bottom: none;
+    }
+}
+
+.email-log-icon {
+    font-size: 1rem;
+    margin-top: 0.1rem;
+    flex-shrink: 0;
+}
+
+.email-log-body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+}
+
+.email-log-subject {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #111827;
+}
+
+.email-log-meta {
+    font-size: 0.775rem;
+    color: #9ca3af;
+}
+
 .missing-docs-alert {
     background-color: #fffbeb;
     border-left: 4px solid #f59e0b;

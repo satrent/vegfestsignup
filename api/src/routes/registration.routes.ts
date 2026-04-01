@@ -382,6 +382,14 @@ router.patch(
                     );
                     registration.approvalEmailSent = true;
                     await registration.save();
+                    await AuditService.log({
+                        actorName: 'System',
+                        entityId: registration._id as any,
+                        entityType: 'Registration',
+                        action: 'SEND_EMAIL',
+                        target: 'Welcome to Twin Cities Veg Fest',
+                        details: `Approval email sent to ${registration.email}`
+                    });
                 } catch (emailError) {
                     console.error('Error auto-sending approval email:', emailError);
                 }
@@ -538,6 +546,14 @@ router.patch(
                         );
                         registration.approvalEmailSent = true;
                         await registration.save();
+                        await AuditService.log({
+                            actorName: 'System',
+                            entityId: registration._id as any,
+                            entityType: 'Registration',
+                            action: 'SEND_EMAIL',
+                            target: 'Welcome to Twin Cities Veg Fest',
+                            details: `Approval email sent to ${registration.email}`
+                        });
                     } catch (emailError) {
                         console.error('Error sending approval email:', emailError);
                     }
@@ -676,8 +692,9 @@ router.post(
                 actorName: adminName,
                 entityId: registration._id as any,
                 entityType: 'Registration',
-                action: 'SEND_REMINDER',
-                details: `Sent document reminder email. Missing: ${missingDocuments?.join(', ')}`
+                action: 'SEND_EMAIL',
+                target: 'Action Required: Missing Documents for Veg Fest',
+                details: `Document reminder sent to ${registration.email}. Missing: ${missingDocuments?.join(', ')}`
             });
 
             res.json(registration);

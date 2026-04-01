@@ -33,12 +33,33 @@ export class RegistrationDetailsComponent {
 
     // Track original values to show changes if needed, or just for cancel
 
+    // Email history (Communications tab)
+    emailLogs: any[] = [];
+    emailLogsLoading = false;
+
     ngOnChanges(): void {
         if (this.registration && this.isOpen) {
             // Initialize temp copy for editing
             this.tempRegistration = JSON.parse(JSON.stringify(this.registration));
             this.loadTags();
+            this.loadEmailLogs();
         }
+    }
+
+    loadEmailLogs(): void {
+        if (!this.registration?._id) return;
+        this.emailLogsLoading = true;
+        this.storageService.getRegistrationLogs(this.registration._id).subscribe({
+            next: (logs) => {
+                this.emailLogs = logs.filter(
+                    (l: any) => l.action === 'SEND_EMAIL' || l.action === 'SEND_REMINDER'
+                );
+                this.emailLogsLoading = false;
+            },
+            error: () => {
+                this.emailLogsLoading = false;
+            }
+        });
     }
 
     loadTags(): void {

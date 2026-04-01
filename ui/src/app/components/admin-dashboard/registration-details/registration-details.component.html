@@ -25,7 +25,7 @@
             <button [class.active]="activeTab === 'logistics'" (click)="setActiveTab('logistics')">Logistics</button>
             <button [class.active]="activeTab === 'profile'" (click)="setActiveTab('profile')">Profile</button>
             <button [class.active]="activeTab === 'documents'" (click)="setActiveTab('documents')">Documents</button>
-            <button [class.active]="activeTab === 'todos'" (click)="setActiveTab('todos')">TO DOs</button>
+            <button [class.active]="activeTab === 'todos'" (click)="setActiveTab('todos')">Communications</button>
             <button [class.active]="activeTab === 'billing'" (click)="setActiveTab('billing')">Billing</button>
         </div>
 
@@ -407,8 +407,9 @@
                 </div>
             </div>
 
-            <!-- TO DOs Tab -->
+            <!-- Communications Tab -->
             <div *ngIf="activeTab === 'todos'">
+
                 <div class="section-group">
                     <h3>To-Do Items</h3>
                     <div class="todo-list" style="margin-bottom: 1rem;">
@@ -429,6 +430,27 @@
                         <button (click)="addTodo()" [disabled]="!newTodoText.trim() || isAddingTodo" style="padding: 0.5rem 1rem; background: #4f46e5; color: white; border: none; border-radius: 4px; cursor: pointer;">
                             {{ isAddingTodo ? 'Adding...' : 'Add' }}
                         </button>
+                    </div>
+                </div>
+
+                <!-- Email History -->
+                <div class="section-group">
+                    <h3>Email History</h3>
+                    <div *ngIf="emailLogsLoading" style="color: #6b7280; font-size: 0.875rem;">Loading...</div>
+                    <div *ngIf="!emailLogsLoading && emailLogs.length === 0" style="color: #9ca3af; font-size: 0.875rem;">
+                        No emails on record for this registration.
+                    </div>
+                    <div *ngIf="!emailLogsLoading && emailLogs.length > 0" class="email-log-list">
+                        <div *ngFor="let log of emailLogs" class="email-log-item">
+                            <div class="email-log-icon">✉️</div>
+                            <div class="email-log-body">
+                                <span class="email-log-subject">{{ log.target || log.details }}</span>
+                                <span class="email-log-meta">
+                                    {{ log.timestamp | date:'MMM d, y, h:mm a' }}
+                                    <span *ngIf="log.actorName && log.actorName !== 'System'"> &middot; Sent by {{ log.actorName }}</span>
+                                </span>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

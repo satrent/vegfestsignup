@@ -8,7 +8,9 @@
       "Bash(xargs grep:*)",
       "Bash(xargs ls:*)",
       "Bash(grep -r \"ownerDemographics\\\\|culturalIdentity\\\\|slidingScaleDiscount\" /c/code/vegfestsignup --include=*.ts --include=*.html)",
-      "Bash(grep -r \"BIPGM\\\\|bipgm\\\\|owned\" /c/code/vegfestsignup/ui/src/app/components/section-forms --include=*.html -A 2 -B 2)"
+      "Bash(grep -r \"BIPGM\\\\|bipgm\\\\|owned\" /c/code/vegfestsignup/ui/src/app/components/section-forms --include=*.html -A 2 -B 2)",
+      "Bash(grep -r \"emailService\\\\|sendEmail\\\\|email\\\\|Email\" /c/code/vegfestsignup/api/src/routes/*.ts)",
+      "Bash(grep -r \"sendApprovalEmail\\\\|sendDocumentReminder\\\\|sendEmail\\\\|emailService\" /c/code/vegfestsignup/api/src/routes/*.ts)"
     ]
   }
 }
