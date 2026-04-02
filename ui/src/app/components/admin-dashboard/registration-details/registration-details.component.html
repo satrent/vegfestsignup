@@ -392,11 +392,26 @@
                             <span class="badge" [ngClass]="doc.status.toLowerCase()"
                                 style="margin-right: 0.5rem;">{{doc.status}}</span>
 
-                            <div style="margin-top: 0.5rem; display: flex; gap: 0.5rem;"
-                                *ngIf="doc.status !== 'Approved'">
-                                <!-- Still provide a raw Reject button if they review it and it's bad -->
-                                <button (click)="updateDocumentStatus(doc, 'Rejected')"
-                                    class="small-btn reject">Reject</button>
+                            <div style="margin-top: 0.5rem;" *ngIf="doc.status !== 'Approved'">
+                                <!-- Inline rejection reason form -->
+                                <ng-container *ngIf="rejectingDoc === doc; else rejectBtn">
+                                    <textarea [(ngModel)]="rejectionReasonInput" rows="3"
+                                        placeholder="Reason for rejection (will be included in email)..."
+                                        style="width: 100%; padding: 0.4rem 0.5rem; border: 1px solid #d1d5db; border-radius: 4px; font-size: 0.875rem; resize: vertical; box-sizing: border-box;"></textarea>
+                                    <div style="display: flex; gap: 0.5rem; margin-top: 0.4rem;">
+                                        <button (click)="confirmReject()" class="small-btn reject">Confirm Reject</button>
+                                        <button (click)="cancelReject()" class="small-btn">Cancel</button>
+                                    </div>
+                                </ng-container>
+                                <ng-template #rejectBtn>
+                                    <button (click)="startReject(doc)" class="small-btn reject">Reject</button>
+                                </ng-template>
+                            </div>
+
+                            <!-- Show stored rejection reason if already rejected -->
+                            <div *ngIf="doc.status === 'Rejected' && doc.rejectionReason"
+                                style="margin-top: 0.4rem; font-size: 0.8rem; color: #b91c1c; background: #fff1f2; border-left: 3px solid #f87171; padding: 0.3rem 0.5rem; border-radius: 3px;">
+                                <strong>Reason:</strong> {{doc.rejectionReason}}
                             </div>
                         </div>
                         <div class="doc-actions" *ngIf="!(isApprovalRequired(doc) && canApprove)">

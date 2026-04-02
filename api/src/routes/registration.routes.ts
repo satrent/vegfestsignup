@@ -441,6 +441,27 @@ router.patch(
                                         new: newDoc.status
                                     }
                                 });
+
+                                if (newDoc.status === 'Rejected') {
+                                    import('../services/email.service').then(m =>
+                                        m.emailService.sendDocumentRejectionEmail(
+                                            registration.email,
+                                            registration.firstName,
+                                            newDoc.type,
+                                            newDoc.rejectionReason || ''
+                                        )
+                                    ).then(() => {
+                                        AuditService.log({
+                                            adminId: req.user!.userId,
+                                            actorName: adminName,
+                                            entityId: registration._id as any,
+                                            entityType: 'Registration',
+                                            action: 'SEND_EMAIL',
+                                            target: `${newDoc.type} Document Rejected`,
+                                            details: `Rejection email sent to ${registration.email}${newDoc.rejectionReason ? `: ${newDoc.rejectionReason}` : ''}`
+                                        });
+                                    }).catch(err => console.error('Failed to send rejection email:', err));
+                                }
                             }
                         });
                     }

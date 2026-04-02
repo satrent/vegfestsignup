@@ -179,6 +179,28 @@ export class RegistrationDetailsComponent {
         return type !== 'menu' && type !== 'product-photo' && type !== 'logo' && type !== 'coupon logo';
     }
 
+    // Rejection reason flow
+    rejectingDoc: any = null;
+    rejectionReasonInput = '';
+
+    startReject(doc: any): void {
+        this.rejectingDoc = doc;
+        this.rejectionReasonInput = doc.rejectionReason || '';
+    }
+
+    confirmReject(): void {
+        if (!this.rejectingDoc) return;
+        this.rejectingDoc.status = 'Rejected';
+        this.rejectingDoc.rejectionReason = this.rejectionReasonInput.trim();
+        this.rejectingDoc = null;
+        this.rejectionReasonInput = '';
+    }
+
+    cancelReject(): void {
+        this.rejectingDoc = null;
+        this.rejectionReasonInput = '';
+    }
+
     // Helper for documents
     updateDocumentStatus(doc: any, status: 'Pending' | 'Approved' | 'Rejected'): void {
         if (!doc) return;

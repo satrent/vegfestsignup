@@ -120,6 +120,7 @@ export interface IRegistration extends Document {
         key: string;
         location: string;
         status: 'Pending' | 'Approved' | 'Rejected';
+        rejectionReason?: string;
         uploadedAt: Date;
     }[];
 
@@ -401,6 +402,7 @@ const registrationSchema = new Schema<IRegistration>(
                 enum: ['Pending', 'Approved', 'Rejected'],
                 default: 'Pending'
             },
+            rejectionReason: { type: String },
             uploadedAt: { type: Date, default: Date.now }
         }],
 

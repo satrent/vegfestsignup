@@ -230,6 +230,77 @@ exhibitors@tcvegfest.com
       html,
     });
   }
+  async sendDocumentRejectionEmail(email: string, firstName: string, docType: string, rejectionReason: string): Promise<void> {
+    const name = firstName || 'Exhibitor';
+    const loginUrl = `${config.frontend.url}/login`;
+    const subject = `Action Required: ${docType} Document Rejected`;
+
+    const reasonText = rejectionReason ? `\nReason: ${rejectionReason}\n` : '';
+    const reasonHtml = rejectionReason
+      ? `<div class="reason-box"><strong>Reason:</strong> ${rejectionReason}</div>`
+      : '';
+
+    const text = `
+Hi ${name},
+
+We reviewed your ${docType} document and were unable to accept it.
+${reasonText}
+Please log in to the portal and upload a corrected copy.
+
+Log in here: ${loginUrl}
+
+Thank you,
+Twin Cities Veg Fest Team
+exhibitors@tcvegfest.com
+    `.trim();
+
+    const html = `
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; background-color: #f9f9f9; padding: 20px; }
+    .container { max-width: 600px; margin: 0 auto; background: #ffffff; padding: 40px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+    .header { text-align: center; margin-bottom: 30px; }
+    .header h2 { color: #d32f2f; margin: 0; font-size: 24px; }
+    .content { margin: 30px 0; }
+    .reason-box { background: #fff3e0; border-left: 4px solid #f57c00; padding: 15px 20px; border-radius: 4px; margin: 20px 0; }
+    .btn-container { text-align: center; margin-top: 30px; }
+    .button { background-color: #2563eb; color: white !important; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block; }
+    .footer { margin-top: 40px; text-align: center; font-size: 14px; color: #888; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h2>Document Rejected</h2>
+    </div>
+    <div class="content">
+      <p>Hi ${name},</p>
+      <p>We reviewed your <strong>${docType}</strong> document and were unable to accept it.</p>
+      ${reasonHtml}
+      <p>Please log in to the portal and upload a corrected copy.</p>
+    </div>
+    <div class="btn-container">
+      <a href="${loginUrl}" class="button">Log In to Upload</a>
+    </div>
+    <div class="footer">
+      <p>Thank you,<br><strong>Twin Cities Veg Fest Team</strong><br><a href="mailto:exhibitors@tcvegfest.com" style="color: #2563eb; text-decoration: none;">exhibitors@tcvegfest.com</a></p>
+    </div>
+  </div>
+</body>
+</html>
+    `.trim();
+
+    await this.sendEmail({
+      to: email,
+      cc: 'exhibitors@tcvegfest.com',
+      subject,
+      text,
+      html,
+    });
+  }
+
   async sendApprovalEmail(registration: any): Promise<void> {
     const name = registration.firstName || 'Veggie Lover';
     const businessName = registration.organizationName || 'your business';
