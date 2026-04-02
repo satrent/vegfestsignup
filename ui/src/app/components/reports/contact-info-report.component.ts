@@ -5,13 +5,13 @@ import { FormsModule } from '@angular/forms';
 import { StorageService } from '../../services/storage.service';
 
 @Component({
-    selector: 'app-todos-report',
+    selector: 'app-contact-info-report',
     standalone: true,
     imports: [CommonModule, RouterLink, FormsModule],
-    templateUrl: './todos-report.component.html',
-    styleUrls: ['./todos-report.component.scss']
+    templateUrl: './contact-info-report.component.html',
+    styleUrls: ['./contact-info-report.component.scss']
 })
-export class TodosReportComponent implements OnInit {
+export class ContactInfoReportComponent implements OnInit {
     private storageService = inject(StorageService);
 
     loading = true;
@@ -69,13 +69,13 @@ export class TodosReportComponent implements OnInit {
         this.loading = true;
         this.error = '';
 
-        this.storageService.getTodoReport().subscribe({
+        this.storageService.getContactInfoReport().subscribe({
             next: (data) => {
                 this.reportData = data;
                 this.loading = false;
             },
             error: (err) => {
-                console.error('Error loading to-do report:', err);
+                console.error('Error loading contact info report:', err);
                 this.error = 'Failed to load report data.';
                 this.loading = false;
             }
@@ -84,5 +84,37 @@ export class TodosReportComponent implements OnInit {
 
     printReport(): void {
         window.print();
+    }
+
+    exportCsv(): void {
+        if (this.filteredData.length === 0) return;
+
+        let csvContent = 'Organization Name,First Name,Last Name,Status,Email,Phone,Facebook,Instagram\n';
+
+        this.filteredData.forEach(row => {
+            csvContent += `${this.escapeCsv(row.organizationName)},${this.escapeCsv(row.firstName)},${this.escapeCsv(row.lastName)},${this.escapeCsv(row.status)},${this.escapeCsv(row.email)},${this.escapeCsv(row.phone)},${this.escapeCsv(row.facebook)},${this.escapeCsv(row.instagram)}\n`;
+        });
+
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.setAttribute('href', url);
+        link.setAttribute('download', `vegfest_contact_info_report_${new Date().toISOString().split('T')[0]}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+
+    getStatusClass(status: string): string {
+        return (status || '').toLowerCase().replace(/\s+/g, '-');
+    }
+
+    private escapeCsv(field: string): string {
+        if (!field) return '';
+        const stringField = String(field);
+        if (stringField.includes(',') || stringField.includes('"') || stringField.includes('\n')) {
+            return `"${stringField.replace(/"/g, '""')}"`;
+        }
+        return stringField;
     }
 }

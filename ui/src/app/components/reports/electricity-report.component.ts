@@ -18,6 +18,37 @@ export class ElectricityReportComponent implements OnInit {
     reportData: any[] = [];
     today = new Date();
 
+    filterAlphaGroup: '' | 'A-J' | 'K-S' | 'T-Z' = '';
+    sortAlpha = false;
+
+    get filteredData(): any[] {
+        const filtered = this.reportData.filter(row => {
+            if (!this.filterAlphaGroup) return true;
+            const firstChar = (row.organizationName || '').trim().charAt(0).toUpperCase();
+            const isLetter = /[A-Z]/.test(firstChar);
+            if (this.filterAlphaGroup === 'A-J') return isLetter && firstChar >= 'A' && firstChar <= 'J';
+            if (this.filterAlphaGroup === 'K-S') return isLetter && firstChar >= 'K' && firstChar <= 'S';
+            if (this.filterAlphaGroup === 'T-Z') return !isLetter || (firstChar >= 'T' && firstChar <= 'Z');
+            return true;
+        });
+
+        if (this.sortAlpha) {
+            return [...filtered].sort((a, b) =>
+                a.organizationName.localeCompare(b.organizationName, undefined, { sensitivity: 'base' })
+            );
+        }
+        return filtered;
+    }
+
+    get hasActiveFilters(): boolean {
+        return !!this.filterAlphaGroup || this.sortAlpha;
+    }
+
+    clearFilters(): void {
+        this.filterAlphaGroup = '';
+        this.sortAlpha = false;
+    }
+
     ngOnInit(): void {
         this.loadReport();
     }

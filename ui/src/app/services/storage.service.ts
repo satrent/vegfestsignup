@@ -254,6 +254,11 @@ export class StorageService {
     return this.api.get<any[]>('/registrations/reports/todos');
   }
 
+  // Get Contact Info Report (Admin only)
+  getContactInfoReport(): Observable<any[]> {
+    return this.api.get<any[]>('/registrations/reports/contact-info');
+  }
+
   // Get current user's registrations
   getMyRegistrations(): Observable<Registration[]> {
     return this.api.get<Registration[]>('/registrations/my-registrations');

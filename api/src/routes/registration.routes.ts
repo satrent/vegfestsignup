@@ -275,6 +275,20 @@ router.get('/reports/invoicing', authenticate, requireAdmin, async (_req: Reques
     }
 });
 
+// Get Contact Info Report (Admin only)
+router.get('/reports/contact-info', authenticate, requireAdmin, async (_req: Request, res: Response) => {
+    try {
+        const registrations = await Registration.find({})
+            .sort({ organizationName: 1 })
+            .select('organizationName firstName lastName status email phone facebook instagram');
+
+        res.json(registrations);
+    } catch (error) {
+        console.error('Error fetching contact info report:', error);
+        res.status(500).json({ error: 'Failed to fetch contact info report' });
+    }
+});
+
 // Update registration (for saving sections)
 // Modified to prevent regular users from updating invoiced status
 

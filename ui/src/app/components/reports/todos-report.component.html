@@ -16,6 +16,31 @@
                 Print Report
             </button>
         </div>
+
+        <div class="filter-bar">
+            <select [(ngModel)]="filterStatus" class="filter-select">
+                <option value="all">All Statuses</option>
+                <option value="In Progress">In Progress</option>
+                <option value="Pending">Pending</option>
+                <option value="Approved">Approved</option>
+                <option value="Declined">Declined</option>
+            </select>
+
+            <div class="alpha-group-buttons">
+                <button [class.active]="filterAlphaGroup === ''" (click)="filterAlphaGroup = ''">All</button>
+                <button [class.active]="filterAlphaGroup === 'A-J'" (click)="filterAlphaGroup = 'A-J'">A–J</button>
+                <button [class.active]="filterAlphaGroup === 'K-S'" (click)="filterAlphaGroup = 'K-S'">K–S</button>
+                <button [class.active]="filterAlphaGroup === 'T-Z'" (click)="filterAlphaGroup = 'T-Z'">T–Z</button>
+            </div>
+
+            <button class="sort-btn" [class.active]="sortAlpha" (click)="sortAlpha = !sortAlpha">A–Z</button>
+
+            @if (hasActiveFilters) {
+            <button class="clear-btn" (click)="clearFilters()">Clear</button>
+            }
+
+            <span class="result-count">{{ filteredData.length }} of {{ reportData.length }}</span>
+        </div>
     </div>
 
     @if (loading) {
@@ -31,7 +56,7 @@
         <div class="print-header">
             <h1>Outstanding To-Dos Report</h1>
             <p>Report generated on: {{ today | date:'medium' }}</p>
-            <p>Total Participants with To-Dos: {{ reportData.length }}</p>
+            <p>Total Participants with To-Dos: {{ filteredData.length }}</p>
         </div>
 
         <table class="report-table">
@@ -46,7 +71,7 @@
                 </tr>
             </thead>
             <tbody>
-                @for (row of reportData; track row._id) {
+                @for (row of filteredData; track row._id) {
                 <tr>
                     <td class="org-col">{{ row.organizationName }}</td>
                     <td>{{ row.firstName }} {{ row.lastName }}</td>
@@ -69,7 +94,7 @@
                     </td>
                 </tr>
                 }
-                @if (reportData.length === 0) {
+                @if (filteredData.length === 0) {
                 <tr>
                     <td colspan="6" class="empty-state">No outstanding to-dos found for any participants.</td>
                 </tr>

@@ -24,6 +24,65 @@
             }
         }
 
+        .filter-bar {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+
+            .alpha-group-buttons {
+                display: flex;
+                border: 1px solid #ccc;
+                border-radius: 4px;
+                overflow: hidden;
+
+                button {
+                    padding: 0.375rem 0.75rem;
+                    border: none;
+                    border-right: 1px solid #ccc;
+                    background: white;
+                    font-size: 0.875rem;
+                    cursor: pointer;
+                    transition: background-color 0.15s;
+
+                    &:last-child { border-right: none; }
+                    &:hover { background-color: #f0f0f0; }
+                    &.active { background-color: #0066cc; color: white; }
+                }
+            }
+
+            .sort-btn {
+                padding: 0.375rem 0.75rem;
+                border: 1px solid #ccc;
+                border-radius: 4px;
+                background: white;
+                font-size: 0.875rem;
+                cursor: pointer;
+
+                &:hover { background-color: #f0f0f0; }
+                &.active { background-color: #0066cc; color: white; border-color: #0066cc; }
+            }
+
+            .clear-btn {
+                padding: 0.375rem 0.75rem;
+                border: 1px solid #ccc;
+                border-radius: 4px;
+                background: white;
+                font-size: 0.875rem;
+                cursor: pointer;
+                color: #666;
+
+                &:hover { background-color: #f0f0f0; }
+            }
+
+            .result-count {
+                font-size: 0.875rem;
+                color: #666;
+                margin-left: auto;
+            }
+        }
+
         .controls-row {
             display: flex;
             justify-content: space-between;

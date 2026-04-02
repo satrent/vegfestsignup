@@ -2,11 +2,11 @@
     <!-- Interactive header hidden when printing -->
     <div class="no-print report-header-controls">
         <div class="breadcrumb">
-            <a routerLink="/admin">Admin Dashboard</a> &gt; <a routerLink="/admin/reports">Reports</a> &gt; Invoicing
+            <a routerLink="/admin">Admin Dashboard</a> &gt; <a routerLink="/admin/reports">Reports</a> &gt; Contact Info
         </div>
         <div class="controls-row">
-            <h2>Invoicing Report</h2>
-            <div class="actions">
+            <h2>Contact Info Report</h2>
+            <div class="button-group">
                 <button class="btn-secondary" (click)="exportCsv()">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
                         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -14,7 +14,7 @@
                         <polyline points="7 10 12 15 17 10"></polyline>
                         <line x1="12" y1="15" x2="12" y2="3"></line>
                     </svg>
-                    Download CSV
+                    Export CSV
                 </button>
                 <button class="btn-primary" (click)="printReport()">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
@@ -29,6 +29,14 @@
         </div>
 
         <div class="filter-bar">
+            <select [(ngModel)]="filterStatus" class="filter-select">
+                <option value="all">All Statuses</option>
+                <option value="In Progress">In Progress</option>
+                <option value="Pending">Pending</option>
+                <option value="Approved">Approved</option>
+                <option value="Declined">Declined</option>
+            </select>
+
             <div class="alpha-group-buttons">
                 <button [class.active]="filterAlphaGroup === ''" (click)="filterAlphaGroup = ''">All</button>
                 <button [class.active]="filterAlphaGroup === 'A-J'" (click)="filterAlphaGroup = 'A-J'">A–J</button>
@@ -57,70 +65,40 @@
     @if (!loading && !error) {
     <div class="print-document">
         <div class="print-header">
-            <h1>Invoicing Report</h1>
+            <h1>Contact Info Report</h1>
             <p>Report generated on: {{ today | date:'medium' }}</p>
-            <p>Total Approved Participants: {{ filteredData.length }}</p>
+            <p>Total Participants: {{ filteredData.length }}</p>
         </div>
 
         <table class="report-table">
             <thead>
                 <tr>
                     <th>Organization Name</th>
-                    <th>Contact</th>
-                    <th>Type / Status</th>
-                    <th>Invoiced</th>
-                    <th>Base Fee</th>
-                    <th>Discount</th>
-                    <th>Security Deposit</th>
-                    <th>Logistics (Site/Equip/Power)</th>
-                    <th>Amount Due</th>
-                    <th>Amount Paid</th>
-                    <th>Quickbooks Link</th>
+                    <th>Contact Name</th>
+                    <th>Status</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>Facebook</th>
+                    <th>Instagram</th>
                 </tr>
             </thead>
             <tbody>
                 @for (row of filteredData; track row._id) {
                 <tr>
                     <td class="org-col">{{ row.organizationName }}</td>
-                    <td class="contact-col">
-                        <div>{{ row.firstName }} {{ row.lastName }}</div>
-                        <div class="sub-detail">{{ row.email }}</div>
-                        <div class="sub-detail">{{ row.phone }}</div>
-                    </td>
+                    <td>{{ row.firstName }} {{ row.lastName }}</td>
                     <td>
-                        <div>{{ row.type }}</div>
-                        <div class="sub-detail">{{ row.status }}</div>
+                        <span [class]="'status-badge status-' + getStatusClass(row.status)">{{ row.status }}</span>
                     </td>
-                    <td>
-                        <span class="badge" [class.invoiced]="row.invoiced" [class.uninvoiced]="!row.invoiced">
-                            {{ row.invoiced ? 'Yes' : 'No' }}
-                        </span>
-                    </td>
-                    <td class="amount-col">{{ (row.invoiceBreakdown?.baseFee || 0) | currency }}</td>
-                    <td class="amount-col discount-col">
-                        <div>{{ (row.invoiceBreakdown?.discountAmount || 0) | currency }}</div>
-                        @if (row.bipgmOwned) {
-                        <div class="sub-detail">
-                            <span class="bipgm-tag">BIPGM</span>
-                        </div>
-                        }
-                    </td>
-                    <td class="amount-col">{{ (row.invoiceBreakdown?.securityDeposit || 0) | currency }}</td>
-                    <td class="amount-col">{{ ((row.invoiceBreakdown?.extraSiteCost || 0) + (row.invoiceBreakdown?.equipmentCost || 0) + (row.invoiceBreakdown?.specialPowerFee || 0)) | currency }}</td>
-                    <td class="amount-col">{{ (row.initialInvoiceAmount || 0) | currency }}</td>
-                    <td class="amount-col">{{ (row.amountPaid || 0) | currency }}</td>
-                    <td class="link-col">
-                        @if (row.quickbooksInvoiceLink) {
-                        <a [href]="row.quickbooksInvoiceLink" target="_blank" rel="noopener noreferrer">View Invoice</a>
-                        } @else {
-                        <span class="empty-field">-</span>
-                        }
-                    </td>
+                    <td class="contact-col">{{ row.email || '-' }}</td>
+                    <td class="contact-col">{{ row.phone || '-' }}</td>
+                    <td class="social-col">{{ row.facebook || '-' }}</td>
+                    <td class="social-col">{{ row.instagram || '-' }}</td>
                 </tr>
                 }
                 @if (filteredData.length === 0) {
                 <tr>
-                    <td colspan="11" class="empty-state">No approved participants found.</td>
+                    <td colspan="7" class="empty-state">No participants found.</td>
                 </tr>
                 }
             </tbody>

@@ -17,6 +17,23 @@
                 Print Report
             </button>
         </div>
+
+        <div class="filter-bar">
+            <div class="alpha-group-buttons">
+                <button [class.active]="filterAlphaGroup === ''" (click)="filterAlphaGroup = ''">All</button>
+                <button [class.active]="filterAlphaGroup === 'A-J'" (click)="filterAlphaGroup = 'A-J'">A–J</button>
+                <button [class.active]="filterAlphaGroup === 'K-S'" (click)="filterAlphaGroup = 'K-S'">K–S</button>
+                <button [class.active]="filterAlphaGroup === 'T-Z'" (click)="filterAlphaGroup = 'T-Z'">T–Z</button>
+            </div>
+
+            <button class="sort-btn" [class.active]="sortAlpha" (click)="sortAlpha = !sortAlpha">A–Z</button>
+
+            @if (hasActiveFilters) {
+            <button class="clear-btn" (click)="clearFilters()">Clear</button>
+            }
+
+            <span class="result-count">{{ filteredData.length }} of {{ reportData.length }}</span>
+        </div>
     </div>
 
     @if (loading) {
@@ -32,7 +49,7 @@
         <div class="print-header">
             <h1>Electricity Requirements Report</h1>
             <p>Report generated on: {{ today | date:'medium' }}</p>
-            <p>Total Participants Requiring Power: {{ reportData.length }}</p>
+            <p>Total Participants Requiring Power: {{ filteredData.length }}</p>
         </div>
 
         <table class="report-table">
@@ -48,7 +65,7 @@
                 </tr>
             </thead>
             <tbody>
-                @for (row of reportData; track row._id) {
+                @for (row of filteredData; track row._id) {
                 <tr>
                     <td class="org-col">{{ row.organizationName }}</td>
                     <td>{{ row.firstName }} {{ row.lastName }}</td>
@@ -78,7 +95,7 @@
                     </td>
                 </tr>
                 }
-                @if (reportData.length === 0) {
+                @if (filteredData.length === 0) {
                 <tr>
                     <td colspan="7" class="empty-state">No approved participants currently require electricity.</td>
                 </tr>
