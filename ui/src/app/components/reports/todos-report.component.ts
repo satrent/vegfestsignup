@@ -85,4 +85,33 @@ export class TodosReportComponent implements OnInit {
     printReport(): void {
         window.print();
     }
+
+    exportCsv(): void {
+        if (this.filteredData.length === 0) return;
+
+        let csvContent = 'Organization Name,First Name,Last Name,Email,Phone,Status,Outstanding To-Dos\n';
+
+        this.filteredData.forEach(row => {
+            const todosStr = (row.todoItems || []).map((t: any) => t.text).join('; ');
+            csvContent += `${this.escapeCsv(row.organizationName)},${this.escapeCsv(row.firstName)},${this.escapeCsv(row.lastName)},${this.escapeCsv(row.email)},${this.escapeCsv(row.phone)},${this.escapeCsv(row.status)},${this.escapeCsv(todosStr)}\n`;
+        });
+
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.setAttribute('href', url);
+        link.setAttribute('download', `vegfest_todos_report_${new Date().toISOString().split('T')[0]}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+
+    private escapeCsv(field: any): string {
+        if (field === null || field === undefined) return '';
+        const stringField = String(field);
+        if (stringField.includes(',') || stringField.includes('"') || stringField.includes('\n')) {
+            return `"${stringField.replace(/"/g, '""')}"`;
+        }
+        return stringField;
+    }
 }
