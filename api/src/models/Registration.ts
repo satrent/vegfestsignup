@@ -60,6 +60,7 @@ export interface IRegistration extends Document {
     // Section 3: Values (New)
     valuesDescription?: string;
     materialsAck?: boolean;
+    endorsePlantBasedMeals?: boolean;
 
     // Section 3: Logistics & Equipment (Now Section 4)
     // Section 4: Booth & Logistics
@@ -312,6 +313,7 @@ const registrationSchema = new Schema<IRegistration>(
         // Section 3: Values
         valuesDescription: String,
         materialsAck: Boolean,
+        endorsePlantBasedMeals: Boolean,
 
         // Section 4: Booth & Logistics
         numBoothSpaces: { type: Number, default: 0 },

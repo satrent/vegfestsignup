@@ -25,7 +25,8 @@ export class ValuesComponent implements OnInit {
         this.form = this.fb.group({
             valuesDescription: ['', Validators.required],
             materialsAck: [false], // For non-food
-            veganFoodAck: [false]  // For food
+            veganFoodAck: [false],  // For food
+            endorsePlantBasedMeals: [false]
         });
     }
 
@@ -51,7 +52,8 @@ export class ValuesComponent implements OnInit {
                 this.form.patchValue({
                     valuesDescription: reg.valuesDescription || '',
                     materialsAck: reg.materialsAck || false,
-                    veganFoodAck: reg.veganFoodAck || false
+                    veganFoodAck: reg.veganFoodAck || false,
+                    endorsePlantBasedMeals: reg.endorsePlantBasedMeals || false
                 });
 
                 if (reg.status !== 'In Progress') {

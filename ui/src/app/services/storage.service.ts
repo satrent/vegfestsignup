@@ -61,6 +61,7 @@ export interface Registration {
   // Section 3: Values
   valuesDescription?: string;
   materialsAck?: boolean;
+  endorsePlantBasedMeals?: boolean;
 
   // Section 4 (formerly 3)
   // Section 4: Booth & Logistics

@@ -55,6 +55,13 @@
         }
         }
 
+        <div class="form-group checkbox-group">
+            <input id="endorsePlantBasedMeals" type="checkbox" formControlName="endorsePlantBasedMeals">
+            <label for="endorsePlantBasedMeals">
+                I endorse plant-based meal options for Minnesota students <span class="optional">(optional)</span>
+            </label>
+        </div>
+
         <div class="actions">
             <button type="button" class="secondary" (click)="cancel()">Cancel</button>
             <button type="submit" [disabled]="form.invalid || saving">
