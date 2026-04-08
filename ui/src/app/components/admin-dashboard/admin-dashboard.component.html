@@ -314,6 +314,14 @@
         </select>
       </div>
       <div class="form-group">
+        <label>Test Records</label>
+        <select [(ngModel)]="filterTest">
+          <option value="exclude">Hide test records</option>
+          <option value="only">Show only test records</option>
+          <option value="all">Show all (including test)</option>
+        </select>
+      </div>
+      <div class="form-group">
         <label>Filter by Owner Demographic</label>
         <select [(ngModel)]="filterDemographic">
           <option value="">All Demographics</option>

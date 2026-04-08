@@ -187,7 +187,7 @@ router.get('/reports/electricity', authenticate, requireAdmin, async (_req: Requ
         const registrations = await Registration.find({
             powerNeeds: { $exists: true, $ne: 'None' },
             status: 'Approved'
-        }).sort({ organizationName: 1 }).select('organizationName firstName lastName email phone powerNeeds householdElectric electricNeedsDescription status equipmentList');
+        }).sort({ organizationName: 1 }).select('organizationName firstName lastName email phone powerNeeds householdElectric electricNeedsDescription status equipmentList isTest');
 
         res.json(registrations);
     } catch (error) {
@@ -202,7 +202,7 @@ router.get('/reports/todos', authenticate, requireAdmin, async (_req: Request, r
         // Find registrations that have at least one uncompleted todo item
         const registrations = await Registration.find({
             'todoItems.isCompleted': false
-        }).sort({ organizationName: 1 }).select('organizationName firstName lastName email phone todoItems status');
+        }).sort({ organizationName: 1 }).select('organizationName firstName lastName email phone todoItems status isTest');
 
         // Filter out completed todos from the response so the report only shows outstanding ones
         const filteredRegistrations = registrations.map(reg => {
@@ -231,7 +231,7 @@ router.get('/reports/rental-equipment', authenticate, requireAdmin, async (_req:
                 { numTents: { $gt: 0 } },
                 { numWeights: { $gt: 0 } }
             ]
-        }).sort({ organizationName: 1 }).select('organizationName firstName lastName email phone numTables numChairs numTents numWeights status');
+        }).sort({ organizationName: 1 }).select('organizationName firstName lastName email phone numTables numChairs numTents numWeights status isTest');
 
         res.json(registrations);
     } catch (error) {
@@ -280,7 +280,7 @@ router.get('/reports/contact-info', authenticate, requireAdmin, async (_req: Req
     try {
         const registrations = await Registration.find({})
             .sort({ organizationName: 1 })
-            .select('organizationName firstName lastName status email phone facebook instagram');
+            .select('organizationName firstName lastName status email phone facebook instagram isTest');
 
         res.json(registrations);
     } catch (error) {

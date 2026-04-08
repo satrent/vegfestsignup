@@ -52,6 +52,14 @@
                         </div>
 
                         <div class="field-group">
+                            <label>Test Record</label>
+                            <label class="toggle-label">
+                                <input type="checkbox" [(ngModel)]="tempRegistration.isTest">
+                                <span>{{ tempRegistration.isTest ? 'Yes, this is a test' : 'No' }}</span>
+                            </label>
+                        </div>
+
+                        <div class="field-group">
                             <label>Invoiced?</label>
                             <label class="toggle-label">
                                 <input type="checkbox" [(ngModel)]="tempRegistration.invoiced">

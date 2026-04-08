@@ -34,6 +34,7 @@ export class AdminDashboardComponent implements OnInit {
   filterTag = '';
   filterDemographic = '';
   filterAlphaGroup: '' | 'A-J' | 'K-S' | 'T-Z' = '';
+  filterTest: 'exclude' | 'only' | 'all' = 'exclude';
   availableTags: string[] = [];
 
   // Sort Properties
@@ -87,7 +88,12 @@ export class AdminDashboardComponent implements OnInit {
         }
       }
 
-      return nameMatch && invoicedMatch && statusMatch && tagMatch && demographicMatch && todosMatch && alphaGroupMatch;
+      // Test Records Filter
+      const testMatch = this.filterTest === 'all' ||
+        (this.filterTest === 'exclude' && !reg.isTest) ||
+        (this.filterTest === 'only' && !!reg.isTest);
+
+      return nameMatch && invoicedMatch && statusMatch && tagMatch && demographicMatch && todosMatch && alphaGroupMatch && testMatch;
     });
 
     if (this.sortAlpha) {
@@ -100,7 +106,7 @@ export class AdminDashboardComponent implements OnInit {
   }
 
   get hasActiveFilters(): boolean {
-    return !!this.filterName || this.filterInvoiced !== 'all' || this.filterStatus !== 'all' || this.filterTodosOpen || !!this.filterTag || !!this.filterDemographic || !!this.filterAlphaGroup || this.sortAlpha;
+    return !!this.filterName || this.filterInvoiced !== 'all' || this.filterStatus !== 'all' || this.filterTodosOpen || !!this.filterTag || !!this.filterDemographic || !!this.filterAlphaGroup || this.filterTest !== 'exclude' || this.sortAlpha;
   }
 
   toggleSortAlpha(): void {
@@ -261,6 +267,7 @@ export class AdminDashboardComponent implements OnInit {
     this.filterTag = '';
     this.filterDemographic = '';
     this.filterAlphaGroup = '';
+    this.filterTest = 'exclude';
     this.sortAlpha = false;
   }
 

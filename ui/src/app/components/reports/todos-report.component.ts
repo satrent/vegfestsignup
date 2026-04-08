@@ -22,9 +22,11 @@ export class TodosReportComponent implements OnInit {
     filterStatus: 'all' | 'In Progress' | 'Pending' | 'Approved' | 'Declined' = 'all';
     filterAlphaGroup: '' | 'A-J' | 'K-S' | 'T-Z' = '';
     sortAlpha = false;
+    includeTest = false;
 
     get filteredData(): any[] {
         const filtered = this.reportData.filter(row => {
+            if (!this.includeTest && row.isTest) return false;
             const statusMatch = this.filterStatus === 'all' || row.status === this.filterStatus;
 
             let alphaGroupMatch = true;
@@ -52,13 +54,14 @@ export class TodosReportComponent implements OnInit {
     }
 
     get hasActiveFilters(): boolean {
-        return this.filterStatus !== 'all' || !!this.filterAlphaGroup || this.sortAlpha;
+        return this.filterStatus !== 'all' || !!this.filterAlphaGroup || this.sortAlpha || this.includeTest;
     }
 
     clearFilters(): void {
         this.filterStatus = 'all';
         this.filterAlphaGroup = '';
         this.sortAlpha = false;
+        this.includeTest = false;
     }
 
     ngOnInit(): void {

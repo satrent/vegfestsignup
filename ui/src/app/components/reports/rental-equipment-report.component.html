@@ -39,6 +39,11 @@
 
             <button class="sort-btn" [class.active]="sortAlpha" (click)="sortAlpha = !sortAlpha">A–Z</button>
 
+            <label class="toggle-label" style="font-size: 0.875rem;">
+                <input type="checkbox" [(ngModel)]="includeTest">
+                <span>Include test records</span>
+            </label>
+
             @if (hasActiveFilters) {
             <button class="clear-btn" (click)="clearFilters()">Clear</button>
             }

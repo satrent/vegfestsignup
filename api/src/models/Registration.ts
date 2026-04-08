@@ -205,6 +205,7 @@ export interface IRegistration extends Document {
     };
     createdAt: Date;
     updatedAt: Date;
+    isTest?: boolean;
     tags?: string[];
     lastReminderSent?: Date;
     todoItems?: {
@@ -516,6 +517,7 @@ const registrationSchema = new Schema<IRegistration>(
             expectations: { type: Boolean, default: false },
             payment: { type: Boolean, default: false },
         },
+        isTest: { type: Boolean, default: false },
         tags: [String],
         lastReminderSent: Date,
         todoItems: [{

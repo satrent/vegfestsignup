@@ -1,12 +1,13 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
+import { FormsModule } from '@angular/forms';
 import { StorageService } from '../../services/storage.service';
 
 @Component({
     selector: 'app-invoicing-report',
     standalone: true,
-    imports: [CommonModule, RouterLink],
+    imports: [CommonModule, RouterLink, FormsModule],
     templateUrl: './invoicing-report.component.html',
     styleUrls: ['./invoicing-report.component.scss']
 })
@@ -20,9 +21,11 @@ export class InvoicingReportComponent implements OnInit {
 
     filterAlphaGroup: '' | 'A-J' | 'K-S' | 'T-Z' = '';
     sortAlpha = false;
+    includeTest = false;
 
     get filteredData(): any[] {
         const filtered = this.reportData.filter(row => {
+            if (!this.includeTest && row.isTest) return false;
             if (!this.filterAlphaGroup) return true;
             const firstChar = (row.organizationName || '').trim().charAt(0).toUpperCase();
             const isLetter = /[A-Z]/.test(firstChar);
@@ -41,12 +44,13 @@ export class InvoicingReportComponent implements OnInit {
     }
 
     get hasActiveFilters(): boolean {
-        return !!this.filterAlphaGroup || this.sortAlpha;
+        return !!this.filterAlphaGroup || this.sortAlpha || this.includeTest;
     }
 
     clearFilters(): void {
         this.filterAlphaGroup = '';
         this.sortAlpha = false;
+        this.includeTest = false;
     }
 
     ngOnInit(): void {

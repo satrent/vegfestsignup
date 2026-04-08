@@ -207,6 +207,7 @@ export interface Registration {
   };
   createdAt?: Date;
   updatedAt?: Date;
+  isTest?: boolean;
   tags?: string[];
   lastReminderSent?: Date;
   todoItems?: {
