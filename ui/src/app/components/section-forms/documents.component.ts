@@ -58,6 +58,20 @@ export class DocumentsComponent implements OnInit {
           foodPermitOption: reg.foodLicenseUrl ? 'upload_now' : 'upload_now' // We don't have a specific option field for this in historic data, defaulting
         });
 
+        // If an approved exhibitor returns to upload a missing doc, switch 'later' → 'upload_now'
+        // so the upload widget is immediately visible instead of hidden behind the radio selection.
+        if (reg.status === 'Approved') {
+          if (reg.coiOption === 'later' && !this.hasDoc('COI')) {
+            this.form.patchValue({ coiOption: 'upload_now' });
+          }
+          if (reg.st19Option === 'later' && !this.hasDoc('ST-19')) {
+            this.form.patchValue({ st19Option: 'upload_now' });
+          }
+          if (this.isFoodVendor && !this.hasDoc('Food Permit')) {
+            this.form.patchValue({ foodPermitOption: 'upload_now' });
+          }
+        }
+
         // Setup validators
         this.updateValidators();
 
