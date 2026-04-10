@@ -316,6 +316,10 @@ export class StorageService {
     return this.api.get<any[]>(`/registrations/${id}/logs`);
   }
 
+  addEmailLog(id: string, subject: string, details?: string): Observable<any> {
+    return this.api.post<any>(`/registrations/${id}/logs`, { subject, details });
+  }
+
   createPaymentIntent(): Observable<{ clientSecret: string }> {
     return this.api.post<{ clientSecret: string }>('/payment/create-payment-intent', {});
   }

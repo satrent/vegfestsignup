@@ -281,6 +281,9 @@ export class RegistrationDetailsComponent {
     isAddingTodo = false;
     togglingTodos = new Set<string>();
 
+    newEmailSubject = '';
+    isAddingEmailLog = false;
+
     isTogglingTodo(id?: string): boolean {
         return id ? this.togglingTodos.has(id) : false;
     }
@@ -303,6 +306,23 @@ export class RegistrationDetailsComponent {
                 console.error('Failed to add to-do', err);
                 alert('Failed to add to-do');
                 this.isAddingTodo = false;
+            }
+        });
+    }
+
+    addEmailLog(): void {
+        const subject = this.newEmailSubject.trim();
+        if (!subject || !this.registration?._id) return;
+        this.isAddingEmailLog = true;
+        this.storageService.addEmailLog(this.registration._id, subject).subscribe({
+            next: (log) => {
+                this.emailLogs.unshift(log);
+                this.newEmailSubject = '';
+                this.isAddingEmailLog = false;
+            },
+            error: () => {
+                alert('Failed to add email history entry');
+                this.isAddingEmailLog = false;
             }
         });
     }

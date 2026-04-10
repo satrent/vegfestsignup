@@ -681,6 +681,48 @@ router.get(
     }
 );
 
+// Manually add an email history entry (admin only)
+router.post(
+    '/:id/logs',
+    authenticate,
+    requireAdmin,
+    [body('subject').trim().notEmpty()],
+    async (req: Request, res: Response) => {
+        try {
+            const { id } = req.params;
+            const errors = validationResult(req);
+            if (!errors.isEmpty()) {
+                res.status(400).json({ errors: errors.array() });
+                return;
+            }
+
+            const registration = await Registration.findById(id);
+            if (!registration) {
+                res.status(404).json({ error: 'Registration not found' });
+                return;
+            }
+
+            const adminUser = await import('../models/User').then(m => m.User.findById(req.user!.userId));
+            const adminName = adminUser ? `${adminUser.firstName} ${adminUser.lastName}` : 'Unknown Admin';
+
+            const log = await AuditService.log({
+                adminId: req.user!.userId,
+                actorName: adminName,
+                entityId: id,
+                entityType: 'Registration',
+                action: 'SEND_EMAIL',
+                target: req.body.subject,
+                details: req.body.details || undefined,
+            });
+
+            res.status(201).json(log);
+        } catch (error) {
+            console.error('Error adding email log:', error);
+            res.status(500).json({ error: 'Failed to add email log' });
+        }
+    }
+);
+
 // Send document reminder email
 router.post(
     '/:id/send-reminder',
