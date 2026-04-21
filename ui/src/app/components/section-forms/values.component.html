@@ -27,6 +27,8 @@
         <div class="zero-waste-section">
             <h3>We strive to run a Zero Waste Festival.</h3>
             <p>All Food and Goods Must Be Vegan and Reusable, Recyclable, or Compostable.</p>
+            <p>We will not sell or display products made with animal-derived materials (e.g., leather, silk, wool, fur,
+                feathers, bone, shell).</p>
         </div>
 
         @if (isFoodVendor) {
@@ -41,6 +43,36 @@
         @if (form.get('veganFoodAck')?.touched && form.get('veganFoodAck')?.invalid) {
         <div class="error">You must confirm this statement</div>
         }
+
+        <!-- Drink Vessels -->
+        <div class="form-group">
+            <label>We will sell drinks in (check all that apply):<span class="required">*</span></label>
+            <div formArrayName="drinkVessels" class="checkbox-list">
+                @for (option of drinkVesselOptions; track option; let i = $index) {
+                <div class="form-group checkbox-group">
+                    <input [id]="'drinkVessel_' + i" type="checkbox" [formControlName]="i">
+                    <label [for]="'drinkVessel_' + i">{{ option }}</label>
+                </div>
+                }
+            </div>
+            @if (hasRecyclableCups) {
+            <div class="warning">Recyclable cups are not allowed, please choose a different option.</div>
+            }
+            @if (drinkVesselsArray.touched && drinkVesselsArray.invalid) {
+            <div class="error">Please select at least one drink vessel type</div>
+            }
+        </div>
+
+        <!-- BPI Compostable Container Brand -->
+        <div class="form-group">
+            <label for="bpiContainerBrand">Food must be sold in compostable containers. What brand(s) of BPI
+                compostable containers will you use?<span class="required">*</span></label>
+            <input id="bpiContainerBrand" type="text" formControlName="bpiContainerBrand">
+            @if (form.get('bpiContainerBrand')?.touched && form.get('bpiContainerBrand')?.invalid) {
+            <div class="error">This field is required</div>
+            }
+        </div>
+
         } @else {
         <!-- Non-Food Vendor Confirmation -->
         <div class="form-group checkbox-group">
@@ -55,11 +87,17 @@
         }
         }
 
-        <div class="form-group checkbox-group">
-            <input id="endorsePlantBasedMeals" type="checkbox" formControlName="endorsePlantBasedMeals">
-            <label for="endorsePlantBasedMeals">
-                I endorse plant-based meal options for Minnesota students <span class="optional">(optional)</span>
-            </label>
+        <!-- Plant-Based Meals in Public Schools -->
+        <div class="plant-based-section">
+            <h3>Plant-Based Meals in Public Schools</h3>
+            <p>CAA's Wholesome Minnesota program is working to support plant-based meal options for Minnesota
+                students.</p>
+            <div class="form-group checkbox-group">
+                <input id="endorsePlantBasedMeals" type="checkbox" formControlName="endorsePlantBasedMeals">
+                <label for="endorsePlantBasedMeals">
+                    I endorse plant-based meal options for Minnesota students <span class="optional">(optional)</span>
+                </label>
+            </div>
         </div>
 
         <div class="actions">

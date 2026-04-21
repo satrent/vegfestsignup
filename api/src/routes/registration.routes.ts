@@ -289,6 +289,19 @@ router.get('/reports/contact-info', authenticate, requireAdmin, async (_req: Req
     }
 });
 
+router.get('/reports/zero-waste', authenticate, requireAdmin, async (_req: Request, res: Response) => {
+    try {
+        const registrations = await Registration.find({ status: 'Approved' })
+            .sort({ organizationName: 1 })
+            .select('organizationName firstName lastName email phone organizationCategory productsDescription materialsAck veganFoodAck drinkVessels bpiContainerBrand compostableServicewareAck bottledWaterAck isTest');
+
+        res.json(registrations);
+    } catch (error) {
+        console.error('Error fetching zero waste report:', error);
+        res.status(500).json({ error: 'Failed to fetch zero waste report' });
+    }
+});
+
 // Update registration (for saving sections)
 // Modified to prevent regular users from updating invoiced status
 

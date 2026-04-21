@@ -60,6 +60,8 @@ export interface IRegistration extends Document {
     // Section 3: Values (New)
     valuesDescription?: string;
     materialsAck?: boolean;
+    drinkVessels?: string[];
+    bpiContainerBrand?: string;
     endorsePlantBasedMeals?: boolean;
 
     // Section 3: Logistics & Equipment (Now Section 4)

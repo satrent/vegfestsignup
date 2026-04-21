@@ -1,0 +1,150 @@
+<div class="report-wrapper">
+    <div class="no-print report-header-controls">
+        <div class="breadcrumb">
+            <a routerLink="/admin">Admin Dashboard</a> &gt; <a routerLink="/admin/reports">Reports</a> &gt; Zero Waste
+        </div>
+        <div class="controls-row">
+            <h2>Zero Waste Report</h2>
+            <div class="button-group">
+                <button class="btn-secondary" (click)="exportCsv()">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="7 10 12 15 17 10"></polyline>
+                        <line x1="12" y1="15" x2="12" y2="3"></line>
+                    </svg>
+                    Export CSV
+                </button>
+                <button class="btn-primary" (click)="printReport()">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="6 9 6 2 18 2 18 9"></polyline>
+                        <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+                        <rect x="6" y="14" width="12" height="8"></rect>
+                    </svg>
+                    Print Report
+                </button>
+            </div>
+        </div>
+
+        <div class="filter-bar">
+            <div class="alpha-group-buttons">
+                <button [class.active]="filterAlphaGroup === ''" (click)="filterAlphaGroup = ''">All</button>
+                <button [class.active]="filterAlphaGroup === 'A-J'" (click)="filterAlphaGroup = 'A-J'">A–J</button>
+                <button [class.active]="filterAlphaGroup === 'K-S'" (click)="filterAlphaGroup = 'K-S'">K–S</button>
+                <button [class.active]="filterAlphaGroup === 'T-Z'" (click)="filterAlphaGroup = 'T-Z'">T–Z</button>
+            </div>
+
+            <button class="sort-btn" [class.active]="sortAlpha" (click)="sortAlpha = !sortAlpha">A–Z</button>
+
+            <label class="toggle-label" style="font-size: 0.875rem;">
+                <input type="checkbox" [(ngModel)]="includeTest">
+                <span>Include test records</span>
+            </label>
+
+            @if (hasActiveFilters) {
+            <button class="clear-btn" (click)="clearFilters()">Clear</button>
+            }
+
+            <span class="result-count">{{ filteredData.length }} of {{ reportData.length }}</span>
+        </div>
+    </div>
+
+    @if (loading) {
+    <div class="loading no-print">Loading report data...</div>
+    }
+
+    @if (error) {
+    <div class="error-message no-print">{{ error }}</div>
+    }
+
+    @if (!loading && !error) {
+    <div class="print-document">
+        <div class="print-header">
+            <h1>Zero Waste Report</h1>
+            <p>Report generated on: {{ today | date:'medium' }}</p>
+            <p>Total Approved Exhibitors: {{ filteredData.length }}</p>
+        </div>
+
+        <table class="report-table">
+            <thead>
+                <tr>
+                    <th>Organization</th>
+                    <th>Contact</th>
+                    <th>Email</th>
+                    <th>Category</th>
+                    <th>Products / Distribution</th>
+                    <th>Materials Ack</th>
+                    <th>Vegan Food Ack</th>
+                    <th>Drink Vessels</th>
+                    <th>BPI Container Brand</th>
+                    <th>Compostable Serviceware</th>
+                    <th>No Bottled Water</th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (row of filteredData; track row._id) {
+                <tr>
+                    <td class="org-col">{{ row.organizationName }}</td>
+                    <td>{{ row.firstName }} {{ row.lastName }}</td>
+                    <td class="contact-col">{{ row.email || '-' }}</td>
+                    <td>{{ row.organizationCategory || '-' }}</td>
+                    <td class="desc-col">{{ row.productsDescription || '-' }}</td>
+                    <td class="ack-col">
+                        @if (!isFoodVendor(row)) {
+                        <span [class]="row.materialsAck ? 'ack-yes' : 'ack-no'">{{ row.materialsAck ? 'Yes' : 'No'
+                            }}</span>
+                        } @else {
+                        <span class="ack-na">—</span>
+                        }
+                    </td>
+                    <td class="ack-col">
+                        @if (isFoodVendor(row)) {
+                        <span [class]="row.veganFoodAck ? 'ack-yes' : 'ack-no'">{{ row.veganFoodAck ? 'Yes' : 'No'
+                            }}</span>
+                        } @else {
+                        <span class="ack-na">—</span>
+                        }
+                    </td>
+                    <td class="vessels-col">
+                        @if (isFoodVendor(row)) {
+                        {{ (row.drinkVessels || []).join(', ') || '—' }}
+                        } @else {
+                        <span class="ack-na">—</span>
+                        }
+                    </td>
+                    <td>
+                        @if (isFoodVendor(row)) {
+                        {{ row.bpiContainerBrand || '—' }}
+                        } @else {
+                        <span class="ack-na">—</span>
+                        }
+                    </td>
+                    <td class="ack-col">
+                        @if (row.compostableServicewareAck !== undefined) {
+                        <span [class]="row.compostableServicewareAck ? 'ack-yes' : 'ack-no'">{{
+                            row.compostableServicewareAck ? 'Yes' : 'No' }}</span>
+                        } @else {
+                        <span class="ack-na">—</span>
+                        }
+                    </td>
+                    <td class="ack-col">
+                        @if (row.bottledWaterAck !== undefined) {
+                        <span [class]="row.bottledWaterAck ? 'ack-yes' : 'ack-no'">{{ row.bottledWaterAck ? 'Yes' : 'No'
+                            }}</span>
+                        } @else {
+                        <span class="ack-na">—</span>
+                        }
+                    </td>
+                </tr>
+                }
+                @if (filteredData.length === 0) {
+                <tr>
+                    <td colspan="11" class="empty-state">No approved exhibitors found.</td>
+                </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    }
+</div>

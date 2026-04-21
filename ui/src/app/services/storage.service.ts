@@ -61,6 +61,8 @@ export interface Registration {
   // Section 3: Values
   valuesDescription?: string;
   materialsAck?: boolean;
+  drinkVessels?: string[];
+  bpiContainerBrand?: string;
   endorsePlantBasedMeals?: boolean;
 
   // Section 4 (formerly 3)
@@ -259,6 +261,11 @@ export class StorageService {
   // Get Contact Info Report (Admin only)
   getContactInfoReport(): Observable<any[]> {
     return this.api.get<any[]>('/registrations/reports/contact-info');
+  }
+
+  // Get Zero Waste Report (Admin only)
+  getZeroWasteReport(): Observable<any[]> {
+    return this.api.get<any[]>('/registrations/reports/zero-waste');
   }
 
   // Get current user's registrations
