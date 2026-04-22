@@ -284,6 +284,50 @@ export class RegistrationDetailsComponent {
     newEmailSubject = '';
     isAddingEmailLog = false;
 
+    // Admin document upload
+    adminUploadType = 'COI';
+    adminUploadFile: File | null = null;
+    adminUploadFileName = '';
+    isUploading = false;
+    adminUploadError = '';
+    adminUploadSuccess = '';
+
+    onAdminFileSelected(event: Event): void {
+        const input = event.target as HTMLInputElement;
+        if (input.files && input.files.length > 0) {
+            this.adminUploadFile = input.files[0];
+            this.adminUploadFileName = input.files[0].name;
+            this.adminUploadError = '';
+        }
+    }
+
+    uploadDocument(): void {
+        if (!this.adminUploadFile || !this.tempRegistration?._id) return;
+        this.isUploading = true;
+        this.adminUploadError = '';
+        this.adminUploadSuccess = '';
+        this.storageService.uploadDocumentForRegistration(
+            this.tempRegistration._id,
+            this.adminUploadFile,
+            this.adminUploadType
+        ).subscribe({
+            next: (response: any) => {
+                if (!this.tempRegistration!.documents) {
+                    this.tempRegistration!.documents = [];
+                }
+                this.tempRegistration!.documents.push(response.document);
+                this.adminUploadFile = null;
+                this.adminUploadFileName = '';
+                this.adminUploadSuccess = `${this.adminUploadType} uploaded successfully.`;
+                this.isUploading = false;
+            },
+            error: (err: any) => {
+                this.adminUploadError = err?.error?.message || 'Upload failed.';
+                this.isUploading = false;
+            }
+        });
+    }
+
     isTogglingTodo(id?: string): boolean {
         return id ? this.togglingTodos.has(id) : false;
     }

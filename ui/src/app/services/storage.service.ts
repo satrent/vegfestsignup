@@ -309,6 +309,15 @@ export class StorageService {
     return this.http.post(`${this.baseUrl}/upload`, formData);
   }
 
+  // Upload a document on behalf of a registration (admin only)
+  uploadDocumentForRegistration(registrationId: string, file: File, documentType: string): Observable<any> {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('documentType', documentType);
+    formData.append('registrationId', registrationId);
+    return this.http.post(`${this.baseUrl}/upload`, formData);
+  }
+
   // Get signed URL for a document
   getDocumentUrl(key: string): Observable<{ url: string }> {
     return this.api.get<{ url: string }>(`/upload/url?key=${encodeURIComponent(key)}`);

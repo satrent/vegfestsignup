@@ -387,6 +387,28 @@
                         </span>
                     </div>
                 </div>
+                <div class="admin-upload-section">
+                    <h4>Upload Document for Exhibitor</h4>
+                    <div class="admin-upload-form">
+                        <select [(ngModel)]="adminUploadType" class="admin-upload-select">
+                            <option value="COI">Certificate of Insurance (COI)</option>
+                            <option value="ST-19">ST-19</option>
+                            <option value="Food License">Food License</option>
+                            <option value="Food Permit">Food Permit</option>
+                            <option value="Menu">Menu</option>
+                        </select>
+                        <label class="file-pick-label">
+                            <span>{{ adminUploadFileName || 'Choose file...' }}</span>
+                            <input type="file" (change)="onAdminFileSelected($event)" accept=".pdf,.jpg,.jpeg,.png" style="display:none">
+                        </label>
+                        <button class="small-btn" (click)="uploadDocument()" [disabled]="!adminUploadFile || isUploading">
+                            {{ isUploading ? 'Uploading...' : 'Upload' }}
+                        </button>
+                    </div>
+                    <div *ngIf="adminUploadError" class="upload-error">{{ adminUploadError }}</div>
+                    <div *ngIf="adminUploadSuccess" class="upload-success">{{ adminUploadSuccess }}</div>
+                </div>
+
                 <div class="doc-list">
                     <div *ngIf="!displayedDocuments.length">No documents found.</div>
 

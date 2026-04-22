@@ -91,8 +91,14 @@ router.post(
                 return;
             }
 
-            // Find registration for this user
-            const registration = await Registration.findOne({ userId: user.userId });
+            // Admins can upload on behalf of any registration by passing registrationId
+            const { registrationId } = req.body;
+            let registration;
+            if (registrationId && user.role === 'ADMIN') {
+                registration = await Registration.findById(registrationId);
+            } else {
+                registration = await Registration.findOne({ userId: user.userId });
+            }
             if (!registration) {
                 res.status(404).json({ message: 'Registration not found' });
                 return;
