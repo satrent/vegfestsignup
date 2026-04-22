@@ -34,7 +34,8 @@ export class DashboardComponent implements OnInit {
 
     get isFoodVendor(): boolean {
         const cat = this.registration?.organizationCategory || '';
-        return cat.toLowerCase().includes('food') || cat.toLowerCase().includes('drink') || cat.toLowerCase().includes('ice cream');
+        return cat === 'On-site food prep & sales $600' ||
+            cat === 'Food business with on-site food prep — not a restaurant or food truck $350';
     }
 
     get isThcVendor(): boolean {

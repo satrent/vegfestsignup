@@ -53,8 +53,9 @@ export class ValuesComponent implements OnInit {
             if (reg && reg._id) {
                 this.registrationId = reg._id;
 
-                const category = (reg.organizationCategory || '').toLowerCase();
-                this.isFoodVendor = category.includes('food');
+                const category = reg.organizationCategory || '';
+                this.isFoodVendor = category === 'On-site food prep & sales $600' ||
+                    category === 'Food business with on-site food prep — not a restaurant or food truck $350';
 
                 if (this.isFoodVendor) {
                     this.form.get('veganFoodAck')?.setValidators(Validators.requiredTrue);

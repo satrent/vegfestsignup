@@ -85,9 +85,10 @@ export class FoodComplianceComponent implements OnInit {
                 this.documents = reg.documents || [];
 
                 // Determine type
-                const cat = (reg.organizationCategory || '').toLowerCase();
-                this.isFoodVendor = cat.includes('food') || cat.includes('drink') || cat.includes('ice cream');
-                this.isThcVendor = cat.includes('thc');
+                const cat = reg.organizationCategory || '';
+                this.isFoodVendor = cat === 'On-site food prep & sales $600' ||
+                    cat === 'Food business with on-site food prep — not a restaurant or food truck $350';
+                this.isThcVendor = cat.toLowerCase().includes('thc');
 
                 // Patch values
                 this.form.patchValue({
