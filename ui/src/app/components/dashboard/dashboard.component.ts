@@ -67,7 +67,9 @@ export class DashboardComponent implements OnInit {
         let visibleSections = this.allSections.filter(s => this.isSectionVisible(s.id));
 
         if (this.registration.type === 'Sponsor') {
-            visibleSections = visibleSections.filter(s => ['contact', 'products', 'payment'].includes(s.id));
+            const isProductSponsor = this.registration.sponsorshipLevel?.toLowerCase() === 'product';
+            const sponsorSections = isProductSponsor ? ['contact', 'products'] : ['contact', 'products', 'payment'];
+            visibleSections = visibleSections.filter(s => sponsorSections.includes(s.id));
             // Rename 'Category & offering' to 'Logo Upload' for sponsors
             visibleSections = visibleSections.map(s => {
                 if (s.id === 'products') {
@@ -163,7 +165,8 @@ export class DashboardComponent implements OnInit {
         const s = this.registration.sectionStatus;
 
         if (this.registration.type === 'Sponsor') {
-            return s.contact && s.products && s.payment;
+            const isProductSponsor = this.registration.sponsorshipLevel?.toLowerCase() === 'product';
+            return isProductSponsor ? s.contact && s.products : s.contact && s.products && s.payment;
         }
 
         // If no booth, only Contact and Payment are needed
