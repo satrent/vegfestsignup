@@ -359,7 +359,16 @@
                     <h3>Sponsorship</h3>
                     <div class="form-grid">
                         <div class="field-group"><label>Level</label>
-                            <div class="value">{{tempRegistration.sponsorshipLevel || '-'}}</div>
+                            <select *ngIf="isSuperAdmin" [(ngModel)]="tempRegistration.sponsorshipLevel">
+                                <option value="">—</option>
+                                <option value="product">Product</option>
+                                <option value="bronze">Bronze</option>
+                                <option value="silver">Silver</option>
+                                <option value="gold">Gold</option>
+                                <option value="platinum">Platinum</option>
+                                <option value="presenting">Presenting</option>
+                            </select>
+                            <div *ngIf="!isSuperAdmin" class="value">{{tempRegistration.sponsorshipLevel || '-'}}</div>
                         </div>
                         <div class="field-group"><label>Logo</label>
                             <div *ngIf="tempRegistration.logoUrl"><a [href]="tempRegistration.logoUrl"
