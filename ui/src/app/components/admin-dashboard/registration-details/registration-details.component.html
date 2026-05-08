@@ -26,6 +26,7 @@
             <button [class.active]="activeTab === 'profile'" (click)="setActiveTab('profile')">Profile</button>
             <button [class.active]="activeTab === 'documents'" (click)="setActiveTab('documents')">Documents</button>
             <button [class.active]="activeTab === 'todos'" (click)="setActiveTab('todos')">Communications</button>
+            <button [class.active]="activeTab === 'recognition'" (click)="setActiveTab('recognition')">Recognition</button>
             <button [class.active]="activeTab === 'billing'" (click)="setActiveTab('billing')">Billing</button>
         </div>
 
@@ -526,6 +527,52 @@
                         </div>
                     </div>
                 </div>
+            </div>
+
+            <!-- Recognition Tab -->
+            <div *ngIf="activeTab === 'recognition'">
+
+                <div class="section-group">
+                    <h3>To-Do Items</h3>
+                    <div class="todo-list" style="margin-bottom: 1rem;">
+                        <div *ngIf="!tempRegistration.recognitionTodos || tempRegistration.recognitionTodos.length === 0" class="text-gray-500">
+                            No to-do items yet.
+                        </div>
+                        <div *ngFor="let todo of tempRegistration.recognitionTodos" style="display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem 0; border-bottom: 1px solid #eee;">
+                            <input type="checkbox" [checked]="todo.isCompleted" (change)="toggleRecognitionTodo(todo, $event)" [disabled]="isTogglingRecognitionTodo(todo._id)">
+                            <span [style.textDecoration]="todo.isCompleted ? 'line-through' : 'none'" [style.color]="todo.isCompleted ? '#9ca3af' : 'inherit'" style="flex: 1;">
+                                {{todo.text}}
+                            </span>
+                            <span style="font-size: 0.75rem; color: #9ca3af;">{{todo.createdAt | date:'shortDate'}}</span>
+                        </div>
+                    </div>
+                    <div class="add-todo" style="display: flex; gap: 0.5rem;">
+                        <input type="text" [(ngModel)]="newRecognitionTodoText" placeholder="Add a new to-do..." style="flex: 1; padding: 0.5rem; border: 1px solid #d1d5db; border-radius: 4px;" (keydown.enter)="addRecognitionTodo()">
+                        <button (click)="addRecognitionTodo()" [disabled]="!newRecognitionTodoText.trim() || isAddingRecognitionTodo" style="padding: 0.5rem 1rem; background: #4f46e5; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                            {{ isAddingRecognitionTodo ? 'Adding...' : 'Add' }}
+                        </button>
+                    </div>
+                </div>
+
+                <div class="section-group">
+                    <h3>Notes</h3>
+                    <div class="todo-list" style="margin-bottom: 1rem;">
+                        <div *ngIf="!tempRegistration.recognitionNotes || tempRegistration.recognitionNotes.length === 0" class="text-gray-500">
+                            No notes yet.
+                        </div>
+                        <div *ngFor="let note of tempRegistration.recognitionNotes" style="padding: 0.5rem 0; border-bottom: 1px solid #eee;">
+                            <div style="font-size: 0.875rem; white-space: pre-wrap;">{{note.text}}</div>
+                            <div style="font-size: 0.75rem; color: #9ca3af; margin-top: 0.2rem;">{{note.createdAt | date:'shortDate'}}</div>
+                        </div>
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                        <textarea [(ngModel)]="newRecognitionNoteText" placeholder="Add a note..." rows="3" style="padding: 0.5rem; border: 1px solid #d1d5db; border-radius: 4px; resize: vertical; font-size: 0.875rem;"></textarea>
+                        <button (click)="addRecognitionNote()" [disabled]="!newRecognitionNoteText.trim() || isAddingRecognitionNote" style="align-self: flex-end; padding: 0.5rem 1rem; background: #4f46e5; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                            {{ isAddingRecognitionNote ? 'Adding...' : 'Add Note' }}
+                        </button>
+                    </div>
+                </div>
+
             </div>
 
             <!-- Billing Tab -->

@@ -284,6 +284,13 @@ export class RegistrationDetailsComponent {
     newEmailSubject = '';
     isAddingEmailLog = false;
 
+    // Recognition
+    newRecognitionTodoText = '';
+    isAddingRecognitionTodo = false;
+    togglingRecognitionTodos = new Set<string>();
+    newRecognitionNoteText = '';
+    isAddingRecognitionNote = false;
+
     // Admin document upload
     adminUploadType = 'COI';
     adminUploadFile: File | null = null;
@@ -374,7 +381,7 @@ export class RegistrationDetailsComponent {
     toggleTodo(todo: any, event: Event): void {
         if (!this.tempRegistration?._id || !todo._id) return;
         const isCompleted = (event.target as HTMLInputElement).checked;
-        
+
         this.togglingTodos.add(todo._id);
         this.storageService.updateTodo(this.tempRegistration._id, todo._id, isCompleted).subscribe({
             next: (updated) => {
@@ -387,6 +394,75 @@ export class RegistrationDetailsComponent {
                 (event.target as HTMLInputElement).checked = !isCompleted;
                 todo.isCompleted = !isCompleted;
                 this.togglingTodos.delete(todo._id);
+            }
+        });
+    }
+
+    // --- Recognition Methods ---
+
+    isTogglingRecognitionTodo(id?: string): boolean {
+        return id ? this.togglingRecognitionTodos.has(id) : false;
+    }
+
+    addRecognitionTodo(): void {
+        const text = this.newRecognitionTodoText.trim();
+        if (!text || !this.tempRegistration?._id) return;
+
+        this.isAddingRecognitionTodo = true;
+        this.storageService.addRecognitionTodo(this.tempRegistration._id, text).subscribe({
+            next: (todo) => {
+                if (!this.tempRegistration!.recognitionTodos) {
+                    this.tempRegistration!.recognitionTodos = [];
+                }
+                this.tempRegistration!.recognitionTodos.push(todo);
+                this.newRecognitionTodoText = '';
+                this.isAddingRecognitionTodo = false;
+            },
+            error: (err) => {
+                console.error('Failed to add recognition to-do', err);
+                alert('Failed to add recognition to-do');
+                this.isAddingRecognitionTodo = false;
+            }
+        });
+    }
+
+    toggleRecognitionTodo(todo: any, event: Event): void {
+        if (!this.tempRegistration?._id || !todo._id) return;
+        const isCompleted = (event.target as HTMLInputElement).checked;
+
+        this.togglingRecognitionTodos.add(todo._id);
+        this.storageService.updateRecognitionTodo(this.tempRegistration._id, todo._id, isCompleted).subscribe({
+            next: (updated) => {
+                todo.isCompleted = updated.isCompleted;
+                this.togglingRecognitionTodos.delete(todo._id);
+            },
+            error: (err) => {
+                console.error('Failed to update recognition to-do', err);
+                (event.target as HTMLInputElement).checked = !isCompleted;
+                todo.isCompleted = !isCompleted;
+                this.togglingRecognitionTodos.delete(todo._id);
+            }
+        });
+    }
+
+    addRecognitionNote(): void {
+        const text = this.newRecognitionNoteText.trim();
+        if (!text || !this.tempRegistration?._id) return;
+
+        this.isAddingRecognitionNote = true;
+        this.storageService.addRecognitionNote(this.tempRegistration._id, text).subscribe({
+            next: (note) => {
+                if (!this.tempRegistration!.recognitionNotes) {
+                    this.tempRegistration!.recognitionNotes = [];
+                }
+                this.tempRegistration!.recognitionNotes.push(note);
+                this.newRecognitionNoteText = '';
+                this.isAddingRecognitionNote = false;
+            },
+            error: (err) => {
+                console.error('Failed to add recognition note', err);
+                alert('Failed to add recognition note');
+                this.isAddingRecognitionNote = false;
             }
         });
     }

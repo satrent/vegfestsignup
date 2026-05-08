@@ -216,6 +216,17 @@ export interface IRegistration extends Document {
         isCompleted: boolean;
         createdAt?: Date;
     }[];
+    recognitionTodos?: {
+        _id?: mongoose.Types.ObjectId;
+        text: string;
+        isCompleted: boolean;
+        createdAt?: Date;
+    }[];
+    recognitionNotes?: {
+        _id?: mongoose.Types.ObjectId;
+        text: string;
+        createdAt?: Date;
+    }[];
 }
 
 const registrationSchema = new Schema<IRegistration>(
@@ -527,6 +538,15 @@ const registrationSchema = new Schema<IRegistration>(
             isCompleted: { type: Boolean, default: false },
             createdAt: { type: Date, default: Date.now }
             // _id is automatically added by mongoose for subdocuments
+        }],
+        recognitionTodos: [{
+            text: { type: String, required: true },
+            isCompleted: { type: Boolean, default: false },
+            createdAt: { type: Date, default: Date.now }
+        }],
+        recognitionNotes: [{
+            text: { type: String, required: true },
+            createdAt: { type: Date, default: Date.now }
         }]
     },
     {

@@ -218,6 +218,17 @@ export interface Registration {
     isCompleted: boolean;
     createdAt?: Date;
   }[];
+  recognitionTodos?: {
+    _id?: string;
+    text: string;
+    isCompleted: boolean;
+    createdAt?: Date;
+  }[];
+  recognitionNotes?: {
+    _id?: string;
+    text: string;
+    createdAt?: Date;
+  }[];
 }
 
 @Injectable({
@@ -359,5 +370,19 @@ export class StorageService {
 
   deleteTodo(id: string, todoId: string): Observable<any> {
     return this.api.delete<any>(`/registrations/${id}/todos/${todoId}`);
+  }
+
+  // Recognition To-Do Methods
+  addRecognitionTodo(id: string, text: string): Observable<any> {
+    return this.api.post<any>(`/registrations/${id}/recognition-todos`, { text });
+  }
+
+  updateRecognitionTodo(id: string, todoId: string, isCompleted: boolean): Observable<any> {
+    return this.api.patch<any>(`/registrations/${id}/recognition-todos/${todoId}`, { isCompleted });
+  }
+
+  // Recognition Note Methods
+  addRecognitionNote(id: string, text: string): Observable<any> {
+    return this.api.post<any>(`/registrations/${id}/recognition-notes`, { text });
   }
 }

@@ -897,4 +897,118 @@ router.delete(
     }
 );
 
+// --- Recognition To-Dos ---
+
+// Add a Recognition To-Do item (Admin only)
+router.post(
+    '/:id/recognition-todos',
+    authenticate,
+    requireAdmin,
+    [body('text').trim().notEmpty()],
+    async (req: Request, res: Response) => {
+        try {
+            const { id } = req.params;
+            const { text } = req.body;
+
+            const errors = validationResult(req);
+            if (!errors.isEmpty()) {
+                res.status(400).json({ errors: errors.array() });
+                return;
+            }
+
+            const registration = await Registration.findById(id);
+            if (!registration) {
+                res.status(404).json({ error: 'Registration not found' });
+                return;
+            }
+
+            if (!registration.recognitionTodos) {
+                registration.recognitionTodos = [];
+            }
+
+            registration.recognitionTodos.push({ text, isCompleted: false });
+            await registration.save();
+
+            res.status(201).json(registration.recognitionTodos[registration.recognitionTodos.length - 1]);
+        } catch (error) {
+            console.error('Error adding recognition to-do:', error);
+            res.status(500).json({ error: 'Failed to add recognition to-do' });
+        }
+    }
+);
+
+// Update a Recognition To-Do item (Admin only)
+router.patch(
+    '/:id/recognition-todos/:todoId',
+    authenticate,
+    requireAdmin,
+    [body('isCompleted').isBoolean()],
+    async (req: Request, res: Response) => {
+        try {
+            const { id, todoId } = req.params;
+            const { isCompleted } = req.body;
+
+            const registration = await Registration.findById(id);
+            if (!registration) {
+                res.status(404).json({ error: 'Registration not found' });
+                return;
+            }
+
+            const todo = registration.recognitionTodos?.find(t => t._id?.toString() === todoId);
+            if (!todo) {
+                res.status(404).json({ error: 'Recognition to-do not found' });
+                return;
+            }
+
+            todo.isCompleted = isCompleted;
+            await registration.save();
+
+            res.json(todo);
+        } catch (error) {
+            console.error('Error updating recognition to-do:', error);
+            res.status(500).json({ error: 'Failed to update recognition to-do' });
+        }
+    }
+);
+
+// --- Recognition Notes ---
+
+// Add a Recognition Note (Admin only)
+router.post(
+    '/:id/recognition-notes',
+    authenticate,
+    requireAdmin,
+    [body('text').trim().notEmpty()],
+    async (req: Request, res: Response) => {
+        try {
+            const { id } = req.params;
+            const { text } = req.body;
+
+            const errors = validationResult(req);
+            if (!errors.isEmpty()) {
+                res.status(400).json({ errors: errors.array() });
+                return;
+            }
+
+            const registration = await Registration.findById(id);
+            if (!registration) {
+                res.status(404).json({ error: 'Registration not found' });
+                return;
+            }
+
+            if (!registration.recognitionNotes) {
+                registration.recognitionNotes = [];
+            }
+
+            registration.recognitionNotes.push({ text });
+            await registration.save();
+
+            res.status(201).json(registration.recognitionNotes[registration.recognitionNotes.length - 1]);
+        } catch (error) {
+            console.error('Error adding recognition note:', error);
+            res.status(500).json({ error: 'Failed to add recognition note' });
+        }
+    }
+);
+
 export default router;
