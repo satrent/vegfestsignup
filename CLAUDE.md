@@ -5,7 +5,7 @@
 - Always complete the full task — no half-done work
 - Both the UI and API must build successfully before a task is considered done
 - Never commit or push to git — the user handles all reviews, commits, and pushes
-- We work directly on the `main` branch
+- We work directly on the `main` branch — do not use git worktrees. Changes made in a worktree won't be picked up by the live dev servers, which run from the main project directory.
 
 ## Environment
 

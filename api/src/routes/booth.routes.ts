@@ -257,7 +257,7 @@ router.get('/unassigned', async (_req: Request, res: Response) => {
             // It's a bit complicated, so we can fetch all and filter in memory, or use aggregation
         };
 
-        const allApprovedReqs = await Registration.find(query).select('organizationName firstName lastName email phone numBoothSpaces assignedBoothIds').lean();
+        const allApprovedReqs = await Registration.find(query).select('organizationName firstName lastName email phone numBoothSpaces assignedBoothIds type sponsorshipLevel sponsorshipInterest tags').lean();
 
         // Filter those who haven't fulfilled their requested number of spaces
         const unassignedList = allApprovedReqs.filter(r =>

@@ -30,6 +30,10 @@ export interface UnassignedRegistration {
   phone: string;
   numBoothSpaces: number;
   assignedBoothIds: string[];
+  type?: 'Exhibitor' | 'Sponsor' | 'Both';
+  sponsorshipLevel?: string;
+  sponsorshipInterest?: boolean;
+  tags?: string[];
 }
 
 @Injectable({
