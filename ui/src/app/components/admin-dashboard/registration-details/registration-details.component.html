@@ -61,6 +61,14 @@
                         </div>
 
                         <div class="field-group">
+                            <label>Traveling 100+ Miles?</label>
+                            <label class="toggle-label">
+                                <input type="checkbox" [(ngModel)]="tempRegistration.travelingOver100Miles">
+                                <span>{{ tempRegistration.travelingOver100Miles ? 'Yes (50% distance discount)' : 'No' }}</span>
+                            </label>
+                        </div>
+
+                        <div class="field-group">
                             <label>Invoiced?</label>
                             <label class="toggle-label">
                                 <input type="checkbox" [(ngModel)]="tempRegistration.invoiced">

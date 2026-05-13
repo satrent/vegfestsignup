@@ -55,6 +55,9 @@ export class ContactInfoComponent implements OnInit {
       state: ['', Validators.required],
       zip: ['', Validators.required],
 
+      // Travel
+      travelingOver100Miles: [false],
+
       // History
       participatedBefore: [null, Validators.required],
       soldElsewhere: [''],

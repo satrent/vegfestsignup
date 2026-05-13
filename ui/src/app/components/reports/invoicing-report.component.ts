@@ -81,7 +81,7 @@ export class InvoicingReportComponent implements OnInit {
     exportCsv(): void {
         if (this.filteredData.length === 0) return;
 
-        let csvContent = 'Organization Name,Contact Name,Email,Phone,Type,Status,Invoiced,Base Fee,Discount,BIPGM Owned,Est. Month,Est. Year,Security Deposit,Extra Site Cost,Equipment Cost,Special Power Fee,Initial Invoice Amount,Amount Paid,Quickbooks Invoice Link\n';
+        let csvContent = 'Organization Name,Contact Name,Email,Phone,Type,Status,Invoiced,Base Fee,Discount,Discount Notes,Est. Month,Est. Year,Security Deposit,Extra Site Cost,Equipment Cost,Special Power Fee,Initial Invoice Amount,Amount Paid,Quickbooks Invoice Link\n';
 
         this.filteredData.forEach(row => {
             const contactName = `${row.firstName} ${row.lastName}`;
@@ -99,11 +99,11 @@ export class InvoicingReportComponent implements OnInit {
             const initialAmount = row.initialInvoiceAmount || 0;
             const amountPaid = row.amountPaid || 0;
             const qbLink = row.quickbooksInvoiceLink || '';
-            const bipgmOwned = row.bipgmOwned ? 'Yes' : 'No';
+            const discountNotes = (bd.discountNotes || []).join('; ');
             const estMonth = row.establishedMonth || '';
             const estYear = row.establishedYear || '';
 
-            csvContent += `${this.escapeCsv(row.organizationName)},${this.escapeCsv(contactName)},${this.escapeCsv(row.email)},${this.escapeCsv(row.phone)},${this.escapeCsv(row.type)},${this.escapeCsv(row.status)},${invoiced},${baseFee},${discount},${bipgmOwned},${this.escapeCsv(estMonth)},${this.escapeCsv(estYear)},${secDep},${extraSite},${equip},${specPower},${initialAmount},${amountPaid},${this.escapeCsv(qbLink)}\n`;
+            csvContent += `${this.escapeCsv(row.organizationName)},${this.escapeCsv(contactName)},${this.escapeCsv(row.email)},${this.escapeCsv(row.phone)},${this.escapeCsv(row.type)},${this.escapeCsv(row.status)},${invoiced},${baseFee},${discount},${this.escapeCsv(discountNotes)},${this.escapeCsv(estMonth)},${this.escapeCsv(estYear)},${secDep},${extraSite},${equip},${specPower},${initialAmount},${amountPaid},${this.escapeCsv(qbLink)}\n`;
         });
 
         const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });

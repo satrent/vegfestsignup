@@ -196,6 +196,16 @@
             </div>
         </div>
 
+        @if (!isSponsor) {
+        <!-- Travel Distance Discount -->
+        <div class="form-group">
+            <label class="checkbox-container">
+                <input type="checkbox" formControlName="travelingOver100Miles">
+                <span class="label-text">I will be traveling 100 miles or more to the festival <span class="optional">(Qualifies for 50% off base exhibitor fee)</span></span>
+            </label>
+        </div>
+        }
+
         <!-- History -->
         <div class="form-group">
             <label>Have you participated in Twin Cities Veg Fest before? [Yes/No]<span class="required">*</span></label>
