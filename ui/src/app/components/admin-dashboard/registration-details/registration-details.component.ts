@@ -290,6 +290,9 @@ export class RegistrationDetailsComponent {
     togglingRecognitionTodos = new Set<string>();
     newRecognitionNoteText = '';
     isAddingRecognitionNote = false;
+    isInitializingRecognitionTodos = false;
+
+    readonly recognizedSponsorshipLevels = ['presenting', 'platinum', 'gold', 'silver', 'bronze', 'product'];
 
     // Admin document upload
     adminUploadType = 'COI';
@@ -441,6 +444,36 @@ export class RegistrationDetailsComponent {
                 (event.target as HTMLInputElement).checked = !isCompleted;
                 todo.isCompleted = !isCompleted;
                 this.togglingRecognitionTodos.delete(todo._id);
+            }
+        });
+    }
+
+    get canInitializeRecognitionTodos(): boolean {
+        const level = this.tempRegistration?.sponsorshipLevel?.toLowerCase();
+        return !!level && this.recognizedSponsorshipLevels.includes(level);
+    }
+
+    initializeRecognitionTodos(): void {
+        if (!this.tempRegistration?._id) return;
+
+        const existingCount = this.tempRegistration.recognitionTodos?.length ?? 0;
+        if (existingCount > 0) {
+            const confirmed = confirm(
+                `This sponsor already has ${existingCount} recognition to-do(s). Add the initial set anyway?`
+            );
+            if (!confirmed) return;
+        }
+
+        this.isInitializingRecognitionTodos = true;
+        this.storageService.initializeRecognitionTodos(this.tempRegistration._id).subscribe({
+            next: (todos) => {
+                this.tempRegistration!.recognitionTodos = todos;
+                this.isInitializingRecognitionTodos = false;
+            },
+            error: (err) => {
+                console.error('Failed to initialize recognition todos', err);
+                alert(err?.error?.error || 'Failed to initialize recognition todos');
+                this.isInitializingRecognitionTodos = false;
             }
         });
     }

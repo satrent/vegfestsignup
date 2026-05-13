@@ -897,6 +897,118 @@ router.delete(
     }
 );
 
+// --- Recognition To-Do Templates ---
+
+function generateNewsletterMonthTodos(createdAt: Date): string[] {
+    const start = new Date(createdAt);
+    start.setMonth(start.getMonth() + 1);
+    start.setDate(1);
+
+    const end = new Date(2026, 11, 1); // December 2026
+    const todos: string[] = [];
+    const cur = new Date(start);
+
+    while (cur <= end) {
+        const label = cur.toLocaleString('default', { month: 'long', year: 'numeric' });
+        todos.push(`Newsletter header recognition – ${label}`);
+        cur.setMonth(cur.getMonth() + 1);
+    }
+
+    return todos;
+}
+
+type TodoTemplateFactory = (createdAt: Date) => string[];
+
+const RECOGNITION_TODO_TEMPLATES: Record<string, TodoTemplateFactory> = {
+    presenting: (createdAt) => [
+        'Update all communications to include "Twin Cities Veg Fest presented by [Sponsor]" naming',
+        'Add presenting sponsor recognition to website, social, radio, TV, blogs, and posters',
+        'Add presenting sponsor header recognition to all CAA events (Feb–Dec 2026)',
+        'Collect full-page ad artwork from sponsor (5,000 print + digital)',
+        'Add vertical banner with sponsor logo prominently to website',
+        'Add sponsor to website presenters section',
+        'Schedule reel collaboration with $100 giveaway',
+        ...generateNewsletterMonthTodos(createdAt),
+        'Schedule dedicated sponsor newsletter feature',
+        'Confirm number of exhibitor booths needed (up to 10) and coordinate setup',
+        'Coordinate 20-amp electrical setup and preferred booth location',
+        'Coordinate sponsor talk, cooking demo, or panel participation',
+        'Arrange 10 on-site staff meals for sponsor',
+        'Arrange free entry to Chili Cook-Off & Chef Challenge (restaurants only)',
+    ],
+    platinum: (_createdAt) => [
+        'Collect full-page ad artwork from sponsor',
+        'Add sponsor to magazine shopping guide listing',
+        'Add sponsor horizontal logo to website header',
+        'Add sponsor to website presenters section',
+        'Schedule reel collaboration with $75 giveaway',
+        'Set up 6 newsletter mentions for sponsor',
+        'Schedule dedicated sponsor newsletter feature',
+        'Set up naming for sponsor as Vegan Chef Challenge month sponsor',
+        'Add sponsor link to all Chef Challenge pages and press releases',
+        'Confirm number of exhibitor booths needed (up to 5) and coordinate setup',
+        'Coordinate 15-amp electrical setup at prime location',
+        'Coordinate sponsor talk, cooking demo, or panel participation',
+        'Arrange 5 on-site staff meals for sponsor',
+        'Arrange sponsor banner in zero waste area',
+        'Arrange free entry to Chili Cook-Off & Chef Challenge (restaurants only)',
+    ],
+    gold: (_createdAt) => [
+        'Collect ½-page ad artwork from sponsor (or confirm discount on larger ad)',
+        'Add sponsor to magazine shopping guide listing',
+        'Add large sponsor logo to Gold sponsors section on website',
+        'Add sponsor to website presenters section',
+        'Schedule reel collaboration with $50 giveaway',
+        'Set up 2 newsletter mentions for sponsor',
+        'Schedule sponsor feature in one dedicated newsletter',
+        'Link sponsor on 1 holiday potluck + 3 CAA outreach events',
+        'Coordinate 2 exhibitor booth setup (table, tent, 2 chairs each)',
+        'Coordinate up to 10-amp electrical setup at prime location',
+        'Coordinate sponsor talk, cooking demo, or panel participation',
+        'Arrange 5 on-site staff meals for sponsor',
+        'Assign stage or shuttle naming rights to sponsor',
+        'Collect sponsor logo for festival t-shirt printing',
+        'Arrange 3 on-site parking spots for sponsor',
+        'Arrange free entry to Chili Cook-Off & Chef Challenge (restaurants only)',
+    ],
+    silver: (_createdAt) => [
+        'Collect ¼-page ad artwork from sponsor (or confirm discount on larger ad)',
+        'Add sponsor to magazine shopping guide listing',
+        'Add medium sponsor logo to Silver sponsors section on website',
+        'Add sponsor to website presenters section',
+        'Include sponsor in roundup social post',
+        'Set up 1 newsletter mention for sponsor',
+        'Link sponsor on 3 CAA outreach events',
+        'Coordinate exhibitor booth setup (table, tent, 2 chairs)',
+        'Coordinate basic electrical setup at prime location',
+        'Coordinate sponsor talk, cooking demo, or panel participation',
+        'Arrange 3 on-site staff meals for sponsor',
+        'Assign activity or rest area naming rights to sponsor',
+        'Collect sponsor logo for festival t-shirt printing',
+        'Arrange 3 on-site parking spots for sponsor',
+        'Arrange free entry to Chili Cook-Off & Chef Challenge (restaurants only)',
+    ],
+    bronze: (_createdAt) => [
+        'Collect ⅛-page ad artwork from sponsor (or confirm discount on larger ad)',
+        'Add sponsor to magazine shopping guide listing',
+        'Add small sponsor logo to Bronze sponsors section on website',
+        'Include sponsor in roundup social post',
+        'Set up 1 newsletter mention for sponsor (grouped with bronze sponsors)',
+        'Link sponsor on 1 CAA film screening, potluck, or cooking class',
+        'Coordinate prime exhibitor location for sponsor booth',
+        'Arrange free entry to Chili Cook-Off & Chef Challenge (restaurants only)',
+    ],
+    product: (_createdAt) => [
+        'Add small sponsor logo to magazine',
+        'Add sponsor to magazine shopping guide listing',
+        'Add small sponsor logo to Product Sponsors section on website',
+        'Include sponsor in roundup social post',
+        'Set up 1 newsletter mention for sponsor (grouped with product sponsors)',
+        'Coordinate sponsor product inclusion in 300 swag bags',
+        'Coordinate prime exhibitor location (if purchasing exhibitor spot)',
+    ],
+};
+
 // --- Recognition To-Dos ---
 
 // Add a Recognition To-Do item (Admin only)
@@ -933,6 +1045,47 @@ router.post(
         } catch (error) {
             console.error('Error adding recognition to-do:', error);
             res.status(500).json({ error: 'Failed to add recognition to-do' });
+        }
+    }
+);
+
+// Initialize Recognition To-Dos from sponsorship level template (Admin only)
+router.post(
+    '/:id/recognition-todos/initialize',
+    authenticate,
+    requireAdmin,
+    async (req: Request, res: Response) => {
+        try {
+            const { id } = req.params;
+
+            const registration = await Registration.findById(id);
+            if (!registration) {
+                res.status(404).json({ error: 'Registration not found' });
+                return;
+            }
+
+            const level = registration.sponsorshipLevel?.toLowerCase();
+            if (!level || !RECOGNITION_TODO_TEMPLATES[level]) {
+                res.status(400).json({ error: `No recognition todo template found for sponsorship level: "${registration.sponsorshipLevel || 'none'}"` });
+                return;
+            }
+
+            const todoTexts = RECOGNITION_TODO_TEMPLATES[level](registration.createdAt);
+
+            if (!registration.recognitionTodos) {
+                registration.recognitionTodos = [];
+            }
+
+            for (const text of todoTexts) {
+                registration.recognitionTodos.push({ text, isCompleted: false });
+            }
+
+            await registration.save();
+
+            res.status(201).json(registration.recognitionTodos);
+        } catch (error) {
+            console.error('Error initializing recognition todos:', error);
+            res.status(500).json({ error: 'Failed to initialize recognition todos' });
         }
     }
 );

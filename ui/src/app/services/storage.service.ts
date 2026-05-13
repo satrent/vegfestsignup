@@ -385,4 +385,8 @@ export class StorageService {
   addRecognitionNote(id: string, text: string): Observable<any> {
     return this.api.post<any>(`/registrations/${id}/recognition-notes`, { text });
   }
+
+  initializeRecognitionTodos(id: string): Observable<any[]> {
+    return this.api.post<any[]>(`/registrations/${id}/recognition-todos/initialize`, {});
+  }
 }
