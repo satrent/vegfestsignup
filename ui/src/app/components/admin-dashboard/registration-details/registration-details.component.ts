@@ -449,8 +449,27 @@ export class RegistrationDetailsComponent {
     }
 
     get canInitializeRecognitionTodos(): boolean {
+        const type = this.tempRegistration?.type;
         const level = this.tempRegistration?.sponsorshipLevel?.toLowerCase();
-        return !!level && this.recognizedSponsorshipLevels.includes(level);
+        if (type === 'Exhibitor') return true;
+        if (type === 'Both') return true;
+        if (type === 'Sponsor') return !!level && this.recognizedSponsorshipLevels.includes(level);
+        return false;
+    }
+
+    get initializeTodosDescription(): string {
+        const type = this.tempRegistration?.type;
+        const level = this.tempRegistration?.sponsorshipLevel;
+        const levelLabel = level ? (level.charAt(0).toUpperCase() + level.slice(1)) : null;
+        const hasValidLevel = !!level && this.recognizedSponsorshipLevels.includes(level.toLowerCase());
+
+        if (type === 'Exhibitor') return 'Standard exhibitor to-dos';
+        if (type === 'Sponsor' && levelLabel) return `Based on ${levelLabel} sponsorship level`;
+        if (type === 'Both') {
+            if (hasValidLevel && levelLabel) return `Exhibitor to-dos + ${levelLabel} sponsorship to-dos`;
+            return 'Standard exhibitor to-dos';
+        }
+        return '';
     }
 
     initializeRecognitionTodos(): void {

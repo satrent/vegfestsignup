@@ -920,6 +920,14 @@ function generateNewsletterMonthTodos(createdAt: Date): string[] {
 type TodoTemplateFactory = (createdAt: Date) => string[];
 
 const RECOGNITION_TODO_TEMPLATES: Record<string, TodoTemplateFactory> = {
+    exhibitor: (_createdAt) => [
+        'Collect logo from exhibitor',
+        'Confirm organization name for website listing',
+        'Collect website URL (for webmaster to link)',
+        'Collect booth photo from exhibitor',
+        'Collect product photos from exhibitor',
+        'Collect text description of what they\'ll provide or sell',
+    ],
     presenting: (createdAt) => [
         'Update all communications to include "Twin Cities Veg Fest presented by [Sponsor]" naming',
         'Add presenting sponsor recognition to website, social, radio, TV, blogs, and posters',
@@ -1064,13 +1072,24 @@ router.post(
                 return;
             }
 
+            const type = registration.type; // 'Exhibitor' | 'Sponsor' | 'Both'
             const level = registration.sponsorshipLevel?.toLowerCase();
-            if (!level || !RECOGNITION_TODO_TEMPLATES[level]) {
-                res.status(400).json({ error: `No recognition todo template found for sponsorship level: "${registration.sponsorshipLevel || 'none'}"` });
-                return;
+            const validSponsorLevel = level && RECOGNITION_TODO_TEMPLATES[level];
+
+            const todoTexts: string[] = [];
+
+            if (type === 'Exhibitor' || type === 'Both') {
+                todoTexts.push(...RECOGNITION_TODO_TEMPLATES['exhibitor'](registration.createdAt));
             }
 
-            const todoTexts = RECOGNITION_TODO_TEMPLATES[level](registration.createdAt);
+            if ((type === 'Sponsor' || type === 'Both') && validSponsorLevel) {
+                todoTexts.push(...RECOGNITION_TODO_TEMPLATES[level!](registration.createdAt));
+            }
+
+            if (todoTexts.length === 0) {
+                res.status(400).json({ error: `No recognition todo template found for this registration (type: ${type}, level: ${registration.sponsorshipLevel || 'none'})` });
+                return;
+            }
 
             if (!registration.recognitionTodos) {
                 registration.recognitionTodos = [];
