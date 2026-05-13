@@ -221,6 +221,7 @@ export interface Registration {
   recognitionTodos?: {
     _id?: string;
     text: string;
+    category?: string;
     isCompleted: boolean;
     createdAt?: Date;
   }[];
@@ -388,5 +389,9 @@ export class StorageService {
 
   initializeRecognitionTodos(id: string): Observable<any[]> {
     return this.api.post<any[]>(`/registrations/${id}/recognition-todos/initialize`, {});
+  }
+
+  getRecognitionTodosReport(): Observable<any[]> {
+    return this.api.get<any[]>('/registrations/reports/recognition-todos');
   }
 }

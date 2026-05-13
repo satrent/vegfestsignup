@@ -1,0 +1,163 @@
+<div class="report-wrapper">
+    <div class="no-print report-header-controls">
+        <div class="breadcrumb">
+            <a routerLink="/admin">Admin Dashboard</a> &gt; <a routerLink="/admin/reports">Reports</a> &gt; Recognition To-Dos
+        </div>
+        <div class="controls-row">
+            <h2>Recognition To-Dos Report</h2>
+            <button class="btn-secondary" (click)="loadReport()" [disabled]="loading">
+                ↻ Refresh
+            </button>
+        </div>
+
+        <!-- Tabs -->
+        <div class="tab-nav">
+            <button [class.active]="activeTab === 'exhibitors'" (click)="activeTab = 'exhibitors'">
+                Exhibitors
+            </button>
+            <button [class.active]="activeTab === 'sponsors'" (click)="activeTab = 'sponsors'">
+                Sponsors
+            </button>
+        </div>
+
+        <!-- Exhibitor Filters -->
+        <div class="filter-bar" *ngIf="activeTab === 'exhibitors'">
+            <div class="alpha-group-buttons">
+                <button [class.active]="filterAlphaGroup === ''"    (click)="filterAlphaGroup = ''">All</button>
+                <button [class.active]="filterAlphaGroup === 'A-J'" (click)="filterAlphaGroup = 'A-J'">A–J</button>
+                <button [class.active]="filterAlphaGroup === 'K-S'" (click)="filterAlphaGroup = 'K-S'">K–S</button>
+                <button [class.active]="filterAlphaGroup === 'T-Z'" (click)="filterAlphaGroup = 'T-Z'">T–Z</button>
+            </div>
+            <label class="toggle-label" style="font-size: 0.875rem;">
+                <input type="checkbox" [(ngModel)]="includeTest">
+                <span>Include test records</span>
+            </label>
+            @if (hasExhibitorFilters) {
+                <button class="clear-btn" (click)="clearExhibitorFilters()">Clear</button>
+            }
+            <span class="result-count">{{ exhibitorData.length }} of {{ reportData.length }}</span>
+        </div>
+
+        <!-- Sponsor Filters -->
+        <div class="filter-bar" *ngIf="activeTab === 'sponsors'">
+            <div class="category-buttons">
+                <button [class.active]="filterCategory === 'all'" (click)="filterCategory = 'all'">All Categories</button>
+                <button *ngFor="let cat of SPONSOR_CATEGORIES"
+                        [class.active]="filterCategory === cat"
+                        (click)="filterCategory = cat">{{ cat }}</button>
+            </div>
+            <select [(ngModel)]="filterLevel" class="filter-select">
+                <option value="all">All Levels</option>
+                <option *ngFor="let lvl of SPONSOR_LEVELS" [value]="lvl">{{ levelLabel(lvl) }}</option>
+            </select>
+            <label class="toggle-label" style="font-size: 0.875rem;">
+                <input type="checkbox" [(ngModel)]="includeTest">
+                <span>Include test records</span>
+            </label>
+            @if (hasSponsorFilters) {
+                <button class="clear-btn" (click)="clearSponsorFilters()">Clear</button>
+            }
+            <span class="result-count">{{ sponsorData.length }} sponsors</span>
+        </div>
+    </div>
+
+    @if (loading) {
+        <div class="loading no-print">Loading report data...</div>
+    }
+    @if (error) {
+        <div class="error-message no-print">{{ error }}</div>
+    }
+
+    @if (!loading && !error) {
+        <div class="print-document">
+            <div class="print-header">
+                <h1>Recognition To-Dos — {{ activeTab === 'exhibitors' ? 'Exhibitors' : 'Sponsors' }}</h1>
+                <p>Report generated: {{ today | date:'medium' }}</p>
+            </div>
+
+            <!-- ── Exhibitors Tab ── -->
+            @if (activeTab === 'exhibitors') {
+                <table class="report-table">
+                    <thead>
+                        <tr>
+                            <th class="org-col">Organization</th>
+                            <th class="contact-col">Contact</th>
+                            <th>Open To-Dos</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (row of exhibitorData; track row._id) {
+                            @let todos = exhibitorTodos(row);
+                            @if (todos.length > 0) {
+                            <tr>
+                                <td class="org-col">{{ row.organizationName }}</td>
+                                <td class="contact-col">{{ row.firstName }} {{ row.lastName }}</td>
+                                <td>
+                                    <div *ngFor="let todo of todos" class="todo-check-item">
+                                        <input type="checkbox"
+                                               [checked]="todo.isCompleted"
+                                               [disabled]="isToggling(row._id, todo._id)"
+                                               (change)="toggleTodo(row, todo, $event)">
+                                        <span [class.completed]="todo.isCompleted">{{ todo.text }}</span>
+                                    </div>
+                                </td>
+                            </tr>
+                            }
+                        }
+                        @if (exhibitorData.length === 0) {
+                        <tr>
+                            <td colspan="3" class="empty-state">No exhibitors with open recognition to-dos.</td>
+                        </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+
+            <!-- ── Sponsors Tab ── -->
+            @if (activeTab === 'sponsors') {
+                <table class="report-table">
+                    <thead>
+                        <tr>
+                            <th class="org-col">Organization</th>
+                            <th class="level-col">Level</th>
+                            <th>Open To-Dos</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (row of sponsorData; track row._id) {
+                            @let todos = sponsorTodos(row);
+                            @if (todos.length > 0) {
+                            <tr>
+                                <td class="org-col">{{ row.organizationName }}</td>
+                                <td class="level-col">
+                                    <span class="level-badge">{{ levelLabel(row.sponsorshipLevel) }}</span>
+                                </td>
+                                <td>
+                                    <div *ngFor="let todo of todos" class="todo-check-item">
+                                        <input type="checkbox"
+                                               [checked]="todo.isCompleted"
+                                               [disabled]="isToggling(row._id, todo._id)"
+                                               (change)="toggleTodo(row, todo, $event)">
+                                        <span [class.completed]="todo.isCompleted">{{ todo.text }}</span>
+                                        <span class="category-badge"
+                                              *ngIf="filterCategory === 'all' && todo.category"
+                                              [style.background]="categoryColor(todo.category)"
+                                              [style.color]="categoryTextColor(todo.category)">
+                                            {{ todo.category }}
+                                        </span>
+                                    </div>
+                                </td>
+                            </tr>
+                            }
+                        }
+                        @if (sponsorData.length === 0) {
+                        <tr>
+                            <td colspan="3" class="empty-state">No sponsors with open recognition to-dos.</td>
+                        </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+        </div>
+    }
+</div>

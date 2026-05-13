@@ -448,13 +448,21 @@ export class RegistrationDetailsComponent {
         });
     }
 
-    get canInitializeRecognitionTodos(): boolean {
+    get isApproved(): boolean {
+        return this.tempRegistration?.status === 'Approved';
+    }
+
+    get isEligibleForRecognitionTodos(): boolean {
         const type = this.tempRegistration?.type;
         const level = this.tempRegistration?.sponsorshipLevel?.toLowerCase();
         if (type === 'Exhibitor') return true;
         if (type === 'Both') return true;
         if (type === 'Sponsor') return !!level && this.recognizedSponsorshipLevels.includes(level);
         return false;
+    }
+
+    get canInitializeRecognitionTodos(): boolean {
+        return this.isApproved && this.isEligibleForRecognitionTodos;
     }
 
     get initializeTodosDescription(): string {
