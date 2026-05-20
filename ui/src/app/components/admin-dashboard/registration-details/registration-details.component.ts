@@ -72,6 +72,10 @@ export class RegistrationDetailsComponent {
         return this.authService.isSuperAdmin();
     }
 
+    get isAdmin(): boolean {
+        return this.authService.hasRole(['ADMIN', 'WEB_ADMIN']);
+    }
+
     addTag(tag: string): void {
         if (!tag || !this.tempRegistration) return;
         const normalized = tag.trim();

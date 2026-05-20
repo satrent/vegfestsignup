@@ -435,7 +435,7 @@
                             <span class="doc-name" (click)="viewDocument(doc.key)">{{doc.name}}</span>
                             <span class="doc-meta">{{doc.type}} - {{doc.uploadedAt | date:'short'}}</span>
                         </div>
-                        <div class="doc-actions" *ngIf="isApprovalRequired(doc) && canApprove">
+                        <div class="doc-actions" *ngIf="isApprovalRequired(doc) && isAdmin">
                             <!-- Reviewed Checkbox taking the place of the status badge/Approve button when applicable -->
                             <label class="toggle-label"
                                 style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem;">
@@ -470,7 +470,7 @@
                                 <strong>Reason:</strong> {{doc.rejectionReason}}
                             </div>
                         </div>
-                        <div class="doc-actions" *ngIf="!(isApprovalRequired(doc) && canApprove)">
+                        <div class="doc-actions" *ngIf="!(isApprovalRequired(doc) && isAdmin)">
                             <span class="badge" [ngClass]="doc.status.toLowerCase()">{{doc.status}}</span>
                         </div>
                     </div>
