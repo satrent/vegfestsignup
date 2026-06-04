@@ -195,7 +195,7 @@ export interface Registration {
   };
 
   type: 'Exhibitor' | 'Sponsor' | 'Both';
-  status: 'In Progress' | 'Pending' | 'Waiting for Approval' | 'Approved' | 'Declined';
+  status: 'In Progress' | 'Pending' | 'Waiting for Approval' | 'Approved' | 'Declined' | 'Cancelled';
   websiteStatus?: 'Pending' | 'Added';
   sectionStatus?: {
     contact: boolean;
@@ -306,7 +306,7 @@ export class StorageService {
   }
 
   // Update registration status (admin only)
-  updateRegistrationStatus(id: string, status: 'Pending' | 'Approved' | 'Declined'): Observable<Registration> {
+  updateRegistrationStatus(id: string, status: 'Pending' | 'Approved' | 'Declined' | 'Cancelled'): Observable<Registration> {
     return this.api.patch<Registration>(`/registrations/${id}/status`, { status });
   }
 

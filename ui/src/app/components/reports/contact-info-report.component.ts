@@ -19,7 +19,7 @@ export class ContactInfoReportComponent implements OnInit {
     reportData: any[] = [];
     today = new Date();
 
-    filterStatus: 'all' | 'In Progress' | 'Pending' | 'Approved' | 'Declined' = 'all';
+    filterStatus: 'all' | 'In Progress' | 'Pending' | 'Approved' | 'Declined' | 'Cancelled' = 'all';
     filterAlphaGroup: '' | 'A-J' | 'K-S' | 'T-Z' = '';
     sortAlpha = false;
     includeTest = false;

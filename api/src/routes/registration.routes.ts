@@ -545,7 +545,7 @@ router.patch(
     '/:id/status',
     authenticate,
     requireApprover,
-    [body('status').isIn(['Pending', 'Approved', 'Declined'])],
+    [body('status').isIn(['Pending', 'Approved', 'Declined', 'Cancelled'])],
     async (req: Request, res: Response) => {
         try {
             const { id } = req.params;
@@ -579,6 +579,9 @@ router.patch(
             } else if (status === 'Declined') {
                 newStatus = 'Declined';
                 actionDetails = 'Registration Declined';
+            } else if (status === 'Cancelled') {
+                newStatus = 'Cancelled';
+                actionDetails = 'Registration Cancelled';
             }
 
             // Update the status
@@ -619,7 +622,7 @@ router.patch(
                     actorName: adminName,
                     entityId: registration._id as any,
                     entityType: 'Registration',
-                    action: status === 'Approved' ? 'APPROVE_REGISTRATION' : status === 'Declined' ? 'DECLINE_REGISTRATION' : 'UPDATE_STATUS',
+                    action: status === 'Approved' ? 'APPROVE_REGISTRATION' : status === 'Declined' ? 'DECLINE_REGISTRATION' : status === 'Cancelled' ? 'CANCEL_REGISTRATION' : 'UPDATE_STATUS',
                     details: `${actionDetails}. Changed status from ${previousStatus} to ${newStatus}`,
                     changes: {
                         field: 'status',

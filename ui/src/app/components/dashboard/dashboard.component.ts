@@ -155,6 +155,8 @@ export class DashboardComponent implements OnInit {
                 return 'status-pending';
             case 'In Progress':
                 return 'status-in-progress';
+            case 'Cancelled':
+                return 'status-cancelled';
             default:
                 return 'status-pending';
         }

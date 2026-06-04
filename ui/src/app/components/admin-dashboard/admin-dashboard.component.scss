@@ -194,6 +194,11 @@
     background: #fff5f5;
     color: #e53e3e;
   }
+
+  &.cancelled {
+    background: #f5f5f5;
+    color: #718096;
+  }
 }
 
 .contact-row,
@@ -407,6 +412,11 @@ a {
   &.rejected {
     background: #fff5f5;
     color: #e53e3e;
+  }
+
+  &.cancelled {
+    background: #f5f5f5;
+    color: #718096;
   }
 }
 

@@ -9,7 +9,8 @@
                 <div style="margin-top: 0.25rem; display: flex; gap: 0.5rem;">
                     <span class="badge" [class.approved]="tempRegistration.status === 'Approved'"
                         [class.pending]="tempRegistration.status === 'Pending'"
-                        [class.declined]="tempRegistration.status === 'Declined'">
+                        [class.declined]="tempRegistration.status === 'Declined'"
+                        [class.cancelled]="tempRegistration.status === 'Cancelled'">
                         {{ tempRegistration.status }}
                     </span>
                     <span class="badge" style="background: #e0e7ff; color: #3730a3;">{{ tempRegistration.type }}</span>
@@ -43,9 +44,9 @@
                             <select [(ngModel)]="tempRegistration.status" [disabled]="!canApprove">
                                 <option value="In Progress">In Progress</option>
                                 <option value="Pending">Pending</option>
-
                                 <option value="Approved">Approved</option>
                                 <option value="Declined">Declined</option>
+                                <option value="Cancelled">Cancelled</option>
                             </select>
                             <div *ngIf="hasOpenTodos && tempRegistration.status === 'Approved'" style="color: #d97706; font-size: 0.875rem; margin-top: 0.25rem; font-weight: 500;">
                                 ⚠️ Warning: There are uncompleted To-Dos.

@@ -229,6 +229,11 @@
         background: #fee2e2;
         color: #991b1b;
     }
+
+    &.cancelled {
+        background: #f3f4f6;
+        color: #6b7280;
+    }
 }
 
 .doc-list {

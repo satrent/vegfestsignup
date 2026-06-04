@@ -29,7 +29,7 @@ export class AdminDashboardComponent implements OnInit {
   showFilterModal = false;
   filterName = '';
   filterInvoiced: 'all' | 'yes' | 'no' = 'all';
-  filterStatus: 'all' | 'In Progress' | 'Pending' | 'Approved' | 'Declined' | 'Ready to Add' = 'Pending';
+  filterStatus: 'all' | 'In Progress' | 'Pending' | 'Approved' | 'Declined' | 'Cancelled' | 'Ready to Add' = 'Pending';
   filterTodosOpen = false;
   filterTag = '';
   filterDemographic = '';
@@ -146,7 +146,7 @@ export class AdminDashboardComponent implements OnInit {
     });
   }
 
-  updateStatus(id: string, status: 'Pending' | 'Approved' | 'Declined'): void {
+  updateStatus(id: string, status: 'Pending' | 'Approved' | 'Declined' | 'Cancelled'): void {
     if (!id) {
       console.error('No registration ID provided');
       return;
@@ -294,7 +294,7 @@ export class AdminDashboardComponent implements OnInit {
   }
 
   canApprove(reg: Registration): boolean {
-    if (reg.status === 'Approved' || reg.status === 'Declined' || reg.status === 'In Progress') {
+    if (reg.status === 'Approved' || reg.status === 'Declined' || reg.status === 'In Progress' || reg.status === 'Cancelled') {
       return false;
     }
     // Allow approving Pending or legacy Waiting for Approval

@@ -1,7 +1,7 @@
 import mongoose, { Document, Schema } from 'mongoose';
 
 export type RegistrationType = 'Exhibitor' | 'Sponsor' | 'Both';
-export type RegistrationStatus = 'In Progress' | 'Pending' | 'Approved' | 'Declined';
+export type RegistrationStatus = 'In Progress' | 'Pending' | 'Approved' | 'Declined' | 'Cancelled';
 export type WebsiteStatus = 'Pending' | 'Added';
 
 export interface IRegistration extends Document {
@@ -509,7 +509,7 @@ const registrationSchema = new Schema<IRegistration>(
         },
         status: {
             type: String,
-            enum: ['In Progress', 'Pending', 'Approved', 'Declined'],
+            enum: ['In Progress', 'Pending', 'Approved', 'Declined', 'Cancelled'],
             default: 'In Progress',
         },
         approvedBy: [{
