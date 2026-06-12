@@ -110,6 +110,103 @@ router.post(
     }
 );
 
+// Admin: Manually create a registration (Super Admin only)
+router.post(
+    '/admin/create',
+    authenticate,
+    requireSuperAdmin,
+    [
+        body('organizationName').trim().notEmpty(),
+        body('firstName').trim().notEmpty(),
+        body('lastName').trim().notEmpty(),
+        body('email').isEmail().normalizeEmail({ gmail_remove_subaddress: false }),
+        body('phone').trim().notEmpty(),
+        body('type').isIn(['Exhibitor', 'Sponsor', 'Both']),
+    ],
+    async (req: Request, res: Response) => {
+        try {
+            const errors = validationResult(req);
+            if (!errors.isEmpty()) {
+                res.status(400).json({ errors: errors.array() });
+                return;
+            }
+
+            const { organizationName, firstName, lastName, email, phone, type } = req.body;
+
+            // Check for duplicate registration
+            const existing = await Registration.findOne({ email });
+            if (existing) {
+                res.status(409).json({ error: 'A registration with this email address already exists' });
+                return;
+            }
+
+            // Find or create the user account
+            const { User } = await import('../models/User');
+            let user = await User.findOne({ email });
+            if (!user) {
+                user = new User({
+                    email,
+                    firstName,
+                    lastName,
+                    role: 'PARTICIPANT',
+                    emailVerified: false,
+                    isActive: true,
+                });
+                await user.save();
+            }
+
+            // Create the registration
+            const registration = await Registration.create({
+                organizationName,
+                firstName,
+                lastName,
+                email,
+                phone,
+                type,
+                userId: user._id,
+                status: 'Pending',
+            });
+
+            // Fetch admin name for audit logs
+            const adminUser = await User.findById(req.user!.userId);
+            const adminName = adminUser ? `${adminUser.firstName} ${adminUser.lastName}` : 'Unknown Admin';
+
+            // Log registration creation
+            await AuditService.log({
+                adminId: req.user!.userId,
+                actorName: adminName,
+                entityId: registration._id as any,
+                entityType: 'Registration',
+                action: 'CREATE_REGISTRATION',
+                details: `Registration manually created for ${organizationName} (${email})`,
+            });
+
+            // Send invitation email
+            try {
+                await import('../services/email.service').then(m =>
+                    m.emailService.sendSponsorInvitationEmail(email, firstName, organizationName)
+                );
+                await AuditService.log({
+                    adminId: req.user!.userId,
+                    actorName: adminName,
+                    entityId: registration._id as any,
+                    entityType: 'Registration',
+                    action: 'SEND_EMAIL',
+                    target: "You've been registered for Twin Cities Veg Fest!",
+                    details: `Sponsor invitation email sent to ${email}`,
+                });
+            } catch (emailError) {
+                console.error('Error sending sponsor invitation email:', emailError);
+            }
+
+            res.status(201).json(registration);
+        } catch (error) {
+            console.error('Error creating registration:', error);
+            res.status(500).json({ error: 'Failed to create registration' });
+        }
+    }
+);
+
 // Export to QuickBooks (Super Admin only)
 router.get('/export/quickbooks', authenticate, requireSuperAdmin, async (_req: Request, res: Response) => {
     try {

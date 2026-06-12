@@ -293,6 +293,46 @@ export class AdminDashboardComponent implements OnInit {
     return !!reg.todoItems?.some(t => !t.isCompleted);
   }
 
+  // Add Sponsor Modal
+  showAddSponsorModal = false;
+  addSponsorLoading = false;
+  addSponsorError = '';
+  addSponsorForm = {
+    organizationName: '',
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: '',
+    type: 'Sponsor' as 'Exhibitor' | 'Sponsor' | 'Both',
+  };
+
+  openAddSponsorModal(): void {
+    this.addSponsorForm = { organizationName: '', firstName: '', lastName: '', email: '', phone: '', type: 'Sponsor' };
+    this.addSponsorError = '';
+    this.showAddSponsorModal = true;
+  }
+
+  closeAddSponsorModal(): void {
+    this.showAddSponsorModal = false;
+    this.addSponsorError = '';
+  }
+
+  submitAddSponsor(): void {
+    this.addSponsorLoading = true;
+    this.addSponsorError = '';
+    this.storageService.adminCreateRegistration(this.addSponsorForm).subscribe({
+      next: (reg) => {
+        this.allRegistrations.unshift(reg);
+        this.addSponsorLoading = false;
+        this.closeAddSponsorModal();
+      },
+      error: (err) => {
+        this.addSponsorError = err?.error?.error || 'Failed to create registration. Please try again.';
+        this.addSponsorLoading = false;
+      }
+    });
+  }
+
   // Reject Modal
   showRejectModal = false;
   rejectionTargetId: string | null = null;

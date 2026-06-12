@@ -151,6 +151,55 @@ Twin Cities Veg Fest Team
       text,
     });
   }
+  async sendSponsorInvitationEmail(email: string, firstName: string, organizationName: string): Promise<void> {
+    const name = firstName || 'there';
+    const loginUrl = `${config.frontend.url}/login`;
+    const subject = "You've been registered for Twin Cities Veg Fest!";
+
+    const text = `
+Hi ${name},
+
+As a Twin Cities Veg Fest sponsor, Compassionate Action for Animals has created an account for ${organizationName} in our participant management system to ensure that you receive all of your sponsor benefits.
+
+If you wish, you can view your registration by visiting ${loginUrl} — enter your email address and we'll send you a login code.
+
+Thank you again for your sponsorship of Twin Cities Veg Fest!
+
+The Twin Cities Veg Fest Team
+exhibitors@tcvegfest.com
+    `.trim();
+
+    const html = `
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; background-color: #f9f9f9; padding: 20px; }
+    .container { max-width: 600px; margin: 0 auto; background: #ffffff; padding: 40px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+    .content { padding: 20px 0; }
+    .footer { margin-top: 40px; font-size: 14px; color: #666; }
+    a { color: #2563eb; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="content">
+      <p>Hi ${name},</p>
+      <p>As a Twin Cities Veg Fest sponsor, Compassionate Action for Animals has created an account for <strong>${organizationName}</strong> in our participant management system to ensure that you receive all of your sponsor benefits.</p>
+      <p>If you wish, you can view your registration by <a href="${loginUrl}">visiting our portal</a> — enter your email address and we'll send you a login code.</p>
+      <p>Thank you again for your sponsorship of Twin Cities Veg Fest!</p>
+    </div>
+    <div class="footer">
+      <p>The Twin Cities Veg Fest Team<br><a href="mailto:exhibitors@tcvegfest.com">exhibitors@tcvegfest.com</a></p>
+    </div>
+  </div>
+</body>
+</html>
+    `.trim();
+
+    await this.sendEmail({ to: email, subject, text, html });
+  }
+
   async sendDocumentReminder(email: string, firstName: string, missingDocs: string[]): Promise<void> {
     const name = firstName || 'Exhibitor';
     const docList = missingDocs.map(d => `- ${d}`).join('\n');

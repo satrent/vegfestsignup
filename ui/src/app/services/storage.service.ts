@@ -295,6 +295,11 @@ export class StorageService {
     return this.api.post<Registration>('/registrations', registration);
   }
 
+  // Admin: Manually create a registration (Super Admin only)
+  adminCreateRegistration(data: { organizationName: string; firstName: string; lastName: string; email: string; phone: string; type: 'Exhibitor' | 'Sponsor' | 'Both' }): Observable<Registration> {
+    return this.api.post<Registration>('/registrations/admin/create', data);
+  }
+
   // Submit registration (change status to Pending)
   submitRegistration(id: string): Observable<Registration> {
     return this.api.post<Registration>(`/registrations/${id}/submit`, {});
