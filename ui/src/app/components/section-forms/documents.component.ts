@@ -109,7 +109,10 @@ export class DocumentsComponent implements OnInit {
   }
 
   getDoc(type: string) {
-    return this.documents.find(d => d.type === type);
+    // Latest doc of the type wins — older entries may linger from before
+    // re-uploads superseded them (e.g. a rejected COI followed by a new one).
+    const matches = this.documents.filter(d => d.type === type);
+    return matches.length ? matches[matches.length - 1] : undefined;
   }
 
   // Check if file is uploaded for a given type
@@ -118,14 +121,12 @@ export class DocumentsComponent implements OnInit {
   }
 
   onUpload(event: any) {
-    // Update local state so the UI reflects the new file
+    // Update local state so the UI reflects the new file.
+    // Mirror the API: the new upload supersedes older Pending/Rejected docs
+    // of the same type, so the section save doesn't write stale entries back.
     const doc = event.document;
-    const index = this.documents.findIndex(d => d.type === doc.type);
-    if (index >= 0) {
-      this.documents[index] = doc;
-    } else {
-      this.documents.push(doc);
-    }
+    this.documents = this.documents.filter(d => d.type !== doc.type || d.status === 'Approved');
+    this.documents.push(doc);
   }
 
   onRemoveDoc(type: string) {

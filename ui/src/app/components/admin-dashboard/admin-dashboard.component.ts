@@ -277,7 +277,16 @@ export class AdminDashboardComponent implements OnInit {
   }
 
   hasPendingDocuments(reg: Registration): boolean {
-    return !!reg.documents?.some(doc => doc.status === 'Pending');
+    // Only the latest document of each type counts — older entries are
+    // superseded by re-uploads. Types with no approval workflow (menus,
+    // photos, logos) are always created as 'Pending' and must not pin the badge.
+    const nonApprovalTypes = ['menu', 'product-photo', 'logo', 'coupon logo'];
+    const latestByType = new Map<string, string>();
+    for (const doc of reg.documents || []) {
+      if (!doc.type || nonApprovalTypes.includes(doc.type.toLowerCase())) continue;
+      latestByType.set(doc.type, doc.status);
+    }
+    return [...latestByType.values()].some(status => status === 'Pending');
   }
 
   hasOpenTodos(reg: Registration): boolean {

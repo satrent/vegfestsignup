@@ -329,6 +329,12 @@ export class RegistrationDetailsComponent {
                 if (!this.tempRegistration!.documents) {
                     this.tempRegistration!.documents = [];
                 }
+                // Mirror the API: the new upload supersedes older Pending/Rejected
+                // docs of the same type. Without this, Save Changes would write the
+                // stale entries back to the server.
+                this.tempRegistration!.documents = this.tempRegistration!.documents.filter(
+                    d => d.type !== response.document.type || d.status === 'Approved'
+                );
                 this.tempRegistration!.documents.push(response.document);
                 this.adminUploadFile = null;
                 this.adminUploadFileName = '';

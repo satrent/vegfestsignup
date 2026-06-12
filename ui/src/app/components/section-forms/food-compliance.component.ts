@@ -146,13 +146,19 @@ export class FoodComplianceComponent implements OnInit {
     }
 
     // File helpers
-    getDoc(type: string) { return this.documents.find(d => d.type === type); }
+    getDoc(type: string) {
+        // Latest doc of the type wins — older entries may linger from before
+        // re-uploads superseded them.
+        const matches = this.documents.filter(d => d.type === type);
+        return matches.length ? matches[matches.length - 1] : undefined;
+    }
     hasDoc(type: string) { return !!this.getDoc(type); }
     onUpload(event: any) {
+        // Mirror the API: the new upload supersedes older Pending/Rejected docs
+        // of the same type, so the section save doesn't write stale entries back.
         const doc = event.document;
-        const index = this.documents.findIndex(d => d.type === doc.type);
-        if (index >= 0) this.documents[index] = doc;
-        else this.documents.push(doc);
+        this.documents = this.documents.filter(d => d.type !== doc.type || d.status === 'Approved');
+        this.documents.push(doc);
     }
     onRemoveDoc(type: string) {
         this.documents = this.documents.filter(d => d.type !== type);

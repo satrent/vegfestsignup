@@ -117,20 +117,22 @@ router.post(
                 folder
             );
 
-            // Add to registration documents
-            // Check if document of this type already exists, if so replace it or mark as previous?
-            // For now, let's append new ones, but maybe we should remove old "Pending" ones of same type?
-            // User requirements didn't specify versioning, so let's just push to array.
-            // Actually, cleaner to remove previous pending/rejected of same type so we don't accumulate junk?
-            // Let's just push for now to be safe and specific.
+            // Add to registration documents.
+            // A new upload supersedes older Pending/Rejected documents of the same type —
+            // remove them so the registration keeps one authoritative document per type.
+            // Approved documents are kept for history.
+            registration.documents = registration.documents.filter(
+                (d) => d.type !== documentType || d.status === 'Approved'
+            );
 
+            const uploadedAt = new Date();
             registration.documents.push({
                 type: documentType,
                 name: storedFile.name,
                 key: storedFile.key,
                 location: storedFile.location,
                 status: 'Pending',
-                uploadedAt: new Date()
+                uploadedAt
             });
 
             await registration.save();
@@ -163,7 +165,8 @@ router.post(
                     name: storedFile.name,
                     location: storedFile.location,
                     key: storedFile.key, // Ensure key is returned
-                    status: 'Pending'
+                    status: 'Pending',
+                    uploadedAt
                 }
             });
         } catch (error) {
