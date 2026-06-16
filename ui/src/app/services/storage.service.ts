@@ -26,18 +26,15 @@ export interface Registration {
   establishedYear?: string;
 
   website?: string;
-  instagram?: string; // or instagramPage
-  facebook?: string; // or facebookPage
+  instagram?: string;
+  facebook?: string;
+  tiktok?: string;
 
   address?: string;
   city?: string;
   state?: string;
   zip?: string;
 
-  // social/legacy mapped to above or kept optional
-  facebookPage?: string;
-  instagramPage?: string;
-  tiktokPage?: string;
   otherSocials?: string;
 
 

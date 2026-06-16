@@ -27,6 +27,7 @@ export interface IRegistration extends Document {
     website?: string;
     instagram?: string;
     facebook?: string;
+    tiktok?: string;
     address?: string;
     city?: string;
     state?: string;
@@ -287,6 +288,7 @@ const registrationSchema = new Schema<IRegistration>(
         website: String,
         instagram: String,
         facebook: String,
+        tiktok: String,
 
         // Address
         address: String,

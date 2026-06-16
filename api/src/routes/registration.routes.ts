@@ -433,6 +433,9 @@ router.patch(
             if (updates.facebook) {
                 updates.facebook = updates.facebook.replace(/^(?:https?:\/\/)?(?:www\.)?(?:facebook\.com\/)?@?([a-zA-Z0-9._-]+)\/?$/, '$1');
             }
+            if (updates.tiktok) {
+                updates.tiktok = updates.tiktok.replace(/^(?:https?:\/\/)?(?:www\.)?(?:tiktok\.com\/)?@?([a-zA-Z0-9._-]+)\/?$/, '$1');
+            }
 
             // Protect invoiced from being updated here by regular users
             if (req.user?.role !== 'ADMIN') {
