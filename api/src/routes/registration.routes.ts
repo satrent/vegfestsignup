@@ -164,7 +164,7 @@ router.post(
                 phone,
                 type,
                 userId: user._id,
-                status: 'Pending',
+                status: 'Approved',
             });
 
             // Fetch admin name for audit logs
