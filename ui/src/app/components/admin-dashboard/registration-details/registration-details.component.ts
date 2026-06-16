@@ -336,6 +336,15 @@ export class RegistrationDetailsComponent {
                     d => d.type !== response.document.type || d.status === 'Approved'
                 );
                 this.tempRegistration!.documents.push(response.document);
+                // Logos are read from dedicated fields elsewhere on the site, not
+                // the documents list. Mirror the participant flow so the upload is
+                // wired up as the org/coupon logo and persists on Save Changes.
+                const logoKey = response.document?.key || response.document?.location;
+                if (this.adminUploadType === 'Logo') {
+                    this.tempRegistration!.logoUrl = logoKey;
+                } else if (this.adminUploadType === 'Coupon Logo') {
+                    this.tempRegistration!.couponLogoUrl = logoKey;
+                }
                 this.adminUploadFile = null;
                 this.adminUploadFileName = '';
                 this.adminUploadSuccess = `${this.adminUploadType} uploaded successfully.`;
