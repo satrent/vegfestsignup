@@ -121,7 +121,7 @@ export class FoodComplianceComponent implements OnInit {
 
                 this.isThcSales = reg.thcProductSales === true;
 
-                if (reg.status !== 'In Progress') {
+                if (reg.status === 'Declined' || reg.status === 'Cancelled') {
                     this.form.disable();
                     this.saving = true;
                 }

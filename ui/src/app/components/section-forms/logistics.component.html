@@ -7,6 +7,14 @@
     </div>
     }
 
+    @if (paidLocked) {
+    <div class="alert alert-warning">
+        You can update your application below. Paid items (booth space, tables, chairs,
+        tents, weights, and electrical) are locked — to change those, please contact us
+        and we'll update them and your billing.
+    </div>
+    }
+
     <form [formGroup]="form" (ngSubmit)="onSubmit()">
 
         <!-- Booth Size Note -->
@@ -90,7 +98,7 @@
                                 </td>
                                 <td>
                                     <button type="button" class="btn-remove" (click)="removeEquipment(i)"
-                                        title="Remove">&times;</button>
+                                        [disabled]="paidLocked || form.disabled" title="Remove">&times;</button>
                                 </td>
                             </tr>
                         </tbody>
@@ -100,7 +108,7 @@
                         Total Amps Needed By All Equipment: {{ totalAmps | number:'1.0-2' }}
                     </div>
                     <button type="button" class="btn-secondary add-equipment-btn" (click)="addEquipment()"
-                        style="margin-top: 10px;">+ Add Equipment</button>
+                        [disabled]="paidLocked || form.disabled" style="margin-top: 10px;">+ Add Equipment</button>
                 </div>
             </div>
         </div>

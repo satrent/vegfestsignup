@@ -74,7 +74,7 @@ export class ProductsComponent implements OnInit {
           this.form.get('productsDescription')?.updateValueAndValidity();
         }
 
-        if (reg.status !== 'In Progress') {
+        if (reg.status === 'Declined' || reg.status === 'Cancelled') {
           this.form.disable();
           this.saving = true; // effectively disables submit
         }

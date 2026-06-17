@@ -54,7 +54,7 @@ export class ExpectationsComponent implements OnInit {
                     this.form.patchValue({ termsAgreement: true });
                 }
 
-                if (reg.status !== 'In Progress') {
+                if (reg.status === 'Declined' || reg.status === 'Cancelled') {
                     this.form.disable();
                     this.saving = true; // effectively read-only state
                 }

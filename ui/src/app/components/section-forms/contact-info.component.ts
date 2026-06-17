@@ -131,8 +131,9 @@ export class ContactInfoComponent implements OnInit {
           this.form.patchValue({ wantBooth: reg.wantBooth });
         }
 
-        // Lock form if not In Progress
-        if (reg.status !== 'In Progress') {
+        // Lock form only once a decision has been made (Declined/Cancelled).
+        // Pending/Approved applications remain editable.
+        if (reg.status === 'Declined' || reg.status === 'Cancelled') {
           this.form.disable();
           this.saving = true; // Visual lock
         }

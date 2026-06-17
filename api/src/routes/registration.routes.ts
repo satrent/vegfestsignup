@@ -483,6 +483,27 @@ router.patch(
                 return;
             }
 
+            // Protect billable fields once the application has been submitted.
+            // Exhibitors/sponsors may edit their application after submission, but
+            // Declined/Cancelled applications are fully locked, and billable items
+            // (booth space, rentals, electrical) must be changed manually by an
+            // admin so billing stays correct.
+            if (req.user?.role !== 'ADMIN') {
+                const currentStatus = (originalRegistration as any).status;
+                if (currentStatus === 'Declined' || currentStatus === 'Cancelled') {
+                    res.status(403).json({ error: 'This application can no longer be edited.' });
+                    return;
+                }
+                if (currentStatus !== 'In Progress') {
+                    const paidFields = [
+                        'numBoothSpaces', 'numExtraSpots', 'numTables', 'numChairs',
+                        'numTents', 'numWeights', 'powerNeeds', 'householdElectric',
+                        'electricNeedsDescription', 'equipmentList'
+                    ];
+                    paidFields.forEach(f => delete updates[f]);
+                }
+            }
+
             // 2. Perform the update
             const registration = await Registration.findOneAndUpdate(
                 query,

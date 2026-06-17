@@ -75,13 +75,11 @@ export class DocumentsComponent implements OnInit {
         // Setup validators
         this.updateValidators();
 
-        const isMissingRequiredDocs = this.checkMissingDocs();
-
-        if (reg.status !== 'In Progress' && !isMissingRequiredDocs) {
+        // Lock documents only once a decision has been made (Declined/Cancelled).
+        // Pending/Approved applications remain editable.
+        if (reg.status === 'Declined' || reg.status === 'Cancelled') {
           this.form.disable();
           this.saving = true;
-        } else if (reg.status !== 'In Progress' && isMissingRequiredDocs) {
-          this.saving = false;
         }
       }
     });

@@ -84,7 +84,7 @@ export class ValuesComponent implements OnInit {
                     endorsePlantBasedMeals: reg.endorsePlantBasedMeals || false
                 });
 
-                if (reg.status !== 'In Progress') {
+                if (reg.status === 'Declined' || reg.status === 'Cancelled') {
                     this.form.disable();
                     this.saving = true;
                 }

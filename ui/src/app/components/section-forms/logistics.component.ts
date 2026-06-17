@@ -20,6 +20,17 @@ export class LogisticsComponent implements OnInit {
   saving = false;
   registrationId: string = '';
 
+  // True when the application is submitted (Pending/Approved): the application
+  // is editable, but billable items must be changed manually by an admin so
+  // billing stays correct.
+  paidLocked = false;
+
+  // Billable controls that are locked after submission.
+  private readonly paidControls = [
+    'numBoothSpaces', 'numTables', 'numChairs', 'numTents', 'numWeights',
+    'powerNeeds', 'householdElectric', 'electricNeedsDescription', 'equipmentList'
+  ];
+
   powerOptions = [
     { value: 'None', label: 'None' },
     { value: '5A', label: '5A ($60)' },
@@ -118,9 +129,14 @@ export class LogisticsComponent implements OnInit {
         // Trigger updates
         this.updatePowerValidators(reg.powerNeeds || 'None');
 
-        if (reg.status !== 'In Progress') {
+        if (reg.status === 'Declined' || reg.status === 'Cancelled') {
+          // Fully locked once a decision has been made.
           this.form.disable();
           this.saving = true;
+        } else if (reg.status !== 'In Progress') {
+          // Submitted (Pending/Approved): editable, but lock the billable items.
+          this.paidLocked = true;
+          this.paidControls.forEach(c => this.form.get(c)?.disable());
         }
       }
     });
