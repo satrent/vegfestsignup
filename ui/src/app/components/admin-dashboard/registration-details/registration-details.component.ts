@@ -180,7 +180,9 @@ export class RegistrationDetailsComponent {
     isApprovalRequired(doc: any): boolean {
         if (!doc || !doc.type) return true; // Default to requiring approval if type is missing
         const type = doc.type.toLowerCase();
-        return type !== 'menu' && type !== 'product-photo' && type !== 'logo' && type !== 'coupon logo';
+        // Logos and booth/product photos are auto-approved — no review needed.
+        // Menu still requires approval, available to all admins (see isAdmin gating).
+        return type !== 'product-photo' && type !== 'logo' && type !== 'coupon logo';
     }
 
     // Rejection reason flow

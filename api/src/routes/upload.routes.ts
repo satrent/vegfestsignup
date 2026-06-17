@@ -125,13 +125,16 @@ router.post(
                 (d) => d.type !== documentType || d.status === 'Approved'
             );
 
+            // Logos and booth/product photos don't need review — approve on upload.
+            // Compliance docs (COI, ST-19, Food Permit) and the Menu stay Pending for admin review.
+            const autoApprovedTypes = ['Logo', 'Coupon Logo', 'product-photo'];
             const uploadedAt = new Date();
             registration.documents.push({
                 type: documentType,
                 name: storedFile.name,
                 key: storedFile.key,
                 location: storedFile.location,
-                status: 'Pending',
+                status: autoApprovedTypes.includes(documentType) ? 'Approved' : 'Pending',
                 uploadedAt
             });
 
