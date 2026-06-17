@@ -1,6 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { body, validationResult } from 'express-validator';
-import { Registration } from '../models/Registration';
+import { Registration, IRegistration } from '../models/Registration';
 import { authenticate, requireAdmin, requireApprover, requireSuperAdmin } from '../middleware/auth.middleware';
 import { AuditService } from '../services/audit.service';
 import { FeeService } from '../services/fee.service';
@@ -1031,15 +1031,35 @@ function generateNewsletterMonthTodos(createdAt: Date): RecognitionTodoItem[] {
     return todos;
 }
 
+// Exhibitor to-dos are generated conditionally: a "Collect …" task is only
+// created when the registration is actually missing that data. Whatever the
+// applicant already supplied (logo, website, product photos, description) is
+// skipped so admins aren't chasing things already on file. The "Add exhibitor
+// to website" task is always created — that's the work that always remains.
+function generateExhibitorTodos(registration: IRegistration): RecognitionTodoItem[] {
+    const todos: RecognitionTodoItem[] = [];
+
+    if (!registration.logoUrl) {
+        todos.push(t('Collect logo from exhibitor', 'General'));
+    }
+    todos.push(t('Confirm organization name for website listing', 'General'));
+    if (!registration.website) {
+        todos.push(t('Collect website URL (for webmaster to link)', 'General'));
+    }
+    // No registration field backs the booth photo, so it's never redundant.
+    todos.push(t('Collect booth photo from exhibitor', 'General'));
+    if (!registration.productPhotos || registration.productPhotos.length === 0) {
+        todos.push(t('Collect product photos from exhibitor', 'General'));
+    }
+    if (!registration.productsDescription) {
+        todos.push(t('Collect text description of what they\'ll provide or sell', 'General'));
+    }
+    todos.push(t('Add exhibitor to website', 'Digital & Social'));
+
+    return todos;
+}
+
 const RECOGNITION_TODO_TEMPLATES: Record<string, TodoTemplateFactory> = {
-    exhibitor: (_createdAt) => [
-        t('Collect logo from exhibitor', 'General'),
-        t('Confirm organization name for website listing', 'General'),
-        t('Collect website URL (for webmaster to link)', 'General'),
-        t('Collect booth photo from exhibitor', 'General'),
-        t('Collect product photos from exhibitor', 'General'),
-        t('Collect text description of what they\'ll provide or sell', 'General'),
-    ],
     presenting: (createdAt) => [
         t('Update all communications to include "Twin Cities Veg Fest presented by [Sponsor]" naming', 'Naming Rights'),
         t('Add presenting sponsor recognition to website, social, radio, TV, blogs, and posters', 'Naming Rights'),
@@ -1191,7 +1211,7 @@ router.post(
             const todoTexts: RecognitionTodoItem[] = [];
 
             if (type === 'Exhibitor' || type === 'Both') {
-                todoTexts.push(...RECOGNITION_TODO_TEMPLATES['exhibitor'](registration.createdAt));
+                todoTexts.push(...generateExhibitorTodos(registration));
             }
 
             if ((type === 'Sponsor' || type === 'Both') && validSponsorLevel) {
