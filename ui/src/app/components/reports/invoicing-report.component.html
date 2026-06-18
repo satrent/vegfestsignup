@@ -73,6 +73,7 @@
                     <th>Organization Name</th>
                     <th>Contact</th>
                     <th>Type / Status</th>
+                    <th>Tags</th>
                     <th>Invoiced</th>
                     <th>Base Fee</th>
                     <th>Discount</th>
@@ -95,6 +96,15 @@
                     <td>
                         <div>{{ row.type }}</div>
                         <div class="sub-detail">{{ row.status }}</div>
+                    </td>
+                    <td class="tags-col">
+                        @if (row.tags?.length) {
+                        @for (tag of row.tags; track tag) {
+                        <span class="tag-pill">{{ tag }}</span>
+                        }
+                        } @else {
+                        <span class="empty-field">-</span>
+                        }
                     </td>
                     <td>
                         <span class="badge" [class.invoiced]="row.invoiced" [class.uninvoiced]="!row.invoiced">
@@ -123,7 +133,7 @@
                 }
                 @if (filteredData.length === 0) {
                 <tr>
-                    <td colspan="11" class="empty-state">No approved participants found.</td>
+                    <td colspan="12" class="empty-state">No approved participants found.</td>
                 </tr>
                 }
             </tbody>
