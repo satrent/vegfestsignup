@@ -276,17 +276,31 @@ export class AdminDashboardComponent implements OnInit {
     this.router.navigate(['/login']);
   }
 
-  hasPendingDocuments(reg: Registration): boolean {
-    // Only the latest document of each type counts — older entries are
-    // superseded by re-uploads. Types with no approval workflow (menus,
-    // photos, logos) are always created as 'Pending' and must not pin the badge.
+  // Only the latest document of each type matters — older entries are
+  // superseded by re-uploads. Types with no approval workflow (menus,
+  // photos, logos) are always created as 'Pending' and must not pin a badge.
+  // Docs are sorted by uploadedAt so the result doesn't rely on array order.
+  private latestDocStatusByType(reg: Registration): Map<string, string> {
     const nonApprovalTypes = ['menu', 'product-photo', 'logo', 'coupon logo'];
     const latestByType = new Map<string, string>();
-    for (const doc of reg.documents || []) {
+    const docs = [...(reg.documents || [])].sort(
+      (a, b) => new Date(a.uploadedAt).getTime() - new Date(b.uploadedAt).getTime()
+    );
+    for (const doc of docs) {
       if (!doc.type || nonApprovalTypes.includes(doc.type.toLowerCase())) continue;
       latestByType.set(doc.type, doc.status);
     }
-    return [...latestByType.values()].some(status => status === 'Pending');
+    return latestByType;
+  }
+
+  hasPendingDocuments(reg: Registration): boolean {
+    return [...this.latestDocStatusByType(reg).values()].some(status => status === 'Pending');
+  }
+
+  hasRejectedDocuments(reg: Registration): boolean {
+    // The badge clears automatically once a newer doc of the same type is
+    // uploaded (Pending) or approved, since only the latest status per type counts.
+    return [...this.latestDocStatusByType(reg).values()].some(status => status === 'Rejected');
   }
 
   hasOpenTodos(reg: Registration): boolean {

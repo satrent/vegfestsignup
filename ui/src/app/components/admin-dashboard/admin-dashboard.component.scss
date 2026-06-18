@@ -913,6 +913,17 @@ a {
   border: 1px solid #FFE0B2;
 }
 
+.rejected-status-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  white-space: nowrap;
+  background: #FEECEC;
+  color: #C0202F;
+  border: 1px solid #F5C2C7;
+}
+
 .todos-status-badge {
   padding: 0.25rem 0.75rem;
   border-radius: 20px;
