@@ -93,6 +93,7 @@ export interface IRegistration extends Document {
     // Section 5: Food/THC Compliance
     cookingOnSite?: boolean;
     isFoodTruck?: boolean;
+    foodTruckDimensions?: string;
     thcProductSales?: boolean;
     foodOfferings?: '100% Vegan' | 'Mixed';
     foodOfferingsRejectAck?: boolean;
@@ -367,6 +368,7 @@ const registrationSchema = new Schema<IRegistration>(
         // Section 5: Food/THC Compliance
         cookingOnSite: Boolean,
         isFoodTruck: Boolean,
+        foodTruckDimensions: String,
         thcProductSales: Boolean, // "Will you sell food products containing THC?"
         foodOfferings: {
             type: String,

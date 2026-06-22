@@ -91,6 +91,7 @@ export interface Registration {
   // Section 5: Food/THC Compliance
   cookingOnSite?: boolean;
   isFoodTruck?: boolean;
+  foodTruckDimensions?: string;
   thcProductSales?: boolean;
   foodOfferings?: '100% Vegan' | 'Mixed';
   foodOfferingsRejectAck?: boolean;

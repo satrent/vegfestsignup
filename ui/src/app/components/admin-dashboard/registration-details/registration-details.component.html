@@ -277,6 +277,14 @@
                         <div class="field-group"><label>Vehicle Type</label>
                             <div class="value">{{tempRegistration.loadInVehicle || '-'}}</div>
                         </div>
+                        <div class="field-group"><label>Vehicle Dimensions</label>
+                            <input type="text" [(ngModel)]="tempRegistration.vehicleDimensions"
+                                placeholder="Length x Width">
+                        </div>
+                        <div class="field-group"><label>Food Truck Dimensions</label>
+                            <input type="text" [(ngModel)]="tempRegistration.foodTruckDimensions"
+                                placeholder="Length x Width">
+                        </div>
                         <div class="field-group"><label>Availability</label>
                             <div class="value">{{tempRegistration.loadInAvailability || '-'}}</div>
                         </div>

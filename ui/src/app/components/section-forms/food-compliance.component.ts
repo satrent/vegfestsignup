@@ -36,6 +36,7 @@ export class FoodComplianceComponent implements OnInit {
             // Food Fields
             cookingOnSite: [null],
             isFoodTruck: [null],
+            foodTruckDimensions: [''],
             thcProductSales: [null], // This triggers THC compliance for Food vendors too
 
             foodOfferings: [''], // 100% Vegan | Mixed
@@ -71,6 +72,17 @@ export class FoodComplianceComponent implements OnInit {
             this.updateThcValidators();
         });
 
+        // Truck dimensions are required only when they say it's a food truck
+        this.form.get('isFoodTruck')?.valueChanges.subscribe(val => {
+            const dims = this.form.get('foodTruckDimensions');
+            if (val === true) {
+                dims?.setValidators(Validators.required);
+            } else {
+                dims?.clearValidators();
+            }
+            dims?.updateValueAndValidity();
+        });
+
         this.form.get('foodOfferings')?.valueChanges.subscribe(val => {
             if (val === 'Mixed') {
                 // Logic handled in HTML/Submit to block
@@ -91,9 +103,15 @@ export class FoodComplianceComponent implements OnInit {
                 this.isThcVendor = cat.toLowerCase().includes('thc');
 
                 // Patch values
+                // Pre-fill truck dimensions from the load-in vehicle dimensions
+                // (collected earlier in Logistics) when not already set — applicant
+                // can still edit. Only fill if empty so we never clobber their entry.
+                const truckDimensions = reg.foodTruckDimensions || reg.vehicleDimensions || '';
+
                 this.form.patchValue({
                     cookingOnSite: reg.cookingOnSite,
                     isFoodTruck: reg.isFoodTruck,
+                    foodTruckDimensions: truckDimensions,
                     thcProductSales: reg.thcProductSales,
                     foodOfferings: reg.foodOfferings || '',
                     fiveDollarItemAck: reg.fiveDollarItemAck,
@@ -179,6 +197,11 @@ export class FoodComplianceComponent implements OnInit {
             }
             if (this.form.get('menuOption')?.value === 'upload_now' && !this.hasDoc('Menu')) {
                 alert('Please upload your menu.');
+                return;
+            }
+            if (this.form.get('isFoodTruck')?.value === true &&
+                !this.form.get('foodTruckDimensions')?.value?.trim()) {
+                alert('Please enter your food truck dimensions.');
                 return;
             }
         }
