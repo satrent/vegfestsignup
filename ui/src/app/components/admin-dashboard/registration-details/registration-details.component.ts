@@ -25,6 +25,19 @@ export class RegistrationDetailsComponent {
     editing = false;
     tempRegistration: Registration | null = null;
 
+    // Organization category options — must match the values offered in the
+    // participant flow (products.component.html) since they drive fee calculation.
+    categoryOptions: string[] = [
+        'On-site food prep & sales $600',
+        'Food business with on-site food prep — not a restaurant or food truck $350',
+        'THC product vendor (exclusively THC products)- $300',
+        'For-profit business (if food, prepackaged only; no on-site prep) $200',
+        'Nonprofit organization- $150',
+        'Animal-focused organization (advocacy, sanctuary) $100',
+        'Bookseller, artist, or student group $100',
+        'Nonprofit with annual expenses $50,000 or less (half table) $50'
+    ];
+
     // Tags
     availableTags: string[] = [];
     filteredTags: string[] = [];
