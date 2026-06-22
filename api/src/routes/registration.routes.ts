@@ -155,7 +155,8 @@ router.post(
                 await user.save();
             }
 
-            // Create the registration
+            // Create the registration. Added sponsors land in Pending so an
+            // admin can review the info before approving.
             const registration = await Registration.create({
                 organizationName,
                 firstName,
@@ -164,7 +165,7 @@ router.post(
                 phone,
                 type,
                 userId: user._id,
-                status: 'Approved',
+                status: 'Pending',
             });
 
             // Fetch admin name for audit logs
@@ -181,25 +182,30 @@ router.post(
                 details: `Registration manually created for ${organizationName} (${email})`,
             });
 
-            // Send invitation email
-            try {
-                await import('../services/email.service').then(m =>
-                    m.emailService.sendSponsorInvitationEmail(email, firstName, organizationName)
-                );
-                await AuditService.log({
-                    adminId: req.user!.userId,
-                    actorName: adminName,
-                    entityId: registration._id as any,
-                    entityType: 'Registration',
-                    action: 'SEND_EMAIL',
-                    target: "You've been registered for Twin Cities Veg Fest!",
-                    details: `Sponsor invitation email sent to ${email}`,
-                });
-            } catch (emailError) {
-                console.error('Error sending sponsor invitation email:', emailError);
-            }
-
+            // Respond immediately — the registration is created. The invitation
+            // email is sent fire-and-forget so a slow/hanging SMTP server can't
+            // block (or fail) the request and leave an orphaned record behind.
             res.status(201).json(registration);
+
+            void (async () => {
+                try {
+                    await import('../services/email.service').then(m =>
+                        m.emailService.sendSponsorInvitationEmail(email, firstName, organizationName)
+                    );
+                    await AuditService.log({
+                        adminId: req.user!.userId,
+                        actorName: adminName,
+                        entityId: registration._id as any,
+                        entityType: 'Registration',
+                        action: 'SEND_EMAIL',
+                        target: "You've been registered for Twin Cities Veg Fest!",
+                        details: `Sponsor invitation email sent to ${email}`,
+                    });
+                } catch (emailError) {
+                    console.error('Error sending sponsor invitation email:', emailError);
+                }
+            })();
+            return;
         } catch (error) {
             console.error('Error creating registration:', error);
             res.status(500).json({ error: 'Failed to create registration' });

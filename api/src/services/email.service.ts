@@ -23,6 +23,10 @@ export class EmailService {
           user: config.email.smtp.user,
           pass: config.email.smtp.pass,
         },
+        // Don't let a slow/unreachable mail server hang the send indefinitely.
+        connectionTimeout: 10000, // 10s to establish the connection
+        greetingTimeout: 10000,   // 10s to receive the SMTP greeting
+        socketTimeout: 20000,     // 20s of socket inactivity
       });
     }
   }
