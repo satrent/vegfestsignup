@@ -177,7 +177,7 @@ export class DashboardComponent implements OnInit {
         }
 
         // Basic requirements
-        let complete = s.contact && s.products && s.logistics && s.documents && s.expectations && s.payment;
+        let complete = s.contact && s.products && s.values && s.logistics && s.documents && s.expectations && s.payment;
 
         // Conditional requirements
         if (this.isSectionVisible('foodCompliance')) {

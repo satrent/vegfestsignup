@@ -653,8 +653,35 @@ router.post(
                 return;
             }
 
-            // Optional: Validate that all sections are complete before allowing submission
-            // For now, we'll trust the frontend check, but ideally we should check here too.
+            // Validate that all required sections are complete before allowing
+            // submission. This mirrors the dashboard's canSubmit logic so the
+            // server doesn't blindly trust the frontend.
+            const s = registration.sectionStatus;
+            const cat = registration.organizationCategory || '';
+            const isFoodVendor = cat === 'On-site food prep & sales $600' ||
+                cat === 'Food business with on-site food prep — not a restaurant or food truck $350';
+            const isThcVendor = cat.toLowerCase().includes('thc');
+
+            let complete: boolean;
+            if (registration.type === 'Sponsor') {
+                const isProductSponsor = registration.sponsorshipLevel?.toLowerCase() === 'product';
+                complete = isProductSponsor
+                    ? !!(s.contact && s.products)
+                    : !!(s.contact && s.products && s.payment);
+            } else if (registration.wantBooth === false) {
+                complete = !!(s.contact && s.payment);
+            } else {
+                complete = !!(s.contact && s.products && s.values && s.logistics &&
+                    s.documents && s.expectations && s.payment);
+                if (isFoodVendor || isThcVendor) {
+                    complete = complete && !!s.foodCompliance;
+                }
+            }
+
+            if (!complete) {
+                res.status(400).json({ error: 'All required sections must be completed before submitting.' });
+                return;
+            }
 
             registration.status = 'Pending';
             await registration.save();
