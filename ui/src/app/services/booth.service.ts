@@ -31,6 +31,7 @@ export interface UnassignedRegistration {
   numBoothSpaces: number;
   assignedBoothIds: string[];
   type?: 'Exhibitor' | 'Sponsor' | 'Both';
+  organizationCategory?: string;
   sponsorshipLevel?: string;
   sponsorshipInterest?: boolean;
   tags?: string[];

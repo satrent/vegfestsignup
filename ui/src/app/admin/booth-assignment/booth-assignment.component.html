@@ -99,6 +99,9 @@
                         @if (p.type) {
                         <span class="meta-badge type-badge">{{ p.type }}</span>
                         }
+                        @if (categoryOf(p); as category) {
+                        <span class="meta-badge category-badge">{{ category }}</span>
+                        }
                         @if (p.sponsorshipLevel) {
                         <span class="meta-badge sponsor-badge">{{ p.sponsorshipLevel }}</span>
                         } @else if (p.sponsorshipInterest) {

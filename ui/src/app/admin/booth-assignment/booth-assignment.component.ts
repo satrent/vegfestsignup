@@ -12,6 +12,7 @@ import {
 import { CdkScrollable } from '@angular/cdk/scrolling';
 import { BoothService, Booth, BoothArea, UnassignedRegistration } from '../../services/booth.service';
 import { StorageService } from '../../services/storage.service';
+import { exhibitorCategory } from '../../utils/exhibitor-category';
 
 @Component({
   selector: 'app-booth-assignment',
@@ -166,6 +167,10 @@ export class BoothAssignmentComponent implements OnInit {
         this.loading = false;
       }
     });
+  }
+
+  categoryOf(p: UnassignedRegistration): string | null {
+    return exhibitorCategory(p);
   }
 
   isBoothFilteredOut(booth: Booth): boolean {

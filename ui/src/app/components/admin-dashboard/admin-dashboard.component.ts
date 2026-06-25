@@ -5,6 +5,7 @@ import { Router, RouterLink } from '@angular/router';
 import { StorageService, Registration } from '../../services/storage.service';
 import { AuthService } from '../../services/auth.service';
 import { RegistrationDetailsComponent } from './registration-details/registration-details.component';
+import { exhibitorCategory, EXHIBITOR_CATEGORIES, ExhibitorCategory } from '../../utils/exhibitor-category';
 
 @Component({
   selector: 'app-admin-dashboard',
@@ -35,7 +36,10 @@ export class AdminDashboardComponent implements OnInit {
   filterDemographic = '';
   filterAlphaGroup: '' | 'A-J' | 'K-S' | 'T-Z' = '';
   filterTest: 'exclude' | 'only' | 'all' = 'exclude';
+  filterExhibitorCategory: '' | ExhibitorCategory = '';
   availableTags: string[] = [];
+
+  readonly exhibitorCategories = EXHIBITOR_CATEGORIES;
 
   // Sort Properties
   sortAlpha = false;
@@ -93,7 +97,11 @@ export class AdminDashboardComponent implements OnInit {
         (this.filterTest === 'exclude' && !reg.isTest) ||
         (this.filterTest === 'only' && !!reg.isTest);
 
-      return nameMatch && invoicedMatch && statusMatch && tagMatch && demographicMatch && todosMatch && alphaGroupMatch && testMatch;
+      // Exhibitor Category Filter
+      const exhibitorCategoryMatch = !this.filterExhibitorCategory ||
+        exhibitorCategory(reg) === this.filterExhibitorCategory;
+
+      return nameMatch && invoicedMatch && statusMatch && tagMatch && demographicMatch && todosMatch && alphaGroupMatch && testMatch && exhibitorCategoryMatch;
     });
 
     if (this.sortAlpha) {
@@ -106,7 +114,7 @@ export class AdminDashboardComponent implements OnInit {
   }
 
   get hasActiveFilters(): boolean {
-    return !!this.filterName || this.filterInvoiced !== 'all' || this.filterStatus !== 'all' || this.filterTodosOpen || !!this.filterTag || !!this.filterDemographic || !!this.filterAlphaGroup || this.filterTest !== 'exclude' || this.sortAlpha;
+    return !!this.filterName || this.filterInvoiced !== 'all' || this.filterStatus !== 'all' || this.filterTodosOpen || !!this.filterTag || !!this.filterDemographic || !!this.filterAlphaGroup || this.filterTest !== 'exclude' || !!this.filterExhibitorCategory || this.sortAlpha;
   }
 
   toggleSortAlpha(): void {
@@ -268,6 +276,7 @@ export class AdminDashboardComponent implements OnInit {
     this.filterDemographic = '';
     this.filterAlphaGroup = '';
     this.filterTest = 'exclude';
+    this.filterExhibitorCategory = '';
     this.sortAlpha = false;
   }
 
