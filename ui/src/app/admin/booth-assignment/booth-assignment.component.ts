@@ -25,6 +25,13 @@ export class BoothAssignmentComponent implements OnInit {
   booths: Booth[] = [];
   boothAreas: BoothArea[] = [];
   unassignedParticipants: UnassignedRegistration[] = [];
+  allVendors: UnassignedRegistration[] = [];
+
+  // Manual vendor picker state (assign any vendor to a spot, regardless of requested count)
+  assigningBoothId: string | null = null;
+  assigningBooth: Booth | null = null;
+  pickerPos: { left: number; top: number | null; bottom: number | null; maxHeight: number } | null = null;
+  vendorSearchTerm = '';
 
   // Filter state
   availableTags: string[] = [];
@@ -165,6 +172,88 @@ export class BoothAssignmentComponent implements OnInit {
         console.error(err);
         this.error = 'Failed to load participants.';
         this.loading = false;
+      }
+    });
+    this.loadAllVendors();
+  }
+
+  loadAllVendors() {
+    this.boothService.getAllVendors().subscribe({
+      next: (vendors) => {
+        this.allVendors = vendors;
+      },
+      error: (err) => {
+        console.error('Failed to load vendor list for picker:', err);
+      }
+    });
+  }
+
+  // ==== MANUAL VENDOR PICKER (assign any vendor to a spot) ====
+
+  get filteredVendors(): UnassignedRegistration[] {
+    const term = this.vendorSearchTerm.trim().toLowerCase();
+    if (!term) return this.allVendors;
+    return this.allVendors.filter(v =>
+      (v.organizationName || '').toLowerCase().includes(term) ||
+      `${v.firstName || ''} ${v.lastName || ''}`.toLowerCase().includes(term)
+    );
+  }
+
+  openVendorPicker(booth: Booth, event: Event) {
+    event.stopPropagation();
+    if (this.isSpotEditorMode || this.isAreaEditorMode || booth.registrationId) return;
+
+    // Position a single floating panel anchored to the clicked spot. We pin it
+    // to whichever side (above/below) has more room and cap its total height to
+    // that space; the list inside flexes and scrolls so nothing is clipped.
+    const PICKER_WIDTH = 260;
+    const MARGIN = 10;
+    const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
+
+    let left = rect.left + rect.width / 2 - PICKER_WIDTH / 2;
+    left = Math.max(MARGIN, Math.min(left, window.innerWidth - PICKER_WIDTH - MARGIN));
+
+    const spaceAbove = rect.top - MARGIN * 2;
+    const spaceBelow = window.innerHeight - rect.bottom - MARGIN * 2;
+    const placeAbove = spaceAbove >= spaceBelow;
+    const available = placeAbove ? spaceAbove : spaceBelow;
+
+    this.pickerPos = {
+      left,
+      // Anchor by the edge facing the spot so we never need to know the height.
+      top: placeAbove ? null : Math.round(rect.bottom + MARGIN),
+      bottom: placeAbove ? Math.round(window.innerHeight - rect.top + MARGIN) : null,
+      maxHeight: Math.max(160, Math.min(420, available))
+    };
+    this.assigningBooth = booth;
+    this.assigningBoothId = booth._id;
+    this.vendorSearchTerm = '';
+  }
+
+  closeVendorPicker(event?: Event) {
+    if (event) event.stopPropagation();
+    this.assigningBoothId = null;
+    this.assigningBooth = null;
+    this.pickerPos = null;
+    this.vendorSearchTerm = '';
+  }
+
+  assignVendorToBooth(vendor: UnassignedRegistration, event: Event) {
+    event.stopPropagation();
+    const booth = this.assigningBooth;
+    if (!booth) return;
+    this.boothService.assignRegistration(booth._id, vendor._id).subscribe({
+      next: (updatedBooth) => {
+        const idx = this.booths.findIndex(b => b._id === updatedBooth._id);
+        if (idx > -1) {
+          this.booths[idx] = updatedBooth;
+        }
+        this.closeVendorPicker();
+        this.loadUnassigned(); // refresh sidebar + vendor counts
+      },
+      error: (err) => {
+        console.error('Manual assignment failed:', err);
+        alert('Assignment failed: ' + (err.error?.error || err.message));
       }
     });
   }
@@ -329,6 +418,11 @@ export class BoothAssignmentComponent implements OnInit {
 
   // Map Click to create a spot or draw an area point
   onMapClick(event: MouseEvent) {
+    // Clicking the map background dismisses an open vendor picker
+    if (this.assigningBoothId) {
+      this.closeVendorPicker();
+    }
+
     if (!this.isSpotEditorMode && !this.isAreaEditorMode) return;
 
     // Reject click if we clicked an existing spot

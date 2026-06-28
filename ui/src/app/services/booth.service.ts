@@ -74,6 +74,10 @@ export class BoothService {
     return this.http.get<UnassignedRegistration[]>(`${this.apiUrl}/unassigned`);
   }
 
+  getAllVendors(): Observable<UnassignedRegistration[]> {
+    return this.http.get<UnassignedRegistration[]>(`${this.apiUrl}/all-vendors`);
+  }
+
   // ==== AREA METHODS ====
   getAreas(): Observable<BoothArea[]> {
     return this.http.get<BoothArea[]>(this.areaApiUrl);

@@ -247,6 +247,20 @@ router.put(
     }
 );
 
+// Get all approved vendors (for manual assignment, regardless of requested spaces)
+router.get('/all-vendors', async (_req: Request, res: Response) => {
+    try {
+        const vendors = await Registration.find({ status: 'Approved' })
+            .select('organizationName firstName lastName email phone numBoothSpaces assignedBoothIds type organizationCategory sponsorshipLevel sponsorshipInterest tags')
+            .sort({ organizationName: 1 })
+            .lean();
+        res.json(vendors);
+    } catch (error) {
+        console.error('Error fetching all vendors:', error);
+        res.status(500).json({ error: 'Failed to fetch vendors' });
+    }
+});
+
 // Get unassigned participants
 router.get('/unassigned', async (_req: Request, res: Response) => {
     try {

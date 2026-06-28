@@ -185,6 +185,7 @@
                     <!-- Booth Spots Overlay -->
                     @for (booth of booths; track booth._id) {
                     <div class="booth-spot-wrapper" [class.food-truck-wrapper]="booth.type === 'foodTruck'"
+                        [class.picker-open]="assigningBoothId === booth._id"
                         [style.left.%]="booth.xPercentage" [style.top.%]="booth.yPercentage"
                         [id]="'wrapper-' + booth._id">
 
@@ -197,7 +198,8 @@
                             <div class="booth-spot" [class.filled]="!!booth.registrationId"
                                 [class.empty]="!booth.registrationId" [class.food-truck]="booth.type === 'foodTruck'"
                                 [class.is-hovered]="hoveredBoothId === booth._id"
-                                [class.filtered-out]="isBoothFilteredOut(booth)">
+                                [class.filtered-out]="isBoothFilteredOut(booth)"
+                                (click)="openVendorPicker(booth, $event)">
 
                                 <div class="spot-number">{{ getBoothDisplayLabel(booth) }}</div>
 
@@ -246,3 +248,27 @@
             </div>
         </div>
     </div>
+
+    <!-- Floating vendor picker: a single instance positioned near the clicked
+         spot, rendered outside the map so it never gets clipped. -->
+    @if (assigningBooth && pickerPos) {
+    <div class="vendor-picker" [style.left.px]="pickerPos.left" [style.top.px]="pickerPos.top"
+        [style.bottom.px]="pickerPos.bottom" [style.max-height.px]="pickerPos.maxHeight"
+        (click)="$event.stopPropagation()">
+        <div class="picker-header">
+            Assign to spot <strong>{{ assigningBooth.areaId?.name }}{{ assigningBooth.boothNumber }}</strong>
+        </div>
+        <input type="text" class="vendor-search" [(ngModel)]="vendorSearchTerm" placeholder="Search vendors..." />
+        <div class="vendor-picker-list">
+            @for (v of filteredVendors; track v._id) {
+            <div class="vendor-option" (click)="assignVendorToBooth(v, $event)">
+                <span class="vendor-option-name">{{ v.organizationName }}</span>
+                <span class="vendor-option-count">{{ (v.assignedBoothIds.length || 0) }} / {{ v.numBoothSpaces }}</span>
+            </div>
+            } @empty {
+            <div class="vendor-option no-match">No vendors found</div>
+            }
+        </div>
+        <button class="picker-close" (click)="closeVendorPicker($event)">Cancel</button>
+    </div>
+    }

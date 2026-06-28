@@ -562,6 +562,12 @@
         z-index: 100;
       }
 
+      // Keep an open vendor picker above all neighboring spots even when the
+      // search input isn't focused (e.g. after switching tabs and back).
+      &.picker-open {
+        z-index: 300;
+      }
+
       &.food-truck-wrapper {
         width: 3cqw; // 2x size
         height: 3cqw;
@@ -802,4 +808,123 @@
 
 ::ng-deep .cdk-drag-placeholder {
   opacity: 0; // Hide the space left behind by the dragged item seamlessly
+}
+
+// Manual vendor picker popup (assign any vendor to a spot).
+// Rendered at the component root and fixed-positioned near the clicked spot,
+// so it is never clipped by the map's overflow/zoom container.
+.vendor-picker {
+  position: fixed;
+  width: 260px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  background: white;
+  color: #1f2937;
+  padding: 0.75rem;
+  border-radius: 8px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  font-weight: normal;
+  font-size: 0.85rem;
+  z-index: 1000;
+  cursor: default;
+
+  .picker-header {
+    flex: 0 0 auto;
+    font-size: 0.8rem;
+    color: #6b7280;
+    padding-bottom: 0.5rem;
+    margin-bottom: 0.5rem;
+    border-bottom: 1px solid #e5e7eb;
+
+    strong {
+      color: #111827;
+      font-weight: 700;
+    }
+  }
+
+  .vendor-search {
+    flex: 0 0 auto;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 0.4rem 0.5rem;
+    border: 1px solid #d1d5db;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    margin-bottom: 0.5rem;
+
+    &:focus {
+      outline: none;
+      border-color: #3b82f6;
+    }
+  }
+
+  .vendor-picker-list {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+
+    .vendor-option {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.4rem 0.5rem;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background 0.15s;
+
+      &:hover {
+        background: #eff6ff;
+      }
+
+      .vendor-option-name {
+        font-weight: 500;
+        color: #1f2937;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .vendor-option-count {
+        flex-shrink: 0;
+        font-size: 0.75rem;
+        color: #6b7280;
+        background: #f3f4f6;
+        padding: 0.1rem 0.4rem;
+        border-radius: 9999px;
+      }
+
+      &.no-match {
+        cursor: default;
+        color: #9ca3af;
+        justify-content: center;
+
+        &:hover {
+          background: transparent;
+        }
+      }
+    }
+  }
+
+  .picker-close {
+    flex: 0 0 auto;
+    width: 100%;
+    margin-top: 0.5rem;
+    background: #f9fafb;
+    color: #4b5563;
+    border: 1px solid #e5e7eb;
+    padding: 0.4rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.2s;
+
+    &:hover {
+      background: #f3f4f6;
+    }
+  }
 }
