@@ -19,6 +19,10 @@ export class ContactInfoComponent implements OnInit {
   saving = false;
   registrationId: string = '';
   isSponsor = false;
+  // Exhibitors (and "Both") always have a booth, so we don't ask them the
+  // "Do you want a booth?" question — only pure Sponsors can opt out. This stays
+  // false until the registration loads so the question isn't hidden prematurely.
+  alwaysHasBooth = false;
 
   constructor() {
     this.form = this.fb.group({
@@ -129,6 +133,15 @@ export class ContactInfoComponent implements OnInit {
         // Ensure wantBooth is correctly set if it exists, otherwise it stays null (triggering validation)
         if (reg.wantBooth !== undefined) {
           this.form.patchValue({ wantBooth: reg.wantBooth });
+        }
+
+        // Exhibitors and "Both" always have a booth — the question is hidden for
+        // them, so force the value to true and drop the required validator.
+        this.alwaysHasBooth = reg.type === 'Exhibitor' || reg.type === 'Both';
+        if (this.alwaysHasBooth) {
+          this.form.get('wantBooth')?.setValue(true);
+          this.form.get('wantBooth')?.clearValidators();
+          this.form.get('wantBooth')?.updateValueAndValidity();
         }
 
         // Lock form only once a decision has been made (Declined/Cancelled).

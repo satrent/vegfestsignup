@@ -30,7 +30,8 @@
             </div>
         </div>
 
-        <!-- Want Booth? -->
+        <!-- Want Booth? Only asked of pure Sponsors — exhibitors always have a booth. -->
+        @if (!alwaysHasBooth) {
         <div class="form-group">
             <label>Do you want to have a booth at the festival?<span class="required">*</span></label>
             <div class="radio-group">
@@ -47,6 +48,7 @@
             <div class="error">Please select an option</div>
             }
         </div>
+        }
 
 
         <!-- On Site -->
