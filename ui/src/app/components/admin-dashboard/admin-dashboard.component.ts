@@ -6,6 +6,7 @@ import { StorageService, Registration } from '../../services/storage.service';
 import { AuthService } from '../../services/auth.service';
 import { RegistrationDetailsComponent } from './registration-details/registration-details.component';
 import { exhibitorCategory, EXHIBITOR_CATEGORIES, ExhibitorCategory } from '../../utils/exhibitor-category';
+import { requiredDocTypes } from '../../utils/required-docs';
 
 @Component({
   selector: 'app-admin-dashboard',
@@ -310,6 +311,14 @@ export class AdminDashboardComponent implements OnInit {
     // The badge clears automatically once a newer doc of the same type is
     // uploaded (Pending) or approved, since only the latest status per type counts.
     return [...this.latestDocStatusByType(reg).values()].some(status => status === 'Rejected');
+  }
+
+  // An exhibitor is "docs complete" when every required document is present
+  // and its latest version is Approved. Missing or still-Pending/Rejected
+  // required docs leave it incomplete (the Pending/Rejected badges cover those).
+  docsComplete(reg: Registration): boolean {
+    const latest = this.latestDocStatusByType(reg);
+    return requiredDocTypes(reg).every(type => latest.get(type) === 'Approved');
   }
 
   hasOpenTodos(reg: Registration): boolean {

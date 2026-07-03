@@ -924,6 +924,17 @@ a {
   border: 1px solid #F5C2C7;
 }
 
+.docs-complete-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  white-space: nowrap;
+  background: #E6F7ED;
+  color: #1B7A43;
+  border: 1px solid #A7E0BE;
+}
+
 .todos-status-badge {
   padding: 0.25rem 0.75rem;
   border-radius: 20px;

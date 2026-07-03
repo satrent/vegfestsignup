@@ -136,6 +136,12 @@
                 [class.pending]="reg.websiteStatus !== 'Added'">
                 {{ reg.websiteStatus === 'Added' ? 'On Website' : 'Not Posted' }}
               </span>
+              <!-- Docs Complete Badge -->
+              @if (docsComplete(reg)) {
+              <span class="docs-complete-badge">
+                ✓ Docs Complete
+              </span>
+              }
               <!-- Pending Documents Badge -->
               @if (hasPendingDocuments(reg)) {
               <span class="docs-status-badge">

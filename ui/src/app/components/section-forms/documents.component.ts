@@ -4,6 +4,7 @@ import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angula
 import { Router } from '@angular/router';
 import { StorageService, Registration } from '../../services/storage.service';
 import { FileUploadComponent } from '../shared/file-upload/file-upload.component';
+import { requiredDocTypes } from '../../utils/required-docs';
 
 @Component({
   selector: 'app-documents',
@@ -24,7 +25,7 @@ export class DocumentsComponent implements OnInit {
 
   // State for conditional visibility
   onSiteSales = false;
-  isFoodVendor = false; // New flag
+  isFoodVendor = false; // Derived from the shared requiredDocTypes() helper
 
   constructor() {
     this.form = this.fb.group({
@@ -47,10 +48,9 @@ export class DocumentsComponent implements OnInit {
         this.documents = reg.documents || [];
         this.onSiteSales = !!reg.onSiteSales;
 
-        // Check for Food Vendor status
-        const cat = reg.organizationCategory || '';
-        this.isFoodVendor = cat === 'On-site food prep & sales $600' ||
-          cat === 'Food business with on-site food prep — not a restaurant or food truck $350';
+        // Food-permit requirement comes from the shared required-docs helper,
+        // the single source of truth shared with the admin dashboard.
+        this.isFoodVendor = requiredDocTypes(reg).includes('Food Permit');
 
         this.form.patchValue({
           coiOption: reg.coiOption || 'upload_now',
