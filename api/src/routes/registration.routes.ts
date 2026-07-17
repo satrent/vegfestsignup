@@ -4,6 +4,7 @@ import { Registration, IRegistration } from '../models/Registration';
 import { authenticate, requireAdmin, requireApprover, requireSuperAdmin } from '../middleware/auth.middleware';
 import { AuditService } from '../services/audit.service';
 import { FeeService } from '../services/fee.service';
+import { docsComplete } from '../utils/required-docs';
 
 const router = Router();
 
@@ -520,6 +521,15 @@ router.patch(
             if (!registration) {
                 res.status(404).json({ error: 'Registration not found' });
                 return;
+            }
+
+            // AUTO-GENERATE "Add exhibitor to website" recognition to-do.
+            // Both triggers that can satisfy the condition — a payment being
+            // recorded (amountPaid) and a document being approved — flow through
+            // this endpoint, so this single check covers both. Idempotent, so
+            // repeated saves don't create duplicates.
+            if (maybeAddWebsiteTodo(registration)) {
+                await registration.save();
             }
 
             // AUTO-SEND APPROVAL EMAIL LOGIC
@@ -1063,6 +1073,41 @@ interface RecognitionTodoItem {
     category: string;
 }
 
+// The one recognition to-do that always remains for an exhibitor. It is created
+// two ways: manually via the initialize button (generateExhibitorTodos), and
+// automatically once an exhibitor is both paid and docs-complete
+// (maybeAddWebsiteTodo). Both paths dedupe on this exact text so it never
+// appears twice.
+const WEBSITE_TODO_TEXT = 'Add exhibitor to website';
+const WEBSITE_TODO_CATEGORY = 'Digital & Social';
+
+// Auto-generates the "Add exhibitor to website" recognition to-do for an
+// exhibitor (type Exhibitor or Both) once they are paid AND docs-complete.
+// Idempotent: does nothing if the to-do already exists (added here previously
+// or via the initialize button). Mutates `registration` in place; returns true
+// if it added the to-do so the caller knows to persist.
+function maybeAddWebsiteTodo(registration: IRegistration): boolean {
+    const isExhibitor = registration.type === 'Exhibitor' || registration.type === 'Both';
+    if (!isExhibitor) return false;
+
+    const isPaid = (registration.amountPaid || 0) > 0;
+    if (!isPaid || !docsComplete(registration)) return false;
+
+    if (!registration.recognitionTodos) {
+        registration.recognitionTodos = [];
+    }
+    if (registration.recognitionTodos.some(todo => todo.text === WEBSITE_TODO_TEXT)) {
+        return false;
+    }
+
+    registration.recognitionTodos.push({
+        text: WEBSITE_TODO_TEXT,
+        category: WEBSITE_TODO_CATEGORY,
+        isCompleted: false,
+    });
+    return true;
+}
+
 type TodoTemplateFactory = (createdAt: Date) => RecognitionTodoItem[];
 
 function t(text: string, category: string): RecognitionTodoItem {
@@ -1110,7 +1155,7 @@ function generateExhibitorTodos(registration: IRegistration): RecognitionTodoIte
     if (!registration.productsDescription) {
         todos.push(t('Collect text description of what they\'ll provide or sell', 'General'));
     }
-    todos.push(t('Add exhibitor to website', 'Digital & Social'));
+    todos.push(t(WEBSITE_TODO_TEXT, WEBSITE_TODO_CATEGORY));
 
     return todos;
 }
@@ -1283,7 +1328,12 @@ router.post(
                 registration.recognitionTodos = [];
             }
 
+            // Don't duplicate the "Add exhibitor to website" to-do if it was
+            // already auto-generated (paid + docs-complete). All other items
+            // append as before, preserving the initialize button's behavior.
+            const alreadyHasWebsiteTodo = registration.recognitionTodos.some(todo => todo.text === WEBSITE_TODO_TEXT);
             for (const item of todoTexts) {
+                if (item.text === WEBSITE_TODO_TEXT && alreadyHasWebsiteTodo) continue;
                 registration.recognitionTodos.push({ text: item.text, category: item.category, isCompleted: false });
             }
 
