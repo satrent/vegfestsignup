@@ -189,7 +189,7 @@ router.post(
 
             void (async () => {
                 try {
-                    await import('../services/email.service').then(m =>
+                    const invitationSubject = await import('../services/email.service').then(m =>
                         m.emailService.sendSponsorInvitationEmail(email, firstName, organizationName)
                     );
                     await AuditService.log({
@@ -198,7 +198,7 @@ router.post(
                         entityId: registration._id as any,
                         entityType: 'Registration',
                         action: 'SEND_EMAIL',
-                        target: "You've been registered for Twin Cities Veg Fest!",
+                        target: invitationSubject,
                         details: `Sponsor invitation email sent to ${email}`,
                     });
                 } catch (emailError) {
@@ -531,7 +531,7 @@ router.patch(
                 updates.approvalEmailSent !== true
             ) {
                 try {
-                    await import('../services/email.service').then(m =>
+                    const approvalSubject = await import('../services/email.service').then(m =>
                         m.emailService.sendApprovalEmail(registration)
                     );
                     registration.approvalEmailSent = true;
@@ -541,7 +541,7 @@ router.patch(
                         entityId: registration._id as any,
                         entityType: 'Registration',
                         action: 'SEND_EMAIL',
-                        target: 'Welcome to Twin Cities Veg Fest',
+                        target: approvalSubject,
                         details: `Approval email sent to ${registration.email}`
                     });
                 } catch (emailError) {
@@ -588,16 +588,17 @@ router.patch(
                                             registration.email,
                                             registration.firstName,
                                             newDoc.type,
-                                            newDoc.rejectionReason || ''
+                                            newDoc.rejectionReason || '',
+                                            registration.organizationName
                                         )
-                                    ).then(() => {
+                                    ).then((rejectionSubject) => {
                                         AuditService.log({
                                             adminId: req.user!.userId,
                                             actorName: adminName,
                                             entityId: registration._id as any,
                                             entityType: 'Registration',
                                             action: 'SEND_EMAIL',
-                                            target: `${newDoc.type} Document Rejected`,
+                                            target: rejectionSubject,
                                             details: `Rejection email sent to ${registration.email}${newDoc.rejectionReason ? `: ${newDoc.rejectionReason}` : ''}`
                                         });
                                     }).catch(err => console.error('Failed to send rejection email:', err));
@@ -746,7 +747,7 @@ router.patch(
             if (newStatus === 'Approved' && previousStatus !== 'Approved' && registration.email) {
                 if (registration.initialInvoiceAmount && registration.initialInvoiceAmount > 0 && registration.quickbooksInvoiceLink && !registration.approvalEmailSent) {
                     try {
-                        await import('../services/email.service').then(m =>
+                        const approvalSubject = await import('../services/email.service').then(m =>
                             m.emailService.sendApprovalEmail(registration)
                         );
                         registration.approvalEmailSent = true;
@@ -756,7 +757,7 @@ router.patch(
                             entityId: registration._id as any,
                             entityType: 'Registration',
                             action: 'SEND_EMAIL',
-                            target: 'Welcome to Twin Cities Veg Fest',
+                            target: approvalSubject,
                             details: `Approval email sent to ${registration.email}`
                         });
                     } catch (emailError) {
@@ -919,11 +920,12 @@ router.post(
                 return;
             }
 
-            await import('../services/email.service').then(m =>
+            const reminderSubject = await import('../services/email.service').then(m =>
                 m.emailService.sendDocumentReminder(
                     registration.email,
                     registration.firstName,
-                    missingDocuments || ['Required Documents']
+                    missingDocuments || ['Required Documents'],
+                    registration.organizationName
                 )
             );
 
@@ -940,7 +942,7 @@ router.post(
                 entityId: registration._id as any,
                 entityType: 'Registration',
                 action: 'SEND_EMAIL',
-                target: 'Action Required: Missing Documents for Veg Fest',
+                target: reminderSubject,
                 details: `Document reminder sent to ${registration.email}. Missing: ${missingDocuments?.join(', ')}`
             });
 

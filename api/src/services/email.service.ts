@@ -64,6 +64,14 @@ export class EmailService {
     }
   }
 
+  // Appends the vendor/organization name to a base subject so that mail
+  // clients thread each vendor's automated emails into their own conversation
+  // instead of grouping every vendor under one shared subject line.
+  private withVendor(baseSubject: string, organizationName?: string): string {
+    const org = organizationName?.trim();
+    return org ? `${baseSubject} — ${org}` : baseSubject;
+  }
+
   async sendVerificationCode(email: string, code: string): Promise<void> {
     const subject = 'Veg Fest Signup - Verification Code';
     const text = `
@@ -155,10 +163,10 @@ Twin Cities Veg Fest Team
       text,
     });
   }
-  async sendSponsorInvitationEmail(email: string, firstName: string, organizationName: string): Promise<void> {
+  async sendSponsorInvitationEmail(email: string, firstName: string, organizationName: string): Promise<string> {
     const name = firstName || 'there';
     const loginUrl = `${config.frontend.url}/login`;
-    const subject = "You've been registered for Twin Cities Veg Fest!";
+    const subject = this.withVendor("You've been registered for Twin Cities Veg Fest!", organizationName);
 
     const text = `
 Hi ${name},
@@ -202,15 +210,17 @@ exhibitors@tcvegfest.com
     `.trim();
 
     await this.sendEmail({ to: email, subject, text, html });
+
+    return subject;
   }
 
-  async sendDocumentReminder(email: string, firstName: string, missingDocs: string[]): Promise<void> {
+  async sendDocumentReminder(email: string, firstName: string, missingDocs: string[], organizationName?: string): Promise<string> {
     const name = firstName || 'Exhibitor';
     const docList = missingDocs.map(d => `- ${d}`).join('\n');
     const docListHtml = missingDocs.map(d => `<li>${d}</li>`).join('');
     const loginUrl = `${config.frontend.url}/login`;
 
-    const subject = 'Action Required: Missing Documents for Veg Fest';
+    const subject = this.withVendor('Action Required: Missing Documents for Veg Fest', organizationName);
 
     const text = `
 Hi ${name},
@@ -282,11 +292,13 @@ exhibitors@tcvegfest.com
       text,
       html,
     });
+
+    return subject;
   }
-  async sendDocumentRejectionEmail(email: string, firstName: string, docType: string, rejectionReason: string): Promise<void> {
+  async sendDocumentRejectionEmail(email: string, firstName: string, docType: string, rejectionReason: string, organizationName?: string): Promise<string> {
     const name = firstName || 'Exhibitor';
     const loginUrl = `${config.frontend.url}/login`;
-    const subject = `Action Required: ${docType} Document Rejected`;
+    const subject = this.withVendor(`Action Required: ${docType} Document Rejected`, organizationName);
 
     const reasonText = rejectionReason ? `\nReason: ${rejectionReason}\n` : '';
     const reasonHtml = rejectionReason
@@ -352,15 +364,17 @@ exhibitors@tcvegfest.com
       text,
       html,
     });
+
+    return subject;
   }
 
-  async sendApprovalEmail(registration: any): Promise<void> {
+  async sendApprovalEmail(registration: any): Promise<string> {
     const name = registration.firstName || 'Veggie Lover';
     const businessName = registration.organizationName || 'your business';
     const loginUrl = `${config.frontend.url}/login`;
     const email = registration.email;
 
-    const subject = "Welcome to Twin Cities Veg Fest";
+    const subject = this.withVendor('Welcome to Twin Cities Veg Fest', registration.organizationName);
 
     // Build the required documents list
     const requiredDocs: string[] = [];
@@ -461,6 +475,8 @@ exhibitors@tcvegfest.com
       text,
       html,
     });
+
+    return subject;
   }
 }
 
