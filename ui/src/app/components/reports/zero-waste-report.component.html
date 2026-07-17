@@ -72,6 +72,9 @@
                     <th>Organization</th>
                     <th>Contact</th>
                     <th>Email</th>
+                    <th>Phone</th>
+                    <th>Website</th>
+                    <th>Social Media</th>
                     <th>Category</th>
                     <th>Products / Distribution</th>
                     <th>Materials Ack</th>
@@ -88,6 +91,13 @@
                     <td class="org-col">{{ row.organizationName }}</td>
                     <td>{{ row.firstName }} {{ row.lastName }}</td>
                     <td class="contact-col">{{ row.email || '-' }}</td>
+                    <td>{{ row.phone || '-' }}</td>
+                    <td class="contact-col">
+                        @if (row.website) {
+                        <a [href]="row.website" target="_blank" rel="noopener">{{ row.website }}</a>
+                        } @else { - }
+                    </td>
+                    <td class="contact-col">{{ socialLinks(row) || '-' }}</td>
                     <td>{{ row.organizationCategory || '-' }}</td>
                     <td class="desc-col">{{ row.productsDescription || '-' }}</td>
                     <td class="ack-col">
@@ -140,7 +150,7 @@
                 }
                 @if (filteredData.length === 0) {
                 <tr>
-                    <td colspan="11" class="empty-state">No approved exhibitors found.</td>
+                    <td colspan="14" class="empty-state">No approved exhibitors found.</td>
                 </tr>
                 }
             </tbody>

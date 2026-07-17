@@ -384,7 +384,7 @@ router.get('/reports/contact-info', authenticate, requireAdmin, async (_req: Req
     try {
         const registrations = await Registration.find({})
             .sort({ organizationName: 1 })
-            .select('organizationName firstName lastName status email phone facebook instagram isTest');
+            .select('organizationName firstName lastName status email phone facebook instagram address city state zip isTest');
 
         res.json(registrations);
     } catch (error) {
@@ -397,7 +397,7 @@ router.get('/reports/zero-waste', authenticate, requireAdmin, async (_req: Reque
     try {
         const registrations = await Registration.find({ status: 'Approved' })
             .sort({ organizationName: 1 })
-            .select('organizationName firstName lastName email phone organizationCategory productsDescription materialsAck veganFoodAck drinkVessels bpiContainerBrand compostableServicewareAck bottledWaterAck isTest');
+            .select('organizationName firstName lastName email phone website instagram facebook tiktok organizationCategory productsDescription materialsAck veganFoodAck drinkVessels bpiContainerBrand compostableServicewareAck bottledWaterAck isTest');
 
         res.json(registrations);
     } catch (error) {

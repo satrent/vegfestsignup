@@ -65,6 +65,16 @@ export class ZeroWasteReportComponent implements OnInit {
         return (row.organizationCategory || '').toLowerCase().includes('food');
     }
 
+    // Compose a readable "platform: handle" list from whichever social fields
+    // the exhibitor provided, so we can reach out to them.
+    socialLinks(row: any): string {
+        const parts: string[] = [];
+        if (row.instagram) parts.push(`Instagram: ${row.instagram}`);
+        if (row.facebook) parts.push(`Facebook: ${row.facebook}`);
+        if (row.tiktok) parts.push(`TikTok: ${row.tiktok}`);
+        return parts.join(' | ');
+    }
+
     ngOnInit(): void {
         this.loadReport();
     }
@@ -94,7 +104,8 @@ export class ZeroWasteReportComponent implements OnInit {
         if (this.filteredData.length === 0) return;
 
         const headers = [
-            'Organization Name', 'Contact Name', 'Email', 'Phone', 'Category',
+            'Organization Name', 'Contact Name', 'Email', 'Phone',
+            'Website', 'Social Media', 'Category',
             'Products Description', 'Materials Ack', 'Vegan Food Ack',
             'Drink Vessels', 'BPI Container Brand',
             'Compostable Serviceware Ack', 'Bottled Water Ack'
@@ -109,6 +120,8 @@ export class ZeroWasteReportComponent implements OnInit {
                 this.escapeCsv(`${row.firstName} ${row.lastName}`),
                 this.escapeCsv(row.email),
                 this.escapeCsv(row.phone),
+                this.escapeCsv(row.website),
+                this.escapeCsv(this.socialLinks(row)),
                 this.escapeCsv(row.organizationCategory),
                 this.escapeCsv(row.productsDescription),
                 row.materialsAck ? 'Yes' : 'No',
