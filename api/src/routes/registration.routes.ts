@@ -384,7 +384,7 @@ router.get('/reports/contact-info', authenticate, requireAdmin, async (_req: Req
     try {
         const registrations = await Registration.find({})
             .sort({ organizationName: 1 })
-            .select('organizationName firstName lastName status email phone facebook instagram address city state zip isTest');
+            .select('organizationName firstName lastName status email phone website productsDescription facebook instagram address city state zip isTest');
 
         res.json(registrations);
     } catch (error) {

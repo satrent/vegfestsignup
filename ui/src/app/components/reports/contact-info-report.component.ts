@@ -92,10 +92,10 @@ export class ContactInfoReportComponent implements OnInit {
     exportCsv(): void {
         if (this.filteredData.length === 0) return;
 
-        let csvContent = 'Organization Name,First Name,Last Name,Status,Email,Phone,Address,City,State,Zip,Facebook,Instagram\n';
+        let csvContent = 'Organization Name,First Name,Last Name,Status,Email,Phone,Website,Product Description,Address,City,State,Zip,Facebook,Instagram\n';
 
         this.filteredData.forEach(row => {
-            csvContent += `${this.escapeCsv(row.organizationName)},${this.escapeCsv(row.firstName)},${this.escapeCsv(row.lastName)},${this.escapeCsv(row.status)},${this.escapeCsv(row.email)},${this.escapeCsv(row.phone)},${this.escapeCsv(row.address)},${this.escapeCsv(row.city)},${this.escapeCsv(row.state)},${this.escapeCsv(row.zip)},${this.escapeCsv(row.facebook)},${this.escapeCsv(row.instagram)}\n`;
+            csvContent += `${this.escapeCsv(row.organizationName)},${this.escapeCsv(row.firstName)},${this.escapeCsv(row.lastName)},${this.escapeCsv(row.status)},${this.escapeCsv(row.email)},${this.escapeCsv(row.phone)},${this.escapeCsv(row.website)},${this.escapeCsv(row.productsDescription)},${this.escapeCsv(row.address)},${this.escapeCsv(row.city)},${this.escapeCsv(row.state)},${this.escapeCsv(row.zip)},${this.escapeCsv(row.facebook)},${this.escapeCsv(row.instagram)}\n`;
         });
 
         const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
