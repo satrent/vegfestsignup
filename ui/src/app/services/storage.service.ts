@@ -121,6 +121,7 @@ export interface Registration {
   st19Url?: string;
   st19Option?: 'upload_now' | 'later';
   st19SubmissionMethod?: string;
+  foodPermitOption?: 'upload_now' | 'request';
   documents?: {
     type: string;
     name: string;

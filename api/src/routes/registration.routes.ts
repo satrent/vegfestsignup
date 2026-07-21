@@ -559,6 +559,34 @@ router.patch(
                 }
             }
 
+            // AUTO-SEND FOOD PERMIT REQUEST EMAIL LOGIC
+            // When an exhibitor chooses to have the site request a Special Event
+            // Food Stand permit on their behalf, email the State once. The
+            // foodPermitRequestEmailSent flag guards against duplicate sends on
+            // subsequent saves of the Documents section.
+            if (
+                registration.foodPermitOption === 'request' &&
+                !originalRegistration.foodPermitRequestEmailSent
+            ) {
+                try {
+                    const permitSubject = await import('../services/email.service').then(m =>
+                        m.emailService.sendFoodPermitRequestEmail(registration)
+                    );
+                    registration.foodPermitRequestEmailSent = true;
+                    await registration.save();
+                    await AuditService.log({
+                        actorName: 'System',
+                        entityId: registration._id as any,
+                        entityType: 'Registration',
+                        action: 'SEND_EMAIL',
+                        target: permitSubject,
+                        details: `Food permit request emailed to aaron.gertz@state.mn.us on behalf of ${registration.email}`
+                    });
+                } catch (emailError) {
+                    console.error('Error auto-sending food permit request email:', emailError);
+                }
+            }
+
             // 3. Log Audit Events (Admin Only)
             if (req.user?.role === 'ADMIN') {
                 try {

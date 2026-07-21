@@ -119,6 +119,11 @@ export interface IRegistration extends Document {
     st19Url?: string;
     st19Option?: 'upload_now' | 'later';
     st19SubmissionMethod?: string; // @deprecated
+    // 'upload_now' = exhibitor will upload their own MN food permit here.
+    // 'request'    = exhibitor asks the site to email a Special Event Food Stand
+    //                permit request to the State on their behalf.
+    foodPermitOption?: 'upload_now' | 'request';
+    foodPermitRequestEmailSent?: boolean;
     documents: {
         type: string; // 'Food License', 'COI', 'ST-19'
         name: string;
@@ -413,6 +418,17 @@ const registrationSchema = new Schema<IRegistration>(
             default: 'upload_now'
         },
         st19SubmissionMethod: String, // @deprecated
+        foodPermitOption: {
+            type: String,
+            enum: ['upload_now', 'request'],
+            default: 'upload_now'
+        },
+        // Guards the on-behalf-of permit request email so repeated section
+        // saves don't send Aaron a duplicate for the same exhibitor.
+        foodPermitRequestEmailSent: {
+            type: Boolean,
+            default: false
+        },
         documents: [{
             type: { type: String, required: true }, // 'Food License', 'COI', 'ST-19'
             name: { type: String, required: true },

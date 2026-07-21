@@ -5,6 +5,7 @@ import nodemailer from 'nodemailer';
 export interface EmailOptions {
   to: string;
   cc?: string;
+  replyTo?: string;
   subject: string;
   text: string;
   html?: string;
@@ -37,6 +38,7 @@ export class EmailService {
       console.log('\n📧 ===== EMAIL =====');
       console.log(`To: ${options.to}`);
       if (options.cc) console.log(`Cc: ${options.cc}`);
+      if (options.replyTo) console.log(`Reply-To: ${options.replyTo}`);
       console.log(`Subject: ${options.subject}`);
       console.log(`Body:\n${options.text}`);
       console.log('==================\n');
@@ -49,6 +51,7 @@ export class EmailService {
           from: config.email.from,
           to: options.to,
           cc: options.cc,
+          replyTo: options.replyTo,
           subject: options.subject,
           text: options.text,
           html: options.html,
@@ -360,6 +363,56 @@ exhibitors@tcvegfest.com
     await this.sendEmail({
       to: email,
       cc: 'exhibitors@tcvegfest.com',
+      subject,
+      text,
+      html,
+    });
+
+    return subject;
+  }
+
+  // Sends, on the exhibitor's behalf, a request to the State of Minnesota for a
+  // Special Event Food Stand permit. Aaron receives it, cc's the exhibitor and
+  // exhibitors@, and Reply-To points back at the exhibitor so the permit he
+  // returns by email reaches them directly (not our shared from-address).
+  async sendFoodPermitRequestEmail(registration: any): Promise<string> {
+    const firstName = registration.firstName || 'there';
+    const businessName = registration.organizationName || 'our business';
+    const exhibitorEmail = registration.email;
+
+    const subject = `${businessName} Request for Special Event Food Stand Permit for Twin Cities Veg Fest`;
+
+    const text = `
+Hi Aaron,
+
+This is ${firstName} from ${businessName}.
+
+Please email me a Special Event Food Stand Permit for Twin Cities Veg Fest on September 20 at Harriet Island Park.
+
+Thank you!
+    `.trim();
+
+    const html = `
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; }
+  </style>
+</head>
+<body>
+  <p>Hi Aaron,</p>
+  <p>This is ${firstName} from ${businessName}.</p>
+  <p>Please email me a Special Event Food Stand Permit for Twin Cities Veg Fest on September 20 at Harriet Island Park.</p>
+  <p>Thank you!</p>
+</body>
+</html>
+    `.trim();
+
+    await this.sendEmail({
+      to: 'aaron.gertz@state.mn.us',
+      cc: exhibitorEmail ? `${exhibitorEmail}, exhibitors@tcvegfest.com` : 'exhibitors@tcvegfest.com',
+      replyTo: exhibitorEmail,
       subject,
       text,
       html,

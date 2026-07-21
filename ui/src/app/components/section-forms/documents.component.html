@@ -48,20 +48,19 @@
         @if (isFoodVendor) {
         <div class="document-section">
             <h3>State of Minnesota Food Permit <span class="required">[Required]</span></h3>
-            <p class="description">A 2026 State of Minnesota Food Permit is required.<br>
-                <a href="https://www.health.state.mn.us/communities/environment/food/license/specevent.html"
-                    target="_blank" rel="noopener noreferrer">Apply for a special event food permit</a>.
-            </p>
+            <p class="description">A 2026 State of Minnesota Food Permit is required.</p>
 
             <div class="form-group">
                 <div class="radio-list">
                     <div class="radio-item">
                         <input type="radio" id="food-now" formControlName="foodPermitOption" value="upload_now">
-                        <label for="food-now">Upload now</label>
+                        <label for="food-now">I will upload a State of Minnesota food permit here by August 10.</label>
                     </div>
                     <div class="radio-item">
-                        <input type="radio" id="food-later" formControlName="foodPermitOption" value="later">
-                        <label for="food-later">Will provide by August 10</label>
+                        <input type="radio" id="food-request" formControlName="foodPermitOption" value="request">
+                        <label for="food-request">I want to request a Special Event Food Stand permit (note: an email
+                            will be generated on your behalf; you'll then need to fill out the permit you receive by
+                            email).</label>
                     </div>
                 </div>
             </div>
@@ -72,6 +71,13 @@
                     [disabled]="form.disabled" (uploadComplete)="onUpload($event)"
                     (fileRemoved)="onRemoveDoc('Food Permit')">
                 </app-file-upload>
+            </div>
+            }
+
+            @if (form.get('foodPermitOption')?.value === 'request') {
+            <div class="alert alert-info">
+                When you save this section, we'll email the State of Minnesota to request a Special Event Food Stand
+                permit on your behalf, with a copy to you. Watch your inbox for the permit to fill out.
             </div>
             }
         </div>

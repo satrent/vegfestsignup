@@ -55,7 +55,7 @@ export class DocumentsComponent implements OnInit {
         this.form.patchValue({
           coiOption: reg.coiOption || 'upload_now',
           st19Option: reg.st19Option || 'upload_now',
-          foodPermitOption: reg.foodLicenseUrl ? 'upload_now' : 'upload_now' // We don't have a specific option field for this in historic data, defaulting
+          foodPermitOption: reg.foodPermitOption || 'upload_now'
         });
 
         // If an approved exhibitor returns to upload a missing doc, switch 'later' → 'upload_now'
