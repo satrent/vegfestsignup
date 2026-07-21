@@ -48,6 +48,9 @@ Thumbs.db
 api/.env
 api/*.log
 
+# Basecamp OAuth credentials/tokens
+scripts/basecamp/.env
+
 # Build logs
 build_log.txt
 build_log_clean.txt
