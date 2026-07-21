@@ -46,6 +46,12 @@ export class ReportsComponent {
             description: 'Open recognition to-dos for approved exhibitors and sponsors, filterable by category. Check off items directly from the report.',
         },
         {
+            id: 'exhibitor-images',
+            title: 'Exhibitor Images',
+            description: 'Bulk-download every uploaded exhibitor image as a ZIP, organized into a folder per organization so files stay tied to the vendor name.',
+            icon: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>`
+        },
+        {
             id: 'zero-waste',
             title: 'Zero Waste Report',
             description: 'Exhibitor info and all zero waste compliance responses including drink vessel types, BPI container brands, and serviceware acknowledgments.',

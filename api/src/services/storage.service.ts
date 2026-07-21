@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import { Readable } from 'stream';
 import { S3Client, PutObjectCommand, DeleteObjectCommand, GetObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 
@@ -20,6 +21,7 @@ export interface StorageProvider {
     upload(file: FileData, folder?: string): Promise<StoredFile>;
     delete(key: string): Promise<void>;
     getUrl(key: string): Promise<string>;
+    getStream(key: string): Promise<Readable>;
 }
 
 export class LocalStorageProvider implements StorageProvider {
@@ -61,6 +63,14 @@ export class LocalStorageProvider implements StorageProvider {
 
     async getUrl(key: string): Promise<string> {
         return `/uploads/${key}`;
+    }
+
+    async getStream(key: string): Promise<Readable> {
+        const filePath = path.join(this.uploadDir, key);
+        if (!fs.existsSync(filePath)) {
+            throw new Error(`File not found: ${key}`);
+        }
+        return fs.createReadStream(filePath);
     }
 }
 
@@ -115,6 +125,17 @@ export class S3StorageProvider implements StorageProvider {
             Key: key
         });
         return getSignedUrl(this.s3, command, { expiresIn: 3600 });
+    }
+
+    async getStream(key: string): Promise<Readable> {
+        const response = await this.s3.send(new GetObjectCommand({
+            Bucket: this.bucket,
+            Key: key
+        }));
+        if (!response.Body) {
+            throw new Error(`File not found: ${key}`);
+        }
+        return response.Body as Readable;
     }
 }
 

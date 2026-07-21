@@ -279,6 +279,24 @@ export class StorageService {
     return this.api.get<any[]>('/registrations/reports/zero-waste');
   }
 
+  // Get Exhibitor Images Report — per-participant image counts (Admin only)
+  getImagesReport(): Observable<any[]> {
+    return this.api.get<any[]>('/registrations/reports/images');
+  }
+
+  // Download all exhibitor images as a ZIP, foldered by organization name (Admin only)
+  downloadExhibitorImages(filters: { status?: string; includeTest?: boolean }): Observable<Blob> {
+    const params: string[] = [];
+    if (filters.status && filters.status !== 'all') {
+      params.push(`status=${encodeURIComponent(filters.status)}`);
+    }
+    if (filters.includeTest) {
+      params.push('includeTest=true');
+    }
+    const query = params.length ? `?${params.join('&')}` : '';
+    return this.http.get(`${this.baseUrl}/registrations/reports/images/download${query}`, { responseType: 'blob' });
+  }
+
   // Get current user's registrations
   getMyRegistrations(): Observable<Registration[]> {
     return this.api.get<Registration[]>('/registrations/my-registrations');

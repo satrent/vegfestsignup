@@ -5,8 +5,33 @@ import { authenticate, requireAdmin, requireApprover, requireSuperAdmin } from '
 import { AuditService } from '../services/audit.service';
 import { FeeService } from '../services/fee.service';
 import { docsComplete } from '../utils/required-docs';
+import { storageService } from '../services/storage.service';
+import { ZipArchive } from 'archiver';
 
 const router = Router();
+
+// Which uploaded documents count as "images" for the exhibitor-image export.
+// Kept extension-based (not document-type based) so we grab every image a
+// participant uploaded regardless of category — the category filter, if ever
+// needed, gets figured out once this is in real use.
+const IMAGE_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.gif', '.webp'];
+
+const isImageDoc = (doc: { name?: string; key?: string }): boolean => {
+    const source = (doc.name || doc.key || '').toLowerCase();
+    return IMAGE_EXTENSIONS.some(ext => source.endsWith(ext));
+};
+
+// Turn an organization name into a filesystem-safe folder name for the ZIP.
+// Keeps spaces so vendor folders stay human-readable; strips path separators
+// and other characters that break on Windows/macOS.
+const sanitizeFolderName = (name: string): string => {
+    const cleaned = (name || '')
+        .replace(/[\/\\:*?"<>|]/g, '-')
+        .replace(/\s+/g, ' ')
+        .trim()
+        .replace(/\.+$/, ''); // no trailing dots (invalid on Windows)
+    return cleaned || 'Unnamed';
+};
 
 // Get all registrations (admin only)
 router.get('/', authenticate, requireAdmin, async (_req: Request, res: Response) => {
@@ -390,6 +415,114 @@ router.get('/reports/contact-info', authenticate, requireAdmin, async (_req: Req
     } catch (error) {
         console.error('Error fetching contact info report:', error);
         res.status(500).json({ error: 'Failed to fetch contact info report' });
+    }
+});
+
+// Get Exhibitor Images Report (Admin only)
+// Lightweight summary used by the report table: how many uploaded images each
+// participant has, so an admin can see what the ZIP download will contain.
+router.get('/reports/images', authenticate, requireAdmin, async (_req: Request, res: Response) => {
+    try {
+        const registrations = await Registration.find({})
+            .sort({ organizationName: 1 })
+            .select('organizationName status isTest documents');
+
+        const rows = registrations.map(r => ({
+            _id: r._id,
+            organizationName: r.organizationName,
+            status: r.status,
+            isTest: r.isTest,
+            imageCount: (r.documents || []).filter(isImageDoc).length,
+        }));
+
+        res.json(rows);
+    } catch (error) {
+        console.error('Error fetching images report:', error);
+        res.status(500).json({ error: 'Failed to fetch images report' });
+    }
+});
+
+// Download all exhibitor images as a ZIP (Admin only).
+// Each participant's images go in a folder named after their organization, so
+// the files stay tied to the vendor name. Optional filters mirror the other
+// reports: ?status=Approved and ?includeTest=true.
+router.get('/reports/images/download', authenticate, requireAdmin, async (req: Request, res: Response) => {
+    try {
+        const { status, includeTest } = req.query;
+
+        const query: Record<string, unknown> = {};
+        if (status && status !== 'all') {
+            query.status = status;
+        }
+        if (includeTest !== 'true') {
+            query.isTest = { $ne: true };
+        }
+
+        const registrations = await Registration.find(query)
+            .sort({ organizationName: 1 })
+            .select('organizationName documents');
+
+        // Only participants that actually have images.
+        const withImages = registrations
+            .map(r => ({ reg: r, images: (r.documents || []).filter(isImageDoc) }))
+            .filter(entry => entry.images.length > 0);
+
+        if (withImages.length === 0) {
+            res.status(404).json({ error: 'No images found for the selected participants.' });
+            return;
+        }
+
+        const archive = new ZipArchive({ zlib: { level: 9 } });
+
+        archive.on('warning', (err) => {
+            console.warn('Archive warning during image export:', err);
+        });
+        archive.on('error', (err) => {
+            console.error('Archive error during image export:', err);
+            // Headers are already sent once piping starts; just tear down the response.
+            res.destroy(err);
+        });
+
+        res.header('Content-Type', 'application/zip');
+        res.header('Content-Disposition', 'attachment; filename="vegfest_exhibitor_images.zip"');
+        archive.pipe(res);
+
+        for (const { reg, images } of withImages) {
+            const folder = sanitizeFolderName(reg.organizationName);
+            const usedNames = new Set<string>();
+
+            for (const doc of images) {
+                // Keep the original filename; de-duplicate within the folder so
+                // two "photo.jpg" uploads don't clobber each other in the ZIP.
+                const original = doc.name || doc.key.split('/').pop() || 'image';
+                const dot = original.lastIndexOf('.');
+                const base = dot > 0 ? original.slice(0, dot) : original;
+                const ext = dot > 0 ? original.slice(dot) : '';
+
+                let entryName = original;
+                let counter = 2;
+                while (usedNames.has(entryName.toLowerCase())) {
+                    entryName = `${base}-${counter}${ext}`;
+                    counter++;
+                }
+                usedNames.add(entryName.toLowerCase());
+
+                try {
+                    const stream = await storageService.getStream(doc.key);
+                    archive.append(stream, { name: `${folder}/${entryName}` });
+                } catch (fileErr) {
+                    // A missing/unreadable file shouldn't kill the whole export.
+                    console.error(`Skipping unreadable image ${doc.key}:`, fileErr);
+                }
+            }
+        }
+
+        await archive.finalize();
+    } catch (error) {
+        console.error('Error exporting exhibitor images:', error);
+        if (!res.headersSent) {
+            res.status(500).json({ error: 'Failed to export exhibitor images' });
+        }
     }
 });
 

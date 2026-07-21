@@ -1,0 +1,94 @@
+<div class="report-wrapper">
+    <div class="report-header-controls">
+        <div class="breadcrumb">
+            <a routerLink="/admin">Admin Dashboard</a> &gt; <a routerLink="/admin/reports">Reports</a> &gt; Exhibitor Images
+        </div>
+        <div class="controls-row">
+            <h2>Exhibitor Images</h2>
+            <div class="button-group">
+                <button class="btn-primary" (click)="downloadImages()"
+                    [disabled]="downloading || participantsWithImages === 0">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="7 10 12 15 17 10"></polyline>
+                        <line x1="12" y1="15" x2="12" y2="3"></line>
+                    </svg>
+                    {{ downloading ? 'Preparing ZIP…' : 'Download Images (ZIP)' }}
+                </button>
+            </div>
+        </div>
+
+        <p class="report-intro">
+            Downloads a ZIP of every uploaded image for the participants below, organized into one folder per
+            organization so the files stay tied to the vendor name. The download respects the Status and test-record
+            filters.
+        </p>
+
+        <div class="filter-bar">
+            <select [(ngModel)]="filterStatus" class="filter-select">
+                <option value="all">All Statuses</option>
+                <option value="In Progress">In Progress</option>
+                <option value="Pending">Pending</option>
+                <option value="Approved">Approved</option>
+                <option value="Declined">Declined</option>
+                <option value="Cancelled">Cancelled</option>
+            </select>
+
+            <button class="sort-btn" [class.active]="sortAlpha" (click)="sortAlpha = !sortAlpha">A–Z</button>
+
+            <label class="toggle-label" style="font-size: 0.875rem;">
+                <input type="checkbox" [(ngModel)]="includeTest">
+                <span>Include test records</span>
+            </label>
+
+            @if (hasActiveFilters) {
+            <button class="clear-btn" (click)="clearFilters()">Clear</button>
+            }
+
+            <span class="result-count">{{ participantsWithImages }} with images · {{ totalImages }} images</span>
+        </div>
+
+        @if (downloadError) {
+        <div class="error-message">{{ downloadError }}</div>
+        }
+    </div>
+
+    @if (loading) {
+    <div class="loading">Loading report data...</div>
+    }
+
+    @if (error) {
+    <div class="error-message">{{ error }}</div>
+    }
+
+    @if (!loading && !error) {
+    <div class="print-document">
+        <table class="report-table">
+            <thead>
+                <tr>
+                    <th>Organization Name</th>
+                    <th>Status</th>
+                    <th class="count-col">Images</th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (row of filteredData; track row._id) {
+                <tr [class.no-images]="row.imageCount === 0">
+                    <td class="org-col">{{ row.organizationName }}</td>
+                    <td>
+                        <span [class]="'status-badge status-' + getStatusClass(row.status)">{{ row.status }}</span>
+                    </td>
+                    <td class="count-col">{{ row.imageCount }}</td>
+                </tr>
+                }
+                @if (filteredData.length === 0) {
+                <tr>
+                    <td colspan="3" class="empty-state">No participants found.</td>
+                </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    }
+</div>

@@ -11,6 +11,7 @@ import { TodosReportComponent } from './components/reports/todos-report.componen
 import { ContactInfoReportComponent } from './components/reports/contact-info-report.component';
 import { ZeroWasteReportComponent } from './components/reports/zero-waste-report.component';
 import { RecognitionReportComponent } from './components/reports/recognition-report.component';
+import { ImageDownloadReportComponent } from './components/reports/image-download-report.component';
 import { WebAdminDashboardComponent } from './components/web-admin-dashboard/web-admin-dashboard.component';
 import { GoogleAuthCallbackComponent } from './components/google-auth-callback/google-auth-callback.component';
 import { authGuard } from './guards/auth.guard';
@@ -141,6 +142,12 @@ export const routes: Routes = [
     {
         path: 'admin/reports/recognition-todos',
         component: RecognitionReportComponent,
+        canActivate: [authGuard, roleGuard],
+        data: { roles: ['ADMIN', 'WEB_ADMIN'] }
+    },
+    {
+        path: 'admin/reports/exhibitor-images',
+        component: ImageDownloadReportComponent,
         canActivate: [authGuard, roleGuard],
         data: { roles: ['ADMIN', 'WEB_ADMIN'] }
     },
