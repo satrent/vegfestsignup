@@ -84,6 +84,8 @@
                     <th>Status</th>
                     <th>Email</th>
                     <th>Phone</th>
+                    <th>Website</th>
+                    <th>Product Description</th>
                     <th>Address</th>
                     <th>City</th>
                     <th>State</th>
@@ -102,6 +104,8 @@
                     </td>
                     <td class="contact-col">{{ row.email || '-' }}</td>
                     <td class="contact-col">{{ row.phone || '-' }}</td>
+                    <td class="contact-col">{{ row.website || '-' }}</td>
+                    <td class="description-col">{{ row.productsDescription || '-' }}</td>
                     <td class="address-col">{{ row.address || '-' }}</td>
                     <td>{{ row.city || '-' }}</td>
                     <td>{{ row.state || '-' }}</td>
@@ -112,7 +116,7 @@
                 }
                 @if (filteredData.length === 0) {
                 <tr>
-                    <td colspan="11" class="empty-state">No participants found.</td>
+                    <td colspan="13" class="empty-state">No participants found.</td>
                 </tr>
                 }
             </tbody>
