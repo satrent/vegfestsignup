@@ -403,15 +403,23 @@
 
             <!-- Documents Tab -->
             <div *ngIf="activeTab === 'documents'">
-                <div *ngIf="missingDocuments.length > 0" class="missing-docs-alert">
-                    <strong>Missing Required Documents:</strong>
+                <div *ngIf="outstandingDocuments.length > 0" class="missing-docs-alert">
+                    <strong>Outstanding Required Documents:</strong>
                     <ul>
-                        <li *ngFor="let doc of missingDocuments">{{doc}}</li>
+                        <li *ngFor="let doc of outstandingDocuments">
+                            {{ doc.label }}
+                            <span *ngIf="doc.state === 'missing'"> — not uploaded</span>
+                            <span *ngIf="doc.state === 'rejected'"> — rejected, needs re-upload</span>
+                            <span *ngIf="doc.state === 'pending'"> — awaiting review</span>
+                        </li>
                     </ul>
                     <div style="margin-top: 1rem; display: flex; align-items: center; gap: 1rem;">
-                        <button class="small-btn" (click)="sendReminder()" [disabled]="sendingReminder">
+                        <button class="small-btn" *ngIf="missingDocuments.length > 0" (click)="sendReminder()" [disabled]="sendingReminder">
                             {{ sendingReminder ? 'Sending...' : 'Send Reminder Email' }}
                         </button>
+                        <span class="text-sm text-gray-600" *ngIf="missingDocuments.length === 0">
+                            All outstanding docs are awaiting your review — nothing to remind the vendor about.
+                        </span>
                         <span class="text-sm text-gray-600" *ngIf="tempRegistration.lastReminderSent">
                             Reminder last sent: {{ tempRegistration.lastReminderSent | date:'medium' }}
                         </span>

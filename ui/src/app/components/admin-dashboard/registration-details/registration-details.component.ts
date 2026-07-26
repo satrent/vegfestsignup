@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Registration, StorageService } from '../../../services/storage.service';
 import { AuthService } from '../../../services/auth.service';
+import { requiredDocTypes } from '../../../utils/required-docs';
 
 @Component({
     selector: 'app-registration-details',
@@ -243,30 +244,56 @@ export class RegistrationDetailsComponent {
         return this.authService.isApprover();
     }
 
-    get missingDocuments(): string[] {
+    // Friendly labels for the required document type codes.
+    private readonly docTypeLabels: Record<string, string> = {
+        'COI': 'Certificate of Insurance (COI)',
+        'ST-19': 'ST-19 Form',
+        'Food Permit': 'State of Minnesota Food Permit',
+    };
+
+    // Latest status per document type — re-uploads (sorted by uploadedAt)
+    // supersede older versions, mirroring required-docs.ts / docsComplete().
+    private latestDocStatusByType(): Map<string, string> {
+        const latest = new Map<string, string>();
+        const docs = [...(this.tempRegistration?.documents || [])].sort(
+            (a, b) => new Date(a.uploadedAt || 0).getTime() - new Date(b.uploadedAt || 0).getTime()
+        );
+        for (const doc of docs) {
+            if (!doc.type) continue;
+            latest.set(doc.type, doc.status || '');
+        }
+        return latest;
+    }
+
+    // Required docs whose latest version isn't yet Approved, with why.
+    // A required doc counts as satisfied only when its latest version is
+    // Approved (matching docsComplete()); presence alone is not enough, so a
+    // Rejected or still-Pending upload correctly stays on the list.
+    //   'missing'  — never uploaded
+    //   'rejected' — latest upload was rejected; vendor must re-send
+    //   'pending'  — uploaded, awaiting our review
+    get outstandingDocuments(): { label: string; state: 'missing' | 'rejected' | 'pending' }[] {
         if (!this.tempRegistration) return [];
-        const missing: string[] = [];
-        const docs = this.tempRegistration.documents || [];
-
-        // Check for COI
-        if (!docs.some(d => d.type === 'COI')) {
-            missing.push('Certificate of Insurance (COI)');
+        const latest = this.latestDocStatusByType();
+        const out: { label: string; state: 'missing' | 'rejected' | 'pending' }[] = [];
+        for (const type of requiredDocTypes(this.tempRegistration)) {
+            const status = latest.get(type);
+            if (status === 'Approved') continue;
+            const label = this.docTypeLabels[type] || type;
+            if (status === 'Rejected') out.push({ label, state: 'rejected' });
+            else if (status === 'Pending') out.push({ label, state: 'pending' });
+            else out.push({ label, state: 'missing' });
         }
+        return out;
+    }
 
-        // Check for ST-19
-        if (!docs.some(d => d.type === 'ST-19')) {
-            missing.push('ST-19 Form');
-        }
-
-        // Check for Food Permit
-        const cat = this.tempRegistration.organizationCategory || '';
-        const needsFoodPermit = cat === 'On-site food prep & sales $600' ||
-            cat === 'Food business with on-site food prep — not a restaurant or food truck $350';
-        if (needsFoodPermit && !docs.some(d => d.type === 'Food Permit')) {
-            missing.push('State of Minnesota Food Permit');
-        }
-
-        return missing;
+    // Docs to nag the vendor about in a reminder email: never-uploaded or
+    // rejected only. Pending docs sit in our review queue, not the vendor's
+    // court, so we don't remind about them.
+    get missingDocuments(): string[] {
+        return this.outstandingDocuments
+            .filter(d => d.state !== 'pending')
+            .map(d => d.label);
     }
     sendingReminder = false;
 
