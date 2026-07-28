@@ -473,23 +473,23 @@
       }
       <div class="form-group">
         <label>Organization Name *</label>
-        <input type="text" [(ngModel)]="addSponsorForm.organizationName" placeholder="Organization Name">
+        <input type="text" required [(ngModel)]="addSponsorForm.organizationName" placeholder="Organization Name">
       </div>
       <div class="form-group">
         <label>First Name *</label>
-        <input type="text" [(ngModel)]="addSponsorForm.firstName" placeholder="First Name">
+        <input type="text" required [(ngModel)]="addSponsorForm.firstName" placeholder="First Name">
       </div>
       <div class="form-group">
         <label>Last Name *</label>
-        <input type="text" [(ngModel)]="addSponsorForm.lastName" placeholder="Last Name">
+        <input type="text" required [(ngModel)]="addSponsorForm.lastName" placeholder="Last Name">
       </div>
       <div class="form-group">
         <label>Email *</label>
-        <input type="email" [(ngModel)]="addSponsorForm.email" placeholder="Email Address">
+        <input type="email" required [(ngModel)]="addSponsorForm.email" placeholder="Email Address">
       </div>
       <div class="form-group">
         <label>Phone *</label>
-        <input type="text" [(ngModel)]="addSponsorForm.phone" placeholder="Phone Number">
+        <input type="tel" required [(ngModel)]="addSponsorForm.phone" placeholder="Phone Number">
       </div>
       <div class="form-group">
         <label>Type *</label>

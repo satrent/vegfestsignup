@@ -361,7 +361,67 @@ export class AdminDashboardComponent implements OnInit {
     this.addSponsorError = '';
   }
 
+  // Field labels used to turn API validation errors into something an admin
+  // can act on ("Phone is required") instead of a generic failure message.
+  private static readonly ADD_SPONSOR_LABELS: Record<string, string> = {
+    organizationName: 'Organization Name',
+    firstName: 'First Name',
+    lastName: 'Last Name',
+    email: 'Email',
+    phone: 'Phone',
+    type: 'Type',
+  };
+
+  // Mirrors the API's express-validator rules so we can fail fast with a
+  // specific message rather than round-tripping to get an opaque 400.
+  private validateAddSponsorForm(): string {
+    const missing = Object.keys(AdminDashboardComponent.ADD_SPONSOR_LABELS)
+      .filter(key => !String((this.addSponsorForm as any)[key] ?? '').trim())
+      .map(key => AdminDashboardComponent.ADD_SPONSOR_LABELS[key]);
+
+    if (missing.length) {
+      return `Please fill in: ${missing.join(', ')}.`;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.addSponsorForm.email.trim())) {
+      return 'Please enter a valid email address.';
+    }
+    return '';
+  }
+
+  // The API returns { error } for handled failures but { errors: [...] } for
+  // validation rejections, so reading only `error.error` swallowed the reason.
+  private addSponsorErrorMessage(err: any): string {
+    const body = err?.error;
+
+    if (typeof body === 'string' && body.trim()) return body;
+    if (typeof body?.error === 'string' && body.error.trim()) return body.error;
+
+    if (Array.isArray(body?.errors) && body.errors.length) {
+      const fields = body.errors
+        .map((e: any) => AdminDashboardComponent.ADD_SPONSOR_LABELS[e?.path ?? e?.param] ?? e?.path ?? e?.param)
+        .filter((f: string) => !!f);
+      if (fields.length) {
+        return `Please check these fields: ${[...new Set(fields)].join(', ')}.`;
+      }
+      return 'Some of the details entered are not valid. Please review and try again.';
+    }
+
+    if (err?.status === 0) {
+      return 'Could not reach the server. Check your connection and try again.';
+    }
+    if (err?.status === 401 || err?.status === 403) {
+      return 'You do not have permission to add registrations.';
+    }
+    return 'Failed to create registration. Please try again.';
+  }
+
   submitAddSponsor(): void {
+    const validationError = this.validateAddSponsorForm();
+    if (validationError) {
+      this.addSponsorError = validationError;
+      return;
+    }
+
     this.addSponsorLoading = true;
     this.addSponsorError = '';
     this.storageService.adminCreateRegistration(this.addSponsorForm).subscribe({
@@ -371,7 +431,7 @@ export class AdminDashboardComponent implements OnInit {
         this.closeAddSponsorModal();
       },
       error: (err) => {
-        this.addSponsorError = err?.error?.error || 'Failed to create registration. Please try again.';
+        this.addSponsorError = this.addSponsorErrorMessage(err);
         this.addSponsorLoading = false;
       }
     });
