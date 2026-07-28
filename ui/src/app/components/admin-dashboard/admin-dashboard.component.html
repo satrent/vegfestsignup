@@ -136,6 +136,12 @@
                 [class.pending]="reg.websiteStatus !== 'Added'">
                 {{ reg.websiteStatus === 'Added' ? 'On Website' : 'Not Posted' }}
               </span>
+              <!-- Paid in Full Badge (derived, replaces the manual PAID tag) -->
+              @if (paidInFull(reg)) {
+              <span class="paid-full-badge">
+                ✓ Paid in Full
+              </span>
+              }
               <!-- Docs Complete Badge -->
               @if (docsComplete(reg)) {
               <span class="docs-complete-badge">

@@ -9,6 +9,7 @@ import { InvoicingReportComponent } from './components/reports/invoicing-report.
 import { RentalEquipmentReportComponent } from './components/reports/rental-equipment-report.component';
 import { TodosReportComponent } from './components/reports/todos-report.component';
 import { ContactInfoReportComponent } from './components/reports/contact-info-report.component';
+import { WebsiteExportReportComponent } from './components/reports/website-export-report.component';
 import { ZeroWasteReportComponent } from './components/reports/zero-waste-report.component';
 import { RecognitionReportComponent } from './components/reports/recognition-report.component';
 import { ImageDownloadReportComponent } from './components/reports/image-download-report.component';
@@ -130,6 +131,12 @@ export const routes: Routes = [
     {
         path: 'admin/reports/contact-info',
         component: ContactInfoReportComponent,
+        canActivate: [authGuard, roleGuard],
+        data: { roles: ['ADMIN', 'WEB_ADMIN'] }
+    },
+    {
+        path: 'admin/reports/website-export',
+        component: WebsiteExportReportComponent,
         canActivate: [authGuard, roleGuard],
         data: { roles: ['ADMIN', 'WEB_ADMIN'] }
     },

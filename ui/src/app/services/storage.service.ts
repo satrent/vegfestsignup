@@ -274,6 +274,12 @@ export class StorageService {
     return this.api.get<any[]>('/registrations/reports/contact-info');
   }
 
+  // Get Website Export Report (Admin only) — participants ready for the site
+  // (approved, paid in full, docs complete) that aren't already added.
+  getWebsiteExportReport(): Observable<any[]> {
+    return this.api.get<any[]>('/registrations/reports/website-export');
+  }
+
   // Get Zero Waste Report (Admin only)
   getZeroWasteReport(): Observable<any[]> {
     return this.api.get<any[]>('/registrations/reports/zero-waste');
@@ -360,6 +366,13 @@ export class StorageService {
   // Update website status (web admin only)
   updateWebsiteStatus(id: string, websiteStatus: 'Pending' | 'Added'): Observable<Registration> {
     return this.api.patch<Registration>(`/registrations/${id}/website-status`, { websiteStatus });
+  }
+
+  // Flip a whole batch of registrations to Added/Pending in one request.
+  bulkUpdateWebsiteStatus(ids: string[], websiteStatus: 'Pending' | 'Added'): Observable<{ matched: number; modified: number }> {
+    return this.api.patch<{ matched: number; modified: number }>(
+      `/registrations/website-status/bulk`, { ids, websiteStatus }
+    );
   }
 
   getRegistrationLogs(id: string): Observable<any[]> {

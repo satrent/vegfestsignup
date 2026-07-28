@@ -1,0 +1,121 @@
+<div class="report-wrapper">
+    <!-- Interactive header hidden when printing -->
+    <div class="no-print report-header-controls">
+        <div class="breadcrumb">
+            <a routerLink="/admin">Admin Dashboard</a> &gt; <a routerLink="/admin/reports">Reports</a> &gt; Website Export
+        </div>
+        <div class="controls-row">
+            <h2>Website Export</h2>
+            <div class="button-group">
+                <button class="btn-success" (click)="markAllAsAdded()"
+                    [disabled]="marking || filteredData.length === 0">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                    {{ marking ? 'Marking…' : 'Mark All as Added to Website' }}
+                </button>
+                <button class="btn-secondary" (click)="exportCsv()">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="7 10 12 15 17 10"></polyline>
+                        <line x1="12" y1="15" x2="12" y2="3"></line>
+                    </svg>
+                    Export CSV
+                </button>
+                <button class="btn-primary" (click)="printReport()">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="6 9 6 2 18 2 18 9"></polyline>
+                        <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+                        <rect x="6" y="14" width="12" height="8"></rect>
+                    </svg>
+                    Print Report
+                </button>
+            </div>
+        </div>
+
+        <p class="report-blurb">
+            Approved participants who are paid in full and docs complete but not yet on the website.
+            Export this list, import it into the site, then use <strong>Mark All as Added to Website</strong>
+            so they drop off the next export.
+        </p>
+
+        <div class="filter-bar">
+            <div class="alpha-group-buttons">
+                <button [class.active]="filterAlphaGroup === ''" (click)="filterAlphaGroup = ''">All</button>
+                <button [class.active]="filterAlphaGroup === 'A-J'" (click)="filterAlphaGroup = 'A-J'">A–J</button>
+                <button [class.active]="filterAlphaGroup === 'K-S'" (click)="filterAlphaGroup = 'K-S'">K–S</button>
+                <button [class.active]="filterAlphaGroup === 'T-Z'" (click)="filterAlphaGroup = 'T-Z'">T–Z</button>
+            </div>
+
+            <button class="sort-btn" [class.active]="sortAlpha" (click)="sortAlpha = !sortAlpha">A–Z</button>
+
+            <label class="toggle-label" style="font-size: 0.875rem;">
+                <input type="checkbox" [(ngModel)]="includeTest">
+                <span>Include test records</span>
+            </label>
+
+            @if (hasActiveFilters) {
+            <button class="clear-btn" (click)="clearFilters()">Clear</button>
+            }
+
+            <span class="result-count">{{ filteredData.length }} of {{ reportData.length }}</span>
+        </div>
+    </div>
+
+    @if (loading) {
+    <div class="loading no-print">Loading report data...</div>
+    }
+
+    @if (error) {
+    <div class="error-message no-print">{{ error }}</div>
+    }
+
+    @if (!loading && !error) {
+    <div class="print-document">
+        <div class="print-header">
+            <h1>Website Export</h1>
+            <p>Report generated on: {{ today | date:'medium' }}</p>
+            <p>Total Participants: {{ filteredData.length }}</p>
+        </div>
+
+        <table class="report-table">
+            <thead>
+                <tr>
+                    <th>Organization Name</th>
+                    <th>Contact Name</th>
+                    <th>Type</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>Website</th>
+                    <th>Product Description</th>
+                    <th>Facebook</th>
+                    <th>Instagram</th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (row of filteredData; track row._id) {
+                <tr>
+                    <td class="org-col">{{ row.organizationName }}</td>
+                    <td>{{ row.firstName }} {{ row.lastName }}</td>
+                    <td>{{ row.type }}</td>
+                    <td class="contact-col">{{ row.email || '-' }}</td>
+                    <td class="contact-col">{{ row.phone || '-' }}</td>
+                    <td class="contact-col">{{ row.website || '-' }}</td>
+                    <td class="description-col">{{ row.productsDescription || '-' }}</td>
+                    <td class="social-col">{{ row.facebook || '-' }}</td>
+                    <td class="social-col">{{ row.instagram || '-' }}</td>
+                </tr>
+                }
+                @if (filteredData.length === 0) {
+                <tr>
+                    <td colspan="9" class="empty-state">No participants are waiting to be added to the website.</td>
+                </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    }
+</div>

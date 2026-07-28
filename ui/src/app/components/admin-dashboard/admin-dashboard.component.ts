@@ -7,6 +7,7 @@ import { AuthService } from '../../services/auth.service';
 import { RegistrationDetailsComponent } from './registration-details/registration-details.component';
 import { exhibitorCategory, EXHIBITOR_CATEGORIES, ExhibitorCategory } from '../../utils/exhibitor-category';
 import { requiredDocTypes } from '../../utils/required-docs';
+import { isPaidInFull } from '../../utils/payment-status';
 
 @Component({
   selector: 'app-admin-dashboard',
@@ -62,8 +63,13 @@ export class AdminDashboardComponent implements OnInit {
       // Status Filter
       let statusMatch = true;
       if (this.filterStatus === 'Ready to Add') {
+        // "Ready to Add to Website" = approved, paid in full, docs complete,
+        // and not already on the site. All four must hold — previously this
+        // only checked "any amount paid", so it surfaced people with missing
+        // docs who weren't paid in full.
         statusMatch = reg.status === 'Approved' &&
-          (reg.amountPaid || 0) > 0 &&
+          this.paidInFull(reg) &&
+          this.docsComplete(reg) &&
           reg.websiteStatus !== 'Added';
       } else {
         statusMatch = this.filterStatus === 'all' || reg.status === this.filterStatus;
@@ -319,6 +325,12 @@ export class AdminDashboardComponent implements OnInit {
   docsComplete(reg: Registration): boolean {
     const latest = this.latestDocStatusByType(reg);
     return requiredDocTypes(reg).every(type => latest.get(type) === 'Approved');
+  }
+
+  // Derived "paid in full" (invoiced + amount paid >= invoice amount). Replaces
+  // the manual PAID tag; see ui/src/app/utils/payment-status.ts.
+  paidInFull(reg: Registration): boolean {
+    return isPaidInFull(reg);
   }
 
   hasOpenTodos(reg: Registration): boolean {

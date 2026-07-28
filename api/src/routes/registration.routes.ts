@@ -5,6 +5,7 @@ import { authenticate, requireAdmin, requireApprover, requireSuperAdmin } from '
 import { AuditService } from '../services/audit.service';
 import { FeeService } from '../services/fee.service';
 import { docsComplete } from '../utils/required-docs';
+import { isPaidInFull } from '../utils/payment-status';
 import { storageService } from '../services/storage.service';
 import { ZipArchive } from 'archiver';
 
@@ -415,6 +416,45 @@ router.get('/reports/contact-info', authenticate, requireAdmin, async (_req: Req
     } catch (error) {
         console.error('Error fetching contact info report:', error);
         res.status(500).json({ error: 'Failed to fetch contact info report' });
+    }
+});
+
+// Get Website Export Report (Admin only)
+// The list of participants who are ready to go onto the public website but
+// aren't up yet: approved, paid in full, docs complete, and not already marked
+// "Added". This is the export Sheryl imports into Wix — it only ever contains
+// NEW vendors, so re-importing can't create duplicates. The predicate mirrors
+// the admin dashboard's "Ready to Add to Website" filter exactly.
+router.get('/reports/website-export', authenticate, requireAdmin, async (_req: Request, res: Response) => {
+    try {
+        const registrations = await Registration.find({ status: 'Approved' })
+            .sort({ organizationName: 1 })
+            .lean();
+
+        const rows = registrations
+            .filter((r: any) =>
+                isPaidInFull(r) && docsComplete(r) && r.websiteStatus !== 'Added'
+            )
+            .map((r: any) => ({
+                _id: r._id,
+                organizationName: r.organizationName,
+                firstName: r.firstName,
+                lastName: r.lastName,
+                type: r.type,
+                email: r.email,
+                phone: r.phone,
+                website: r.website,
+                productsDescription: r.productsDescription,
+                facebook: r.facebook,
+                instagram: r.instagram,
+                websiteStatus: r.websiteStatus || 'Pending',
+                isTest: r.isTest,
+            }));
+
+        res.json(rows);
+    } catch (error) {
+        console.error('Error fetching website export report:', error);
+        res.status(500).json({ error: 'Failed to fetch website export report' });
     }
 });
 
@@ -969,6 +1009,43 @@ router.patch(
     }
 );
 
+// Bulk update website status (admin only)
+// Lets an admin flip a whole batch to "Added" (or back to "Pending") in one
+// click — e.g. after exporting the Website Export report and importing it into
+// Wix, mark everyone in that batch as Added so they drop off the next export.
+router.patch(
+    '/website-status/bulk',
+    authenticate,
+    requireAdmin,
+    [
+        body('ids').isArray({ min: 1 }),
+        body('ids.*').isString(),
+        body('websiteStatus').isIn(['Pending', 'Added']),
+    ],
+    async (req: Request, res: Response) => {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            res.status(400).json({ errors: errors.array() });
+            return;
+        }
+
+        try {
+            const { ids, websiteStatus } = req.body;
+            const result = await Registration.updateMany(
+                { _id: { $in: ids } },
+                { websiteStatus }
+            );
+            res.json({
+                matched: result.matchedCount,
+                modified: result.modifiedCount,
+            });
+        } catch (error) {
+            console.error('Error bulk-updating website status:', error);
+            res.status(500).json({ error: 'Failed to bulk-update website status' });
+        }
+    }
+);
+
 // Update website status (admin only)
 router.patch(
     '/:id/website-status',
@@ -1243,7 +1320,7 @@ const WEBSITE_TODO_TEXT = 'Add exhibitor to website';
 const WEBSITE_TODO_CATEGORY = 'Digital & Social';
 
 // Auto-generates the "Add exhibitor to website" recognition to-do for an
-// exhibitor (type Exhibitor or Both) once they are paid AND docs-complete.
+// exhibitor (type Exhibitor or Both) once they are paid in full AND docs-complete.
 // Idempotent: does nothing if the to-do already exists (added here previously
 // or via the initialize button). Mutates `registration` in place; returns true
 // if it added the to-do so the caller knows to persist.
@@ -1251,8 +1328,7 @@ function maybeAddWebsiteTodo(registration: IRegistration): boolean {
     const isExhibitor = registration.type === 'Exhibitor' || registration.type === 'Both';
     if (!isExhibitor) return false;
 
-    const isPaid = (registration.amountPaid || 0) > 0;
-    if (!isPaid || !docsComplete(registration)) return false;
+    if (!isPaidInFull(registration) || !docsComplete(registration)) return false;
 
     if (!registration.recognitionTodos) {
         registration.recognitionTodos = [];
