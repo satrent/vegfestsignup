@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { StorageService, Registration } from '../../services/storage.service';
 import { AuthService } from '../../services/auth.service';
+import { SettingsService } from '../../services/settings.service';
 
 @Component({
     selector: 'app-dashboard',
@@ -13,6 +14,7 @@ import { AuthService } from '../../services/auth.service';
 export class DashboardComponent implements OnInit {
     private storageService = inject(StorageService);
     private authService = inject(AuthService);
+    private settingsService = inject(SettingsService);
     private router = inject(Router);
 
     registration: Registration | null = null;
@@ -20,6 +22,8 @@ export class DashboardComponent implements OnInit {
     error = '';
     sections: any[] = [];
     isWelcomeSectionOpen = true;
+    submissionsOpen = true;
+    submissionsClosedMessage = '';
 
     private readonly allSections = [
         { id: 'contact', title: 'Contact & Basic Information', route: 'contact' },
@@ -113,7 +117,15 @@ export class DashboardComponent implements OnInit {
         if (stored !== null) {
             this.isWelcomeSectionOpen = stored === 'true';
         }
+        this.loadSettings();
         this.loadRegistration();
+    }
+
+    private loadSettings(): void {
+        this.settingsService.getPublicSettings().subscribe(settings => {
+            this.submissionsOpen = settings.submissionsOpen;
+            this.submissionsClosedMessage = settings.submissionsClosedMessage;
+        });
     }
 
     loadRegistration(): void {
@@ -205,6 +217,13 @@ export class DashboardComponent implements OnInit {
             error: (err) => {
                 console.error('Error submitting application:', err);
                 this.loading = false;
+                // Submissions were paused between page load and clicking submit.
+                if (err.status === 403 && err.error?.submissionsClosed) {
+                    this.submissionsOpen = false;
+                    this.submissionsClosedMessage = err.error.error;
+                    window.scrollTo(0, 0);
+                    return;
+                }
                 this.error = 'Failed to submit application. Please try again.';
             }
         });

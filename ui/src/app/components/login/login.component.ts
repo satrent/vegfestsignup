@@ -3,6 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { StorageService } from '../../services/storage.service';
+import { SettingsService } from '../../services/settings.service';
 
 @Component({
     selector: 'app-login',
@@ -13,6 +14,7 @@ import { StorageService } from '../../services/storage.service';
 export class LoginComponent implements OnInit {
     private authService = inject(AuthService);
     private storageService = inject(StorageService);
+    private settingsService = inject(SettingsService);
     private router = inject(Router);
     private route = inject(ActivatedRoute);
 
@@ -23,8 +25,16 @@ export class LoginComponent implements OnInit {
     loading = false;
     error = '';
     success = '';
+    registrationsOpen = true;
+    closedMessage = '';
 
     ngOnInit(): void {
+        // Let anyone without a registration know up front, before they spend a code.
+        this.settingsService.getPublicSettings().subscribe(settings => {
+            this.registrationsOpen = settings.registrationsOpen;
+            this.closedMessage = settings.closedMessage;
+        });
+
         this.route.queryParams.subscribe(params => {
             if (params['email'] && params['code']) {
                 this.email = params['email'];

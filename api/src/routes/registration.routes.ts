@@ -123,6 +123,19 @@ router.post(
                 return;
             }
 
+            // Site-wide kill switch for new sign-ups. Existing participants are
+            // unaffected — they edit through the PATCH routes, not this one.
+            // Admins can still add registrations via /admin/create.
+            const { AppSettings } = await import('../models/AppSettings');
+            const settings = await AppSettings.getSettings();
+            if (!settings.registrationsOpen) {
+                res.status(403).json({
+                    error: settings.closedMessage,
+                    registrationsClosed: true,
+                });
+                return;
+            }
+
             const registration = await Registration.create({
                 ...req.body,
                 userId: req.user!.userId,
@@ -854,6 +867,18 @@ router.post(
     async (req: Request, res: Response) => {
         try {
             const { id } = req.params;
+
+            // Site-wide pause on final submission. Participants can still edit
+            // and save every section — only this last step is held back.
+            const { AppSettings } = await import('../models/AppSettings');
+            const settings = await AppSettings.getSettings();
+            if (!settings.submissionsOpen) {
+                res.status(403).json({
+                    error: settings.submissionsClosedMessage,
+                    submissionsClosed: true,
+                });
+                return;
+            }
 
             const registration = await Registration.findOne({
                 _id: id,

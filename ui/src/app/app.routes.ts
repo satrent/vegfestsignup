@@ -17,6 +17,7 @@ import { WebAdminDashboardComponent } from './components/web-admin-dashboard/web
 import { GoogleAuthCallbackComponent } from './components/google-auth-callback/google-auth-callback.component';
 import { authGuard } from './guards/auth.guard';
 import { roleGuard } from './guards/role.guard';
+import { registrationsOpenGuard } from './guards/registrations-open.guard';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
 
 export const routes: Routes = [
@@ -27,6 +28,11 @@ export const routes: Routes = [
     {
         path: 'signup',
         component: SignupFormComponent,
+        canActivate: [authGuard, registrationsOpenGuard]
+    },
+    {
+        path: 'registrations-closed',
+        loadComponent: () => import('./components/registrations-closed/registrations-closed.component').then(m => m.RegistrationsClosedComponent),
         canActivate: [authGuard]
     },
     {
@@ -83,6 +89,12 @@ export const routes: Routes = [
     {
         path: 'admin/users',
         loadComponent: () => import('./pages/user-management/user-management.component').then(m => m.UserManagementComponent),
+        canActivate: [authGuard, roleGuard],
+        data: { roles: ['ADMIN', 'WEB_ADMIN'], requiresSuperAdmin: true }
+    },
+    {
+        path: 'admin/settings',
+        loadComponent: () => import('./pages/site-settings/site-settings.component').then(m => m.SiteSettingsComponent),
         canActivate: [authGuard, roleGuard],
         data: { roles: ['ADMIN', 'WEB_ADMIN'], requiresSuperAdmin: true }
     },

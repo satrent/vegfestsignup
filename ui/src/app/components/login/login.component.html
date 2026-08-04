@@ -9,6 +9,13 @@
       </div>
       <p class="subtitle">Sponsor & Participant Portal</p>
 
+      <!-- Registrations Closed Notice -->
+      @if (!registrationsOpen) {
+      <div class="alert alert-info">
+        {{ closedMessage }}
+      </div>
+      }
+
       <!-- Error Message -->
       @if (error) {
       <div class="alert alert-error">

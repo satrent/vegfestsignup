@@ -127,8 +127,14 @@ router.post(
                     role: 'PARTICIPANT',
                 });
 
-                // Send welcome email
-                await emailService.sendWelcomeEmail(email);
+                // Only welcome brand-new users while sign-ups are open — once
+                // registration is closed they can't complete one, so inviting
+                // them to "get started" would just be misleading.
+                const { AppSettings } = await import('../models/AppSettings');
+                const settings = await AppSettings.getSettings();
+                if (settings.registrationsOpen) {
+                    await emailService.sendWelcomeEmail(email);
+                }
             } else {
                 // Update existing user
                 user.emailVerified = true;

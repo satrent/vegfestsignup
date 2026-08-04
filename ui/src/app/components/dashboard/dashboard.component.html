@@ -149,7 +149,13 @@
         Thank you for your interest. Unfortunately, we cannot accommodate your application this year.
       </p>
       }
-      @if (registration.status === 'In Progress' && canSubmit) {
+      @if (registration.status === 'In Progress' && !submissionsOpen) {
+      <div class="submissions-paused-notice">
+        <strong>Submissions are temporarily paused</strong>
+        <p>{{ submissionsClosedMessage }}</p>
+      </div>
+      }
+      @if (registration.status === 'In Progress' && canSubmit && submissionsOpen) {
       <div class="submit-section">
         <button class="submit-btn" (click)="submitApplication()">Submit Application</button>
       </div>

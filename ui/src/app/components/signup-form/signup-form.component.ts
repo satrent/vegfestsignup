@@ -83,6 +83,11 @@ export class SignupFormComponent implements OnInit {
         },
         error: (error) => {
           console.error('Error saving registration:', error);
+          // Registrations were closed between loading this form and submitting it.
+          if (error.status === 403 && error.error?.registrationsClosed) {
+            this.router.navigate(['/registrations-closed']);
+            return;
+          }
           alert('Failed to start registration. Please try again.');
           this.signupForm.enable();
           this.signupForm.get('email')?.disable();
