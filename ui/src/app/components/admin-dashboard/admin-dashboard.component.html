@@ -87,6 +87,22 @@
     </div>
   </div>
 
+  <!-- Add Sponsor confirmation. The modal closing is the only other signal the
+       add worked, and the new row can be hidden by the active filters. -->
+  @if (addSponsorSuccess) {
+  <div class="add-sponsor-success" role="status">
+    <span class="icon">✓</span>
+    <div class="text">
+      <strong>{{ addSponsorSuccess.organizationName }} added</strong>
+      <p>Created as Pending and an invitation email was sent to {{ addSponsorSuccess.email }}.</p>
+      @if (addSponsorSuccessHidden) {
+        <p class="detail">It isn't shown in the list below because of the current filters.</p>
+      }
+    </div>
+    <button class="dismiss-btn" (click)="addSponsorSuccess = null" title="Dismiss">&times;</button>
+  </div>
+  }
+
   <!-- Loading State -->
   @if (loading) {
   <div class="loading">
@@ -478,7 +494,23 @@
     </div>
     <div class="modal-body">
       @if (addSponsorError) {
-        <p class="error-message">{{ addSponsorError }}</p>
+        <div class="add-sponsor-error" [class.duplicate]="!!addSponsorDuplicate" role="alert">
+          <span class="icon">{{ addSponsorDuplicate ? '⚠' : '✕' }}</span>
+          <div class="text">
+            <strong>{{ addSponsorDuplicate ? 'Already registered' : 'Could not create registration' }}</strong>
+            <p>{{ addSponsorError }}</p>
+            @if (addSponsorDuplicate) {
+              <p class="detail">
+                {{ addSponsorDuplicate.firstName }} {{ addSponsorDuplicate.lastName }}
+                &middot; {{ addSponsorDuplicate.type }}
+                &middot; Status: {{ addSponsorDuplicate.status }}
+              </p>
+              <button type="button" class="link-btn" (click)="openDuplicateRegistration()">
+                Open this registration
+              </button>
+            }
+          </div>
+        </div>
       }
       <div class="form-group">
         <label>Organization Name *</label>
@@ -494,7 +526,13 @@
       </div>
       <div class="form-group">
         <label>Email *</label>
-        <input type="email" required [(ngModel)]="addSponsorForm.email" placeholder="Email Address">
+        <input type="email" required [(ngModel)]="addSponsorForm.email" placeholder="Email Address"
+               [class.has-conflict]="!!addSponsorEmailMatch">
+        @if (addSponsorEmailMatch; as match) {
+          <span class="field-warning">
+            ⚠ {{ match.organizationName }} is already registered with this email ({{ match.status }}).
+          </span>
+        }
       </div>
       <div class="form-group">
         <label>Phone *</label>

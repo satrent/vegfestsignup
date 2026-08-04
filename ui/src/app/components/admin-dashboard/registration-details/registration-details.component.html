@@ -545,14 +545,18 @@
                         No emails on record for this registration.
                     </div>
                     <div *ngIf="!emailLogsLoading && emailLogs.length > 0" class="email-log-list">
-                        <div *ngFor="let log of emailLogs" class="email-log-item">
-                            <div class="email-log-icon">✉️</div>
+                        <div *ngFor="let log of emailLogs" class="email-log-item"
+                             [class.email-log-failed]="log.action === 'EMAIL_FAILED'">
+                            <div class="email-log-icon">{{ log.action === 'EMAIL_FAILED' ? '⚠️' : '✉️' }}</div>
                             <div class="email-log-body">
-                                <span class="email-log-subject">{{ log.target || log.details }}</span>
+                                <span class="email-log-subject">
+                                    <ng-container *ngIf="log.action === 'EMAIL_FAILED'">Failed to send: </ng-container>{{ log.target || log.details }}
+                                </span>
                                 <span class="email-log-meta">
                                     {{ log.timestamp | date:'MMM d, y, h:mm a' }}
                                     <span *ngIf="log.actorName && log.actorName !== 'System'"> &middot; Sent by {{ log.actorName }}</span>
                                 </span>
+                                <span *ngIf="log.action === 'EMAIL_FAILED'" class="email-log-error">{{ log.details }}</span>
                             </div>
                         </div>
                     </div>

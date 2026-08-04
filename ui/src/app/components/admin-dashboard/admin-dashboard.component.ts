@@ -341,6 +341,20 @@ export class AdminDashboardComponent implements OnInit {
   showAddSponsorModal = false;
   addSponsorLoading = false;
   addSponsorError = '';
+  // Set when the API rejects the add because the email is already registered.
+  // Drives the "already registered" callout with a link to that registration.
+  addSponsorDuplicate: {
+    _id: string;
+    organizationName: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+    type: string;
+    status: string;
+  } | null = null;
+  // Confirmation shown on the dashboard after a successful add — the modal
+  // simply closing was ambiguous, especially when filters hide the new row.
+  addSponsorSuccess: Registration | null = null;
   addSponsorForm = {
     organizationName: '',
     firstName: '',
@@ -352,13 +366,49 @@ export class AdminDashboardComponent implements OnInit {
 
   openAddSponsorModal(): void {
     this.addSponsorForm = { organizationName: '', firstName: '', lastName: '', email: '', phone: '', type: 'Sponsor' };
-    this.addSponsorError = '';
+    this.clearAddSponsorError();
     this.showAddSponsorModal = true;
   }
 
   closeAddSponsorModal(): void {
     this.showAddSponsorModal = false;
+    this.clearAddSponsorError();
+  }
+
+  private clearAddSponsorError(): void {
     this.addSponsorError = '';
+    this.addSponsorDuplicate = null;
+  }
+
+  // Open the registration that's blocking the add. The dashboard may be
+  // filtered so the row isn't in `registrations`; fall back to the full list.
+  openDuplicateRegistration(): void {
+    const id = this.addSponsorDuplicate?._id;
+    if (!id) return;
+    const existing = this.allRegistrations.find(r => r._id === id);
+    if (!existing) {
+      // Shouldn't happen (allRegistrations is unfiltered), but don't close the
+      // modal on a dead end — leave the admin with something to act on.
+      this.addSponsorError = 'That registration could not be opened. Refresh the dashboard and search for the email address.';
+      return;
+    }
+    this.closeAddSponsorModal();
+    this.openEditModal(existing);
+  }
+
+  // True when the just-added registration is filtered out of the visible list,
+  // so the confirmation can explain why she can't see the new row.
+  get addSponsorSuccessHidden(): boolean {
+    const id = this.addSponsorSuccess?._id;
+    return !!id && !this.filteredRegistrations.some(r => r._id === id);
+  }
+
+  // Live duplicate check against the already-loaded registrations so the admin
+  // sees the conflict while typing, before ever hitting Create.
+  get addSponsorEmailMatch(): Registration | null {
+    const email = this.addSponsorForm.email.trim().toLowerCase();
+    if (!email) return null;
+    return this.allRegistrations.find(r => (r.email || '').trim().toLowerCase() === email) ?? null;
   }
 
   // Field labels used to turn API validation errors into something an admin
@@ -397,6 +447,11 @@ export class AdminDashboardComponent implements OnInit {
     if (typeof body?.error === 'string' && body.error.trim()) return body.error;
 
     if (Array.isArray(body?.errors) && body.errors.length) {
+      // Prefer the API's own per-rule messages; fall back to naming the fields.
+      const messages = body.errors.map((e: any) => e?.msg).filter((m: string) => !!m && m !== 'Invalid value');
+      if (messages.length) {
+        return [...new Set<string>(messages)].join('. ') + '.';
+      }
       const fields = body.errors
         .map((e: any) => AdminDashboardComponent.ADD_SPONSOR_LABELS[e?.path ?? e?.param] ?? e?.path ?? e?.param)
         .filter((f: string) => !!f);
@@ -409,31 +464,66 @@ export class AdminDashboardComponent implements OnInit {
     if (err?.status === 0) {
       return 'Could not reach the server. Check your connection and try again.';
     }
-    if (err?.status === 401 || err?.status === 403) {
-      return 'You do not have permission to add registrations.';
+    if (err?.status === 401) {
+      return 'Your session has expired. Sign in again and retry.';
     }
-    return 'Failed to create registration. Please try again.';
+    if (err?.status === 403) {
+      return 'You do not have permission to add registrations (this requires a Super Admin account).';
+    }
+    if (err?.status === 413) {
+      return 'The request was too large for the server to accept.';
+    }
+    // Last resort: never show a bare failure. Include whatever the server gave
+    // us plus the status code so it can be matched to the server log.
+    const statusText = err?.status ? ` (HTTP ${err.status}${err.statusText ? ' ' + err.statusText : ''})` : '';
+    const detail = typeof err?.message === 'string' && err.message.trim() ? ` ${err.message.trim()}` : '';
+    return `Failed to create registration${statusText}.${detail} Please try again, or check the server logs if it keeps happening.`;
   }
 
   submitAddSponsor(): void {
     const validationError = this.validateAddSponsorForm();
     if (validationError) {
       this.addSponsorError = validationError;
+      this.addSponsorDuplicate = null;
+      this.scrollAddSponsorErrorIntoView();
       return;
     }
 
     this.addSponsorLoading = true;
-    this.addSponsorError = '';
-    this.storageService.adminCreateRegistration(this.addSponsorForm).subscribe({
+    this.clearAddSponsorError();
+    // Trim before sending: a trailing space on the email fails the API's
+    // isEmail check, which read as an unexplained failure.
+    const payload = {
+      ...this.addSponsorForm,
+      organizationName: this.addSponsorForm.organizationName.trim(),
+      firstName: this.addSponsorForm.firstName.trim(),
+      lastName: this.addSponsorForm.lastName.trim(),
+      email: this.addSponsorForm.email.trim(),
+      phone: this.addSponsorForm.phone.trim(),
+    };
+    this.storageService.adminCreateRegistration(payload).subscribe({
       next: (reg) => {
         this.allRegistrations.unshift(reg);
         this.addSponsorLoading = false;
+        this.addSponsorSuccess = reg;
         this.closeAddSponsorModal();
       },
       error: (err) => {
         this.addSponsorError = this.addSponsorErrorMessage(err);
+        this.addSponsorDuplicate = err?.error?.code === 'DUPLICATE_EMAIL' ? err.error.existing ?? null : null;
         this.addSponsorLoading = false;
+        // The modal body scrolls, so a banner rendered at the top can sit
+        // off-screen from the footer button the admin just clicked.
+        this.scrollAddSponsorErrorIntoView();
       }
+    });
+  }
+
+  private scrollAddSponsorErrorIntoView(): void {
+    setTimeout(() => {
+      document
+        .querySelector('.add-sponsor-modal .add-sponsor-error')
+        ?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     });
   }
 

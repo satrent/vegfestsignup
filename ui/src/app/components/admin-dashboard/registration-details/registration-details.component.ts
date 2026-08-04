@@ -66,7 +66,9 @@ export class RegistrationDetailsComponent {
         this.storageService.getRegistrationLogs(this.registration._id).subscribe({
             next: (logs) => {
                 this.emailLogs = logs.filter(
-                    (l: any) => l.action === 'SEND_EMAIL' || l.action === 'SEND_REMINDER'
+                    // EMAIL_FAILED entries are included so a send that silently
+                    // failed is visible here rather than only in server logs.
+                    (l: any) => l.action === 'SEND_EMAIL' || l.action === 'SEND_REMINDER' || l.action === 'EMAIL_FAILED'
                 );
                 this.emailLogsLoading = false;
             },

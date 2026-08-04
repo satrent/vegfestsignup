@@ -394,6 +394,25 @@
     color: #9ca3af;
 }
 
+// A send that failed reads as a normal history row otherwise — the admin needs
+// to spot it and resend.
+.email-log-failed {
+    background: #fff5f5;
+    border-left: 3px solid #e53e3e;
+    padding-left: 0.6rem;
+
+    .email-log-subject {
+        color: #c53030;
+    }
+}
+
+.email-log-error {
+    display: block;
+    margin-top: 0.2rem;
+    font-size: 0.775rem;
+    color: #c53030;
+}
+
 .small-btn {
     padding: 0.4rem 0.85rem;
     border-radius: 4px;

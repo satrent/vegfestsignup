@@ -17,6 +17,21 @@ const router = Router();
 // needed, gets figured out once this is in real use.
 const IMAGE_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.gif', '.webp'];
 
+// Human-readable field names for the admin "Add Sponsor" form, used to turn a
+// Mongoose validation failure into a message that names what's wrong.
+const ADMIN_CREATE_FIELD_LABELS: Record<string, string> = {
+    organizationName: 'Organization Name',
+    firstName: 'First Name',
+    lastName: 'Last Name',
+    email: 'Email',
+    phone: 'Phone',
+    type: 'Type',
+};
+
+// Escape user-supplied text before embedding it in a RegExp so characters that
+// are legal in an email address (`+`, `.`) aren't treated as regex operators.
+const escapeRegex = (value: string): string => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
 const isImageDoc = (doc: { name?: string; key?: string }): boolean => {
     const source = (doc.name || doc.key || '').toLowerCase();
     return IMAGE_EXTENSIONS.some(ext => source.endsWith(ext));
@@ -156,33 +171,59 @@ router.post(
     authenticate,
     requireSuperAdmin,
     [
-        body('organizationName').trim().notEmpty(),
-        body('firstName').trim().notEmpty(),
-        body('lastName').trim().notEmpty(),
-        body('email').isEmail().normalizeEmail({ gmail_remove_subaddress: false }),
-        body('phone').trim().notEmpty(),
-        body('type').isIn(['Exhibitor', 'Sponsor', 'Both']),
+        body('organizationName').trim().notEmpty().withMessage('Organization Name is required'),
+        body('firstName').trim().notEmpty().withMessage('First Name is required'),
+        body('lastName').trim().notEmpty().withMessage('Last Name is required'),
+        body('email').isEmail().withMessage('Email must be a valid email address')
+            .normalizeEmail({ gmail_remove_subaddress: false }),
+        body('phone').trim().notEmpty().withMessage('Phone is required'),
+        body('type').isIn(['Exhibitor', 'Sponsor', 'Both']).withMessage('Type must be Exhibitor, Sponsor, or Both'),
     ],
     async (req: Request, res: Response) => {
         try {
             const errors = validationResult(req);
             if (!errors.isEmpty()) {
-                res.status(400).json({ errors: errors.array() });
+                // `error` carries the joined reasons so any client that only
+                // reads `error` still sees why the request was rejected.
+                const reasons = errors.array().map((e: any) => e.msg).filter(Boolean);
+                res.status(400).json({
+                    error: reasons.length ? reasons.join('. ') + '.' : 'Some details are not valid.',
+                    code: 'VALIDATION_ERROR',
+                    errors: errors.array(),
+                });
                 return;
             }
 
             const { organizationName, firstName, lastName, email, phone, type } = req.body;
 
-            // Check for duplicate registration
-            const existing = await Registration.findOne({ email });
+            // Check for duplicate registration. Matched case-insensitively so
+            // "Info@Acme.com" doesn't slip past a stored "info@acme.com" and
+            // create a second record for the same organization.
+            const emailPattern = new RegExp(`^${escapeRegex(email)}$`, 'i');
+            const existing = await Registration.findOne({ email: emailPattern });
             if (existing) {
-                res.status(409).json({ error: 'A registration with this email address already exists' });
+                // The UI shows these details so the admin can see *who* already
+                // has this email and jump straight to that registration.
+                res.status(409).json({
+                    error: `${existing.organizationName} is already registered with the email address ${existing.email}.`,
+                    code: 'DUPLICATE_EMAIL',
+                    existing: {
+                        _id: existing._id,
+                        organizationName: existing.organizationName,
+                        firstName: existing.firstName,
+                        lastName: existing.lastName,
+                        email: existing.email,
+                        type: existing.type,
+                        status: existing.status,
+                    },
+                });
                 return;
             }
 
             // Find or create the user account
             const { User } = await import('../models/User');
-            let user = await User.findOne({ email });
+            let user = await User.findOne({ email: emailPattern });
+            const createdUser = !user;
             if (!user) {
                 user = new User({
                     email,
@@ -197,22 +238,36 @@ router.post(
 
             // Create the registration. Added sponsors land in Pending so an
             // admin can review the info before approving.
-            const registration = await Registration.create({
-                organizationName,
-                firstName,
-                lastName,
-                email,
-                phone,
-                type,
-                userId: user._id,
-                status: 'Pending',
-            });
+            let registration;
+            try {
+                registration = await Registration.create({
+                    organizationName,
+                    firstName,
+                    lastName,
+                    email,
+                    phone,
+                    type,
+                    userId: user._id,
+                    status: 'Pending',
+                });
+            } catch (createError) {
+                // Don't leave behind a login-capable account with no
+                // registration attached — a retry would then reuse a user whose
+                // name may not match what the admin types the second time.
+                if (createdUser) {
+                    await User.deleteOne({ _id: user._id }).catch(() => undefined);
+                }
+                throw createError;
+            }
 
             // Fetch admin name for audit logs
-            const adminUser = await User.findById(req.user!.userId);
+            const adminUser = await User.findById(req.user!.userId).catch(() => null);
             const adminName = adminUser ? `${adminUser.firstName} ${adminUser.lastName}` : 'Unknown Admin';
 
-            // Log registration creation
+            // Log registration creation. Non-fatal: the registration already
+            // exists at this point, so a bookkeeping failure must not turn a
+            // successful add into an error the admin will retry (which would
+            // then fail again as a duplicate).
             await AuditService.log({
                 adminId: req.user!.userId,
                 actorName: adminName,
@@ -220,7 +275,7 @@ router.post(
                 entityType: 'Registration',
                 action: 'CREATE_REGISTRATION',
                 details: `Registration manually created for ${organizationName} (${email})`,
-            });
+            }).catch(logError => console.error('Error logging registration creation:', logError));
 
             // Respond immediately — the registration is created. The invitation
             // email is sent fire-and-forget so a slow/hanging SMTP server can't
@@ -243,12 +298,70 @@ router.post(
                     });
                 } catch (emailError) {
                     console.error('Error sending sponsor invitation email:', emailError);
+                    // The admin already got a 201, so a silent SMTP failure
+                    // looks like a delivered invitation. Record it against the
+                    // registration so it shows up in Email History instead.
+                    await AuditService.log({
+                        adminId: req.user!.userId,
+                        actorName: adminName,
+                        entityId: registration._id as any,
+                        entityType: 'Registration',
+                        action: 'EMAIL_FAILED',
+                        target: 'Sponsor invitation',
+                        details: `Sponsor invitation email to ${email} FAILED to send: ${
+                            emailError instanceof Error ? emailError.message : String(emailError)
+                        }. Resend it manually.`,
+                    }).catch(logError => console.error('Error logging email failure:', logError));
                 }
             })();
             return;
-        } catch (error) {
+        } catch (error: any) {
             console.error('Error creating registration:', error);
-            res.status(500).json({ error: 'Failed to create registration' });
+
+            // A bare "Failed to create registration" gave the admin nothing to
+            // act on, so the common failures are classified into a message that
+            // names the actual problem.
+
+            // Mongoose schema validation — name the offending fields.
+            if (error?.name === 'ValidationError' && error.errors) {
+                const fields = Object.keys(error.errors).map(
+                    path => ADMIN_CREATE_FIELD_LABELS[path] ?? path
+                );
+                res.status(400).json({
+                    error: `Could not save the registration — check these fields: ${fields.join(', ')}.`,
+                    code: 'VALIDATION_ERROR',
+                    fields,
+                });
+                return;
+            }
+
+            // Unique-index collision. In practice this is the email: another
+            // account or registration already uses it (including a request that
+            // raced past the duplicate check above).
+            if (error?.code === 11000) {
+                const field = Object.keys(error.keyPattern ?? error.keyValue ?? {})[0] ?? 'email';
+                res.status(409).json({
+                    error: field === 'email'
+                        ? `That email address is already in use by an existing account. Search the dashboard for ${req.body.email} — the registration may already have been created.`
+                        : `A record with the same ${field} already exists.`,
+                    code: 'DUPLICATE_KEY',
+                });
+                return;
+            }
+
+            // Database unreachable / timed out.
+            if (error?.name === 'MongoNetworkError' || error?.name === 'MongooseServerSelectionError') {
+                res.status(503).json({
+                    error: 'Could not reach the database. Wait a moment and try again — nothing was saved.',
+                    code: 'DB_UNAVAILABLE',
+                });
+                return;
+            }
+
+            res.status(500).json({
+                error: `Failed to create registration: ${error?.message || 'unknown server error'}`,
+                code: 'SERVER_ERROR',
+            });
         }
     }
 );
