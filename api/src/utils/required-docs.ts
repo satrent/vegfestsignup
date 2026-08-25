@@ -6,7 +6,7 @@
 // The two org categories that require a State of Minnesota food permit. Exact-
 // match labels straight from the signup form (mirrors email.service.ts), not a
 // fuzzy contains() check, so we only ask for a permit from on-site food prep.
-const FOOD_PERMIT_CATEGORIES = [
+export const FOOD_PERMIT_CATEGORIES = [
   'On-site food prep & sales $600',
   'Food business with on-site food prep — not a restaurant or food truck $350',
 ];

@@ -1,0 +1,318 @@
+// Reuse styles from electricity-report.component.scss where possible or use common report styles.
+// Note: Usually we could import a shared file, but for simplicity, replicating the necessary styles.
+
+.report-wrapper {
+    padding: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+
+    .report-header-controls {
+        margin-bottom: 2rem;
+
+        .breadcrumb {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 1rem;
+
+            a {
+                color: var(--primary-color, #4CAF50);
+                text-decoration: none;
+
+                &:hover {
+                    text-decoration: underline;
+                }
+            }
+        }
+
+        .filter-bar {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+
+            .alpha-group-buttons {
+                display: flex;
+                border: 1px solid #ccc;
+                border-radius: 4px;
+                overflow: hidden;
+
+                button {
+                    padding: 0.375rem 0.75rem;
+                    border: none;
+                    border-right: 1px solid #ccc;
+                    background: white;
+                    font-size: 0.875rem;
+                    cursor: pointer;
+                    transition: background-color 0.15s;
+
+                    &:last-child { border-right: none; }
+                    &:hover { background-color: #f0f0f0; }
+                    &.active { background-color: #0066cc; color: white; }
+                }
+            }
+
+            .sort-btn {
+                padding: 0.375rem 0.75rem;
+                border: 1px solid #ccc;
+                border-radius: 4px;
+                background: white;
+                font-size: 0.875rem;
+                cursor: pointer;
+
+                &:hover { background-color: #f0f0f0; }
+                &.active { background-color: #0066cc; color: white; border-color: #0066cc; }
+            }
+
+            .clear-btn {
+                padding: 0.375rem 0.75rem;
+                border: 1px solid #ccc;
+                border-radius: 4px;
+                background: white;
+                font-size: 0.875rem;
+                cursor: pointer;
+                color: #666;
+
+                &:hover { background-color: #f0f0f0; }
+            }
+
+            .result-count {
+                font-size: 0.875rem;
+                color: #666;
+                margin-left: auto;
+            }
+        }
+
+        .controls-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+
+            h2 {
+                margin: 0;
+                font-size: 1.8rem;
+                color: #333;
+            }
+
+            .btn-primary {
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+                padding: 0.75rem 1.5rem;
+                background: var(--primary-color, #4CAF50);
+                color: white;
+                border: none;
+                border-radius: 4px;
+                font-size: 1rem;
+                cursor: pointer;
+                transition: background 0.2s, filter 0.2s;
+
+                &:hover {
+                    filter: brightness(0.9);
+                }
+            }
+        }
+    }
+
+    .loading,
+    .error-message {
+        text-align: center;
+        padding: 2rem;
+        font-size: 1.2rem;
+        border-radius: 8px;
+    }
+
+    .error-message {
+        color: #d32f2f;
+        background: #ffebee;
+    }
+
+    .print-document {
+        background: white;
+        padding: 2rem;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+        .print-header {
+            display: none; // Only show when printing
+        }
+
+        .report-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.95rem;
+
+            th,
+            td {
+                padding: 1rem;
+                text-align: left;
+                border-bottom: 1px solid #eee;
+            }
+
+            th {
+                background: #f8f9fa;
+                font-weight: 600;
+                color: #333;
+            }
+
+            .number-col {
+                text-align: center;
+                font-weight: bold;
+            }
+
+            .empty-state {
+                text-align: center;
+                padding: 3rem;
+                color: #666;
+                font-style: italic;
+            }
+        }
+    }
+}
+
+// Print Styles
+@media print {
+    .no-print {
+        display: none !important;
+    }
+
+    @page {
+        margin: 0.5in;
+        size: landscape;
+    }
+
+    body * {
+        visibility: hidden;
+    }
+
+    app-rental-equipment-report,
+    app-rental-equipment-report * {
+        visibility: visible;
+    }
+
+    app-rental-equipment-report {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+    }
+
+    .report-wrapper {
+        padding: 0;
+        max-width: 100%;
+
+        .print-document {
+            padding: 0;
+            box-shadow: none;
+
+            .print-header {
+                display: block;
+                margin-bottom: 2rem;
+                padding-bottom: 1rem;
+                border-bottom: 2px solid #ccc;
+
+                h1 {
+                    margin: 0 0 0.5rem 0;
+                    font-size: 24pt;
+                }
+
+                p {
+                    margin: 0;
+                    color: #666;
+                    font-size: 10pt;
+                }
+            }
+
+            .report-table {
+
+                th,
+                td {
+                    padding: 8px;
+                    border: 1px solid #ccc;
+                    font-size: 9pt;
+                }
+
+                th {
+                    background: #eee !important;
+                    -webkit-print-color-adjust: exact;
+                    print-color-adjust: exact;
+                }
+            }
+        }
+    }
+}
+/* Food Vendor Report additions */
+.report-wrapper {
+    .badge {
+        display: inline-block;
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        white-space: nowrap;
+
+        &.badge-ok {
+            background: #e6f4ea;
+            border: 1px solid #34a853;
+            color: #1e6b33;
+        }
+
+        &.badge-warn {
+            background: #fef7e0;
+            border: 1px solid #f9ab00;
+            color: #8a6100;
+        }
+
+        &.badge-danger {
+            background: #fce8e6;
+            border: 1px solid #d93025;
+            color: #a50e0e;
+        }
+
+        &.badge-neutral {
+            background: #f1f3f4;
+            border: 1px solid #bdc1c6;
+            color: #5f6368;
+        }
+    }
+
+    tr.flagged td {
+        background: #fff8f7;
+    }
+
+    .filter-bar select {
+        padding: 0.35rem 0.5rem;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 0.875rem;
+    }
+
+    .summary-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1.5rem;
+        margin-bottom: 1rem;
+        font-size: 0.9rem;
+
+        .summary-item strong {
+            display: block;
+            font-size: 1.25rem;
+        }
+    }
+}
+
+@media print {
+    .report-wrapper {
+        .badge {
+            background: none !important;
+            border: none;
+            color: #000;
+            padding: 0;
+            font-weight: 600;
+        }
+
+        tr.flagged td {
+            background: none;
+        }
+    }
+}

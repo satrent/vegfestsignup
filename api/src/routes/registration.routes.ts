@@ -4,7 +4,7 @@ import { Registration, IRegistration } from '../models/Registration';
 import { authenticate, requireAdmin, requireApprover, requireSuperAdmin } from '../middleware/auth.middleware';
 import { AuditService } from '../services/audit.service';
 import { FeeService } from '../services/fee.service';
-import { docsComplete } from '../utils/required-docs';
+import { docsComplete, FOOD_PERMIT_CATEGORIES } from '../utils/required-docs';
 import { isPaidInFull } from '../utils/payment-status';
 import { storageService } from '../services/storage.service';
 import { ZipArchive } from 'archiver';
@@ -702,6 +702,62 @@ router.get('/reports/zero-waste', authenticate, requireAdmin, async (_req: Reque
     } catch (error) {
         console.error('Error fetching zero waste report:', error);
         res.status(500).json({ error: 'Failed to fetch zero waste report' });
+    }
+});
+
+// Get Food Vendor Report (Admin only)
+// Covers everyone shown the Food/THC compliance section -- the on-site
+// food-prep categories plus THC vendors -- since they all answer the "will
+// everything you serve be vegan?" question. Only the food-prep categories owe
+// a State of Minnesota food permit; THC vendors report as 'Not required'.
+// Every status is returned so a "Mixed" answer stays visible even after the
+// application is declined; the UI filters from there.
+router.get('/reports/food-vendor', authenticate, requireAdmin, async (_req: Request, res: Response) => {
+    try {
+        const registrations = await Registration.find({
+            $or: [
+                { organizationCategory: { $in: FOOD_PERMIT_CATEGORIES } },
+                // Mirrors the dashboard's fuzzy isThcVendor category check.
+                { organizationCategory: { $regex: 'thc', $options: 'i' } }
+            ]
+        })
+            .sort({ organizationName: 1 })
+            .select('organizationName firstName lastName email phone status organizationCategory foodOfferings foodOfferingsRejectAck cookingOnSite isFoodTruck foodPermitOption foodPermitRequestEmailSent documents isTest')
+            .lean();
+
+        // Latest Food Permit upload wins, so a re-upload supersedes a rejected one.
+        const mapped = registrations.map((r: any) => {
+            const needsFoodPermit = FOOD_PERMIT_CATEGORIES.includes(r.organizationCategory || '');
+            const permitDocs = (r.documents || [])
+                .filter((d: any) => d.type === 'Food Permit')
+                .sort((a: any, b: any) => new Date(a.uploadedAt || 0).getTime() - new Date(b.uploadedAt || 0).getTime());
+            const latestPermit = permitDocs[permitDocs.length - 1];
+
+            let permitStatus: string;
+            if (latestPermit) {
+                permitStatus = latestPermit.status || 'Pending';
+            } else if (!needsFoodPermit) {
+                permitStatus = 'Not required';
+            } else if (r.foodPermitOption === 'request') {
+                permitStatus = r.foodPermitRequestEmailSent ? 'Requested' : 'Request Pending';
+            } else {
+                permitStatus = 'Missing';
+            }
+
+            const { documents, ...rest } = r;
+            return {
+                ...rest,
+                needsFoodPermit,
+                permitStatus,
+                permitUploadedAt: latestPermit?.uploadedAt || null,
+                permitLocation: latestPermit?.location || null
+            };
+        });
+
+        res.json(mapped);
+    } catch (error) {
+        console.error('Error fetching food vendor report:', error);
+        res.status(500).json({ error: 'Failed to fetch food vendor report' });
     }
 });
 

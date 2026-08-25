@@ -280,6 +280,11 @@ export class StorageService {
     return this.api.get<any[]>('/registrations/reports/website-export');
   }
 
+  // Get Food Vendor Report (Admin only)
+  getFoodVendorReport(): Observable<any[]> {
+    return this.api.get<any[]>('/registrations/reports/food-vendor');
+  }
+
   // Get Zero Waste Report (Admin only)
   getZeroWasteReport(): Observable<any[]> {
     return this.api.get<any[]>('/registrations/reports/zero-waste');

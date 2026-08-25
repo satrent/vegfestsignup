@@ -11,6 +11,7 @@ import { TodosReportComponent } from './components/reports/todos-report.componen
 import { ContactInfoReportComponent } from './components/reports/contact-info-report.component';
 import { WebsiteExportReportComponent } from './components/reports/website-export-report.component';
 import { ZeroWasteReportComponent } from './components/reports/zero-waste-report.component';
+import { FoodVendorReportComponent } from './components/reports/food-vendor-report.component';
 import { RecognitionReportComponent } from './components/reports/recognition-report.component';
 import { ImageDownloadReportComponent } from './components/reports/image-download-report.component';
 import { WebAdminDashboardComponent } from './components/web-admin-dashboard/web-admin-dashboard.component';
@@ -149,6 +150,12 @@ export const routes: Routes = [
     {
         path: 'admin/reports/website-export',
         component: WebsiteExportReportComponent,
+        canActivate: [authGuard, roleGuard],
+        data: { roles: ['ADMIN', 'WEB_ADMIN'] }
+    },
+    {
+        path: 'admin/reports/food-vendor',
+        component: FoodVendorReportComponent,
         canActivate: [authGuard, roleGuard],
         data: { roles: ['ADMIN', 'WEB_ADMIN'] }
     },

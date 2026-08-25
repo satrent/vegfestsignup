@@ -58,6 +58,12 @@ export class ReportsComponent {
             icon: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>`
         },
         {
+            id: 'food-vendor',
+            title: 'Food Vendor Report',
+            description: 'On-site food and THC vendors with their answer to the 100% vegan menu question, plus food permit status for the vendors who need one. Flags anyone who said their menu will not be fully vegan or is still missing a permit.',
+            icon: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 2v7c0 1.1.9 2 2 2h1a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3zm0 0v7"/></svg>`
+        },
+        {
             id: 'zero-waste',
             title: 'Zero Waste Report',
             description: 'Exhibitor info and all zero waste compliance responses including drink vessel types, BPI container brands, and serviceware acknowledgments.',
