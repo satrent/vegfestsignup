@@ -39,6 +39,22 @@ export class RegistrationDetailsComponent {
         'Nonprofit with annual expenses $50,000 or less (half table) $50'
     ];
 
+    // Logistics options — must match the participant flow (logistics.component.ts)
+    // and the enums on the Registration model.
+    powerOptions = [
+        { value: 'None', label: 'None' },
+        { value: '5A', label: '5A ($60)' },
+        { value: '10A', label: '10A ($80)' },
+        { value: '15A', label: '15A ($100)' },
+        { value: '20A', label: '20A ($120)' }
+    ];
+    vehicleOptions: string[] = ['Car', 'SUV', 'Van', 'Box truck', 'Other'];
+    loadInOptions: string[] = [
+        '2pm to 5pm September 19 (security provided)',
+        'Event morning window (6am-8am)',
+        'Will decide later'
+    ];
+
     // Tags
     availableTags: string[] = [];
     filteredTags: string[] = [];
@@ -169,6 +185,54 @@ export class RegistrationDetailsComponent {
         }
 
         return docs;
+    }
+
+    // --- Logistics editing helpers ---
+
+    onPowerNeedsChange(value: string): void {
+        if (!this.tempRegistration) return;
+        this.tempRegistration.powerNeeds = value;
+        // Dropping to "None" clears the electric follow-ups so stale answers
+        // don't linger on a booth that no longer has power.
+        if (!value || value === 'None') {
+            this.tempRegistration.householdElectric = undefined;
+            this.tempRegistration.electricNeedsDescription = '';
+        }
+    }
+
+    onHouseholdElectricChange(value: boolean | null): void {
+        if (!this.tempRegistration) return;
+        this.tempRegistration.householdElectric = value === null ? undefined : value;
+        if (value !== false) {
+            this.tempRegistration.electricNeedsDescription = '';
+        }
+    }
+
+    addEquipment(): void {
+        if (!this.tempRegistration) return;
+        if (!this.tempRegistration.equipmentList) {
+            this.tempRegistration.equipmentList = [];
+        }
+        this.tempRegistration.equipmentList.push({ name: '', quantity: 1 });
+    }
+
+    removeEquipment(index: number): void {
+        this.tempRegistration?.equipmentList?.splice(index, 1);
+    }
+
+    calculateAmps(eq: any): number {
+        const qty = eq?.quantity || 0;
+        if (eq?.amps) {
+            return eq.amps * qty;
+        } else if (eq?.watts && eq?.volts) {
+            return (eq.watts / eq.volts) * qty;
+        }
+        return 0;
+    }
+
+    get totalAmps(): number {
+        return (this.tempRegistration?.equipmentList || [])
+            .reduce((sum, eq) => sum + this.calculateAmps(eq), 0);
     }
 
     onClose(): void {

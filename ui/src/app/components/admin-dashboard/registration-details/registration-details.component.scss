@@ -556,3 +556,31 @@
         color: #4b5563;
     }
 }
+// Equipment editor (Logistics tab)
+.btn-add-equipment {
+    background: #f3f4f6;
+    color: #374151;
+    border: 1px solid #d1d5db;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+
+    &:hover {
+        background: #e5e7eb;
+    }
+}
+
+.btn-remove-equipment {
+    background: none;
+    border: none;
+    color: #6b7280;
+    cursor: pointer;
+    padding: 0;
+    font-size: 1.1rem;
+    line-height: 1;
+
+    &:hover {
+        color: #ef4444;
+    }
+}

@@ -231,25 +231,33 @@
                         </div>
                         <div class="field-group">
                             <label>Power Needs</label>
-                            <div class="value">{{tempRegistration.powerNeeds || 'None'}}</div>
+                            <select [ngModel]="tempRegistration.powerNeeds || 'None'"
+                                (ngModelChange)="onPowerNeedsChange($event)">
+                                <option *ngFor="let opt of powerOptions" [value]="opt.value">{{ opt.label }}</option>
+                            </select>
                         </div>
                         <div class="field-group"
                             *ngIf="tempRegistration.powerNeeds && tempRegistration.powerNeeds !== 'None'">
                             <label>Standard Outlet?</label>
-                            <div class="value">{{tempRegistration.householdElectric === true ? 'Yes' :
-                                (tempRegistration.householdElectric === false ? 'No' : 'N/A')}}</div>
+                            <select [ngModel]="tempRegistration.householdElectric === undefined ? null : tempRegistration.householdElectric"
+                                (ngModelChange)="onHouseholdElectricChange($event)">
+                                <option [ngValue]="null">N/A</option>
+                                <option [ngValue]="true">Yes — plugs into a regular outlet</option>
+                                <option [ngValue]="false">No — special power needs</option>
+                            </select>
                         </div>
                         <div class="field-group" *ngIf="tempRegistration.householdElectric === false">
                             <label>Power Needed</label>
-                            <div class="value">{{tempRegistration.electricNeedsDescription || 'None'}}</div>
+                            <input type="text" [(ngModel)]="tempRegistration.electricNeedsDescription"
+                                placeholder="Describe the power required">
                         </div>
                     </div>
                 </div>
 
-                <div class="section-group"
-                    *ngIf="tempRegistration.equipmentList && tempRegistration.equipmentList.length > 0">
+                <div class="section-group">
                     <h3>Electrical Equipment</h3>
-                    <table class="w-full text-left" style="margin-top: 10px; border-collapse: collapse;">
+                    <table class="w-full text-left" style="margin-top: 10px; border-collapse: collapse;"
+                        *ngIf="tempRegistration.equipmentList && tempRegistration.equipmentList.length > 0">
                         <thead>
                             <tr>
                                 <th style="border-bottom: 1px solid #e5e7eb; padding: 4px;">Equipment</th>
@@ -257,25 +265,52 @@
                                 <th style="border-bottom: 1px solid #e5e7eb; padding: 4px;">Amps</th>
                                 <th style="border-bottom: 1px solid #e5e7eb; padding: 4px;">Volts</th>
                                 <th style="border-bottom: 1px solid #e5e7eb; padding: 4px;">Watts</th>
+                                <th style="border-bottom: 1px solid #e5e7eb; padding: 4px;">Amps Needed</th>
+                                <th style="border-bottom: 1px solid #e5e7eb; padding: 4px;"></th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr *ngFor="let eq of tempRegistration.equipmentList">
-                                <td style="padding: 4px;">{{eq.name}}</td>
-                                <td style="padding: 4px;">{{eq.quantity}}</td>
-                                <td style="padding: 4px;">{{eq.amps || '-'}}</td>
-                                <td style="padding: 4px;">{{eq.volts || '-'}}</td>
-                                <td style="padding: 4px;">{{eq.watts || '-'}}</td>
+                            <tr *ngFor="let eq of tempRegistration.equipmentList; let i = index">
+                                <td style="padding: 4px;">
+                                    <input type="text" [(ngModel)]="eq.name" placeholder="e.g. Crockpot"
+                                        style="width: 100%;">
+                                </td>
+                                <td style="padding: 4px;">
+                                    <input type="number" min="0" [(ngModel)]="eq.quantity" style="width: 70px;">
+                                </td>
+                                <td style="padding: 4px;">
+                                    <input type="number" min="0" [(ngModel)]="eq.amps" style="width: 80px;">
+                                </td>
+                                <td style="padding: 4px;">
+                                    <input type="number" min="0" [(ngModel)]="eq.volts" style="width: 80px;">
+                                </td>
+                                <td style="padding: 4px;">
+                                    <input type="number" min="0" [(ngModel)]="eq.watts" style="width: 80px;">
+                                </td>
+                                <td style="padding: 4px;">{{ calculateAmps(eq) | number:'1.0-2' }}</td>
+                                <td style="padding: 4px;">
+                                    <button type="button" class="btn-remove-equipment" (click)="removeEquipment(i)"
+                                        title="Remove">&times;</button>
+                                </td>
                             </tr>
                         </tbody>
                     </table>
+                    <div *ngIf="tempRegistration.equipmentList && tempRegistration.equipmentList.length > 0"
+                        style="margin-top: 10px; font-weight: bold;">
+                        Total Amps Needed By All Equipment: {{ totalAmps | number:'1.0-2' }}
+                    </div>
+                    <button type="button" class="btn-add-equipment" (click)="addEquipment()"
+                        style="margin-top: 10px;">+ Add Equipment</button>
                 </div>
 
                 <div class="section-group">
                     <h3>Load In/Out</h3>
                     <div class="form-grid">
                         <div class="field-group"><label>Vehicle Type</label>
-                            <div class="value">{{tempRegistration.loadInVehicle || '-'}}</div>
+                            <select [(ngModel)]="tempRegistration.loadInVehicle">
+                                <option value="">Not provided</option>
+                                <option *ngFor="let v of vehicleOptions" [value]="v">{{ v }}</option>
+                            </select>
                         </div>
                         <div class="field-group"><label>Vehicle Dimensions</label>
                             <input type="text" [(ngModel)]="tempRegistration.vehicleDimensions"
@@ -286,7 +321,14 @@
                                 placeholder="Length x Width">
                         </div>
                         <div class="field-group"><label>Availability</label>
-                            <div class="value">{{tempRegistration.loadInAvailability || '-'}}</div>
+                            <select [(ngModel)]="tempRegistration.loadInAvailability">
+                                <option value="">Not provided</option>
+                                <option *ngFor="let opt of loadInOptions" [value]="opt">{{ opt }}</option>
+                                <option
+                                    *ngIf="tempRegistration.loadInAvailability && !loadInOptions.includes(tempRegistration.loadInAvailability)"
+                                    [value]="tempRegistration.loadInAvailability">{{ tempRegistration.loadInAvailability
+                                    }}</option>
+                            </select>
                         </div>
                     </div>
                 </div>
