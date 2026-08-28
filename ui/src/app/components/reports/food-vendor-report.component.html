@@ -57,6 +57,9 @@
             <button class="sort-btn" [class.active]="onlyNeedsShade" (click)="onlyNeedsShade = !onlyNeedsShade">Needs
                 shade</button>
 
+            <button class="sort-btn" [class.active]="onlyFoodTrucks" (click)="onlyFoodTrucks = !onlyFoodTrucks">Food
+                trucks</button>
+
             <button class="sort-btn" [class.active]="sortAlpha" (click)="sortAlpha = !sortAlpha">A–Z</button>
 
             <label class="toggle-label" style="font-size: 0.875rem;">
@@ -103,6 +106,10 @@
                 haven't answered the vegan menu question
             </div>
             <div class="summary-item">
+                <strong>{{ foodTruckCount }}</strong>
+                are bringing a food truck
+            </div>
+            <div class="summary-item">
                 <strong>{{ needsShadeCount }}</strong>
                 requested shade for their products
             </div>
@@ -122,6 +129,7 @@
                     <th>Status</th>
                     <th>Type</th>
                     <th>Menu 100% Vegan?</th>
+                    <th>Food Truck?</th>
                     <th>Needs Shade?</th>
                     <th>Food Permit</th>
                     <th>Permit Plan</th>
@@ -130,16 +138,25 @@
             <tbody>
                 @for (row of filteredData; track row._id) {
                 <tr [class.flagged]="isFlagged(row)">
-                    <td class="org-col">
-                        {{ row.organizationName }}
-                        @if (row.isFoodTruck) { <span class="badge badge-neutral">Food truck</span> }
-                    </td>
+                    <td class="org-col">{{ row.organizationName }}</td>
                     <td>{{ row.firstName }} {{ row.lastName }}</td>
                     <td class="contact-col">{{ row.email }}</td>
                     <td class="contact-col">{{ row.phone }}</td>
                     <td>{{ row.status }}</td>
                     <td>{{ vendorTypeLabel(row) }}</td>
                     <td><span class="badge" [ngClass]="veganBadgeClass(row)">{{ veganLabel(row) }}</span></td>
+                    <td class="truck-col">
+                        @if (row.isFoodTruck) {
+                        <span class="badge badge-warn">Food truck</span>
+                        @if (foodTruckDimensions(row)) {
+                        <div class="truck-dimensions">{{ foodTruckDimensions(row) }}</div>
+                        } @else {
+                        <div class="truck-dimensions missing">No dimensions given</div>
+                        }
+                        } @else {
+                        <span class="badge badge-neutral">No</span>
+                        }
+                    </td>
                     <td>
                         @if (row.needsShade) {
                         <span class="badge badge-warn">Needs shade</span>
@@ -153,7 +170,7 @@
                 }
                 @if (filteredData.length === 0) {
                 <tr>
-                    <td colspan="10" class="empty-state">No food or THC vendors match the current filters.</td>
+                    <td colspan="11" class="empty-state">No food or THC vendors match the current filters.</td>
                 </tr>
                 }
             </tbody>

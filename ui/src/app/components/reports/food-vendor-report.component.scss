@@ -280,6 +280,19 @@
         background: #fff8f7;
     }
 
+    // Dimensions sit under the badge so placement can size the spot at a glance.
+    .truck-col .truck-dimensions {
+        margin-top: 0.25rem;
+        font-size: 0.75rem;
+        color: #5f6368;
+        white-space: nowrap;
+
+        &.missing {
+            font-style: italic;
+            color: #a50e0e;
+        }
+    }
+
     .filter-bar select {
         padding: 0.35rem 0.5rem;
         border: 1px solid #ccc;

@@ -24,6 +24,7 @@ export class FoodVendorReportComponent implements OnInit {
     filterType: '' | 'food' | 'thc' = '';
     onlyFlagged = false;
     onlyNeedsShade = false;
+    onlyFoodTrucks = false;
     sortAlpha = false;
     includeTest = false;
     includeInactive = false;
@@ -82,6 +83,7 @@ export class FoodVendorReportComponent implements OnInit {
             if (this.filterType === 'thc' && row.needsFoodPermit) return false;
             if (this.onlyFlagged && !this.isFlagged(row)) return false;
             if (this.onlyNeedsShade && !row.needsShade) return false;
+            if (this.onlyFoodTrucks && !row.isFoodTruck) return false;
             if (!this.filterAlphaGroup) return true;
             const firstChar = (row.organizationName || '').trim().charAt(0).toUpperCase();
             const isLetter = /[A-Z]/.test(firstChar);
@@ -107,6 +109,16 @@ export class FoodVendorReportComponent implements OnInit {
         return this.filteredData.filter(r => !r.foodOfferings).length;
     }
 
+    get foodTruckCount(): number {
+        return this.filteredData.filter(r => r.isFoodTruck).length;
+    }
+
+    // Dimensions were collected on the logistics section before the food-compliance
+    // section got its own field, so fall back to the older vehicle answer.
+    foodTruckDimensions(row: any): string {
+        return row.foodTruckDimensions || row.vehicleDimensions || '';
+    }
+
     get needsShadeCount(): number {
         return this.filteredData.filter(r => r.needsShade).length;
     }
@@ -117,7 +129,8 @@ export class FoodVendorReportComponent implements OnInit {
 
     get hasActiveFilters(): boolean {
         return !!this.filterAlphaGroup || !!this.filterStatus || !!this.filterType || this.onlyFlagged
-            || this.onlyNeedsShade || this.sortAlpha || this.includeTest || this.includeInactive;
+            || this.onlyNeedsShade || this.onlyFoodTrucks || this.sortAlpha || this.includeTest
+            || this.includeInactive;
     }
 
     clearFilters(): void {
@@ -126,6 +139,7 @@ export class FoodVendorReportComponent implements OnInit {
         this.filterType = '';
         this.onlyFlagged = false;
         this.onlyNeedsShade = false;
+        this.onlyFoodTrucks = false;
         this.sortAlpha = false;
         this.includeTest = false;
         this.includeInactive = false;
@@ -159,7 +173,7 @@ export class FoodVendorReportComponent implements OnInit {
     exportCsv(): void {
         if (this.filteredData.length === 0) return;
 
-        let csvContent = 'Organization Name,First Name,Last Name,Email,Phone,Status,Vendor Type,Category,Menu 100% Vegan,Cooking On Site,Food Truck,Needs Shade,Permit Option,Permit Status\n';
+        let csvContent = 'Organization Name,First Name,Last Name,Email,Phone,Status,Vendor Type,Category,Menu 100% Vegan,Cooking On Site,Food Truck,Food Truck Dimensions,Needs Shade,Permit Option,Permit Status\n';
 
         this.filteredData.forEach(row => {
             csvContent += [
@@ -174,6 +188,7 @@ export class FoodVendorReportComponent implements OnInit {
                 this.escapeCsv(this.veganLabel(row)),
                 row.cookingOnSite ? 'Yes' : 'No',
                 row.isFoodTruck ? 'Yes' : 'No',
+                this.escapeCsv(this.foodTruckDimensions(row)),
                 row.needsShade ? 'Yes' : 'No',
                 this.escapeCsv(this.permitOptionLabel(row)),
                 this.escapeCsv(row.permitStatus)

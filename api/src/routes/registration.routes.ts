@@ -722,7 +722,7 @@ router.get('/reports/food-vendor', authenticate, requireAdmin, async (_req: Requ
             ]
         })
             .sort({ organizationName: 1 })
-            .select('organizationName firstName lastName email phone status organizationCategory foodOfferings foodOfferingsRejectAck cookingOnSite isFoodTruck foodPermitOption foodPermitRequestEmailSent needsShade documents isTest')
+            .select('organizationName firstName lastName email phone status organizationCategory foodOfferings foodOfferingsRejectAck cookingOnSite isFoodTruck foodTruckDimensions vehicleDimensions foodPermitOption foodPermitRequestEmailSent needsShade documents isTest')
             .lean();
 
         // Latest Food Permit upload wins, so a re-upload supersedes a rejected one.
