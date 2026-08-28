@@ -23,6 +23,7 @@ export class FoodVendorReportComponent implements OnInit {
     filterStatus = '';
     filterType: '' | 'food' | 'thc' = '';
     onlyFlagged = false;
+    onlyNeedsShade = false;
     sortAlpha = false;
     includeTest = false;
     includeInactive = false;
@@ -80,6 +81,7 @@ export class FoodVendorReportComponent implements OnInit {
             if (this.filterType === 'food' && !row.needsFoodPermit) return false;
             if (this.filterType === 'thc' && row.needsFoodPermit) return false;
             if (this.onlyFlagged && !this.isFlagged(row)) return false;
+            if (this.onlyNeedsShade && !row.needsShade) return false;
             if (!this.filterAlphaGroup) return true;
             const firstChar = (row.organizationName || '').trim().charAt(0).toUpperCase();
             const isLetter = /[A-Z]/.test(firstChar);
@@ -105,13 +107,17 @@ export class FoodVendorReportComponent implements OnInit {
         return this.filteredData.filter(r => !r.foodOfferings).length;
     }
 
+    get needsShadeCount(): number {
+        return this.filteredData.filter(r => r.needsShade).length;
+    }
+
     get missingPermitCount(): number {
         return this.filteredData.filter(r => this.isPermitFlagged(r)).length;
     }
 
     get hasActiveFilters(): boolean {
         return !!this.filterAlphaGroup || !!this.filterStatus || !!this.filterType || this.onlyFlagged
-            || this.sortAlpha || this.includeTest || this.includeInactive;
+            || this.onlyNeedsShade || this.sortAlpha || this.includeTest || this.includeInactive;
     }
 
     clearFilters(): void {
@@ -119,6 +125,7 @@ export class FoodVendorReportComponent implements OnInit {
         this.filterStatus = '';
         this.filterType = '';
         this.onlyFlagged = false;
+        this.onlyNeedsShade = false;
         this.sortAlpha = false;
         this.includeTest = false;
         this.includeInactive = false;
@@ -152,7 +159,7 @@ export class FoodVendorReportComponent implements OnInit {
     exportCsv(): void {
         if (this.filteredData.length === 0) return;
 
-        let csvContent = 'Organization Name,First Name,Last Name,Email,Phone,Status,Vendor Type,Category,Menu 100% Vegan,Cooking On Site,Food Truck,Permit Option,Permit Status\n';
+        let csvContent = 'Organization Name,First Name,Last Name,Email,Phone,Status,Vendor Type,Category,Menu 100% Vegan,Cooking On Site,Food Truck,Needs Shade,Permit Option,Permit Status\n';
 
         this.filteredData.forEach(row => {
             csvContent += [
@@ -167,6 +174,7 @@ export class FoodVendorReportComponent implements OnInit {
                 this.escapeCsv(this.veganLabel(row)),
                 row.cookingOnSite ? 'Yes' : 'No',
                 row.isFoodTruck ? 'Yes' : 'No',
+                row.needsShade ? 'Yes' : 'No',
                 this.escapeCsv(this.permitOptionLabel(row)),
                 this.escapeCsv(row.permitStatus)
             ].join(',') + '\n';

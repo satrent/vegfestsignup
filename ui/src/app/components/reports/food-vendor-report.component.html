@@ -54,6 +54,9 @@
             <button class="sort-btn" [class.active]="onlyFlagged" (click)="onlyFlagged = !onlyFlagged">Needs
                 attention</button>
 
+            <button class="sort-btn" [class.active]="onlyNeedsShade" (click)="onlyNeedsShade = !onlyNeedsShade">Needs
+                shade</button>
+
             <button class="sort-btn" [class.active]="sortAlpha" (click)="sortAlpha = !sortAlpha">A–Z</button>
 
             <label class="toggle-label" style="font-size: 0.875rem;">
@@ -100,6 +103,10 @@
                 haven't answered the vegan menu question
             </div>
             <div class="summary-item">
+                <strong>{{ needsShadeCount }}</strong>
+                requested shade for their products
+            </div>
+            <div class="summary-item">
                 <strong>{{ missingPermitCount }}</strong>
                 food vendors without an approved permit
             </div>
@@ -115,6 +122,7 @@
                     <th>Status</th>
                     <th>Type</th>
                     <th>Menu 100% Vegan?</th>
+                    <th>Needs Shade?</th>
                     <th>Food Permit</th>
                     <th>Permit Plan</th>
                 </tr>
@@ -132,13 +140,20 @@
                     <td>{{ row.status }}</td>
                     <td>{{ vendorTypeLabel(row) }}</td>
                     <td><span class="badge" [ngClass]="veganBadgeClass(row)">{{ veganLabel(row) }}</span></td>
+                    <td>
+                        @if (row.needsShade) {
+                        <span class="badge badge-warn">Needs shade</span>
+                        } @else {
+                        <span class="badge badge-neutral">No</span>
+                        }
+                    </td>
                     <td><span class="badge" [ngClass]="permitBadgeClass(row)">{{ row.permitStatus }}</span></td>
                     <td>{{ permitOptionLabel(row) }}</td>
                 </tr>
                 }
                 @if (filteredData.length === 0) {
                 <tr>
-                    <td colspan="9" class="empty-state">No food or THC vendors match the current filters.</td>
+                    <td colspan="10" class="empty-state">No food or THC vendors match the current filters.</td>
                 </tr>
                 }
             </tbody>
