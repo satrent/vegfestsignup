@@ -91,6 +91,10 @@ export class BoothService {
     return this.http.post<BoothArea>(this.areaApiUrl, { name, polygon });
   }
 
+  renameArea(id: string, name: string): Observable<BoothArea> {
+    return this.http.patch<BoothArea>(`${this.areaApiUrl}/${id}`, { name });
+  }
+
   deleteArea(id: string): Observable<any> {
     return this.http.delete(`${this.areaApiUrl}/${id}`);
   }

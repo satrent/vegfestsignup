@@ -551,7 +551,7 @@
       }
 
       .area-label {
-        font-size: 3px;
+        font-size: 1.2px;
         font-weight: 800;
         fill: rgba(255, 255, 255, 0.7); // White translucent text
         pointer-events: none;
@@ -940,6 +940,115 @@
 
     &:hover {
       background: #f3f4f6;
+    }
+  }
+}
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(17, 24, 39, 0.35);
+}
+
+.area-modal {
+  width: 280px;
+  box-sizing: border-box;
+  background: white;
+  color: #1f2937;
+  padding: 0.75rem;
+  border-radius: 8px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  font-size: 0.85rem;
+
+  .area-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: #6b7280;
+    padding-bottom: 0.5rem;
+    margin-bottom: 0.5rem;
+    border-bottom: 1px solid #e5e7eb;
+
+    h3 {
+      margin: 0;
+      color: #111827;
+      font-size: 0.9rem;
+    }
+  }
+
+  .modal-close-btn {
+    border: none;
+    background: transparent;
+    color: #6b7280;
+    cursor: pointer;
+    font-size: 1.25rem;
+    line-height: 1;
+  }
+
+  label {
+    display: block;
+    margin-bottom: 0.25rem;
+    color: #6b7280;
+  }
+
+  input {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 0.4rem 0.5rem;
+    border: 1px solid #d1d5db;
+    border-radius: 4px;
+    font-size: 0.85rem;
+
+    &:focus {
+      outline: none;
+      border-color: #3b82f6;
+    }
+  }
+
+  .modal-error,
+  .delete-confirmation {
+    margin-top: 0.5rem;
+  }
+
+  .modal-error {
+    color: #b91c1c;
+  }
+
+  .delete-confirmation p {
+    margin: 0 0 0.5rem;
+    color: #4b5563;
+  }
+
+  .modal-actions {
+    display: grid;
+    gap: 0.4rem;
+    margin-top: 0.5rem;
+
+    button {
+      width: 100%;
+      background: #f9fafb;
+      color: #4b5563;
+      border: 1px solid #e5e7eb;
+      padding: 0.4rem;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: 500;
+    }
+
+    .btn-primary {
+      background: #eff6ff;
+      color: #1d4ed8;
+    }
+
+    .btn-danger,
+    .btn-danger-outline {
+      background: #fef2f2;
+      color: #b91c1c;
+      border-color: #fecaca;
     }
   }
 }
