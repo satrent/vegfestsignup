@@ -55,6 +55,45 @@ router.post(
     }
 );
 
+// Rename an area
+router.patch(
+    '/:id',
+    [
+        param('id').isMongoId(),
+        body('name').trim().isString().notEmpty()
+    ],
+    async (req: Request, res: Response) => {
+        try {
+            const errors = validationResult(req);
+            if (!errors.isEmpty()) {
+                res.status(400).json({ errors: errors.array() });
+                return;
+            }
+
+            const area = await BoothArea.findById(req.params.id);
+            if (!area) {
+                res.status(404).json({ error: 'Area not found' });
+                return;
+            }
+
+            const name = req.body.name.trim();
+            const existingArea = await BoothArea.findOne({ name });
+            if (existingArea && existingArea._id.toString() !== req.params.id) {
+                res.status(400).json({ error: 'Area name already exists' });
+                return;
+            }
+
+            area.name = name;
+            await area.save();
+
+            res.json(area);
+        } catch (error) {
+            console.error('Error renaming area:', error);
+            res.status(500).json({ error: 'Failed to rename area' });
+        }
+    }
+);
+
 // Delete an area
 router.delete('/:id', param('id').isMongoId(), async (req: Request, res: Response) => {
     try {

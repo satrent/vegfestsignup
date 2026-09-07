@@ -42,6 +42,12 @@ export class BoothAssignmentComponent implements OnInit {
   isSpotEditorMode = false;
   isAreaEditorMode = false;
   isDrawingArea = false;
+  selectedArea: BoothArea | null = null;
+  areaDraftName = '';
+  areaModalError = '';
+  isSavingArea = false;
+  isDeletingArea = false;
+  isConfirmingAreaDelete = false;
 
   newBoothNumber: number | null = null;
   newSpotType: 'regular' | 'foodTruck' = 'regular';
@@ -331,6 +337,82 @@ export class BoothAssignmentComponent implements OnInit {
     this.currentMousePos = null;
   }
 
+  closeAreaModal() {
+    if (this.isSavingArea || this.isDeletingArea) return;
+
+    this.selectedArea = null;
+    this.areaDraftName = '';
+    this.areaModalError = '';
+    this.isConfirmingAreaDelete = false;
+  }
+
+  saveAreaName() {
+    if (!this.selectedArea) return;
+
+    const nextName = this.areaDraftName.trim();
+    if (!nextName) {
+      this.areaModalError = 'Enter an area name.';
+      return;
+    }
+
+    if (nextName === this.selectedArea.name) {
+      this.closeAreaModal();
+      return;
+    }
+
+    this.areaModalError = '';
+    this.isSavingArea = true;
+    this.boothService.renameArea(this.selectedArea._id, nextName).subscribe({
+      next: (updatedArea) => {
+        const idx = this.boothAreas.findIndex(a => a._id === updatedArea._id);
+        if (idx > -1) {
+          this.boothAreas[idx] = updatedArea;
+        }
+        this.booths = this.booths.map(booth =>
+          booth.areaId?._id === updatedArea._id ? { ...booth, areaId: updatedArea } : booth
+        );
+        this.isSavingArea = false;
+        this.closeAreaModal();
+      },
+      error: (err) => {
+        console.error(err);
+        this.areaModalError = 'Failed to rename area: ' + (err.error?.error || err.message);
+        this.isSavingArea = false;
+      }
+    });
+  }
+
+  requestAreaDelete() {
+    this.areaModalError = '';
+    this.isConfirmingAreaDelete = true;
+  }
+
+  cancelAreaDelete() {
+    this.isConfirmingAreaDelete = false;
+  }
+
+  deleteSelectedArea() {
+    if (!this.selectedArea) return;
+
+    const area = this.selectedArea;
+    this.areaModalError = '';
+    this.isDeletingArea = true;
+    this.boothService.deleteArea(area._id).subscribe({
+      next: () => {
+        this.boothAreas = this.boothAreas.filter(a => a._id !== area._id);
+        this.isDeletingArea = false;
+        this.closeAreaModal();
+        // Reload spots since some spots might have lost their areaId
+        this.loadData();
+      },
+      error: (err) => {
+        console.error(err);
+        this.areaModalError = 'Failed to delete area.';
+        this.isDeletingArea = false;
+      }
+    });
+  }
+
   completeDrawing(event?: MouseEvent) {
     if (event) {
       event.stopPropagation();
@@ -398,19 +480,10 @@ export class BoothAssignmentComponent implements OnInit {
   onAreaClick(area: BoothArea, event: MouseEvent) {
     if (this.isAreaEditorMode && !this.isDrawingArea) {
       event.stopPropagation();
-      if (confirm(`Delete Area '${area.name}'? Existing spots will remain but lose area grouping.`)) {
-        this.boothService.deleteArea(area._id).subscribe({
-          next: () => {
-            this.boothAreas = this.boothAreas.filter(a => a._id !== area._id);
-            // Reload spots since some spots might have lost their areaId
-            this.loadData();
-          },
-          error: (err) => {
-            console.error(err);
-            alert('Failed to delete area.');
-          }
-        });
-      }
+      this.selectedArea = area;
+      this.areaDraftName = area.name;
+      this.areaModalError = '';
+      this.isConfirmingAreaDelete = false;
     }
   }
 
