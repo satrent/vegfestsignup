@@ -93,6 +93,21 @@
         }
       }
 
+      .btn-export {
+        padding: 0.5rem 1rem;
+        border-radius: 6px;
+        background: #047857;
+        color: white;
+        border: none;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background 0.2s;
+
+        &:hover {
+          background: #065f46;
+        }
+      }
+
       .editor-tools {
         display: flex;
         align-items: center;

@@ -81,6 +81,26 @@ export class BoothAssignmentComponent implements OnInit {
     this.zoomLevel = 100;
   }
 
+  exportAssignments() {
+    this.boothService.exportAssignments().subscribe({
+      next: (blob) => {
+        const today = new Date().toISOString().slice(0, 10);
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `booth-assignments-${today}.csv`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+      },
+      error: (err) => {
+        console.error('Failed to export booth assignments:', err);
+        alert('Failed to export booth assignments.');
+      }
+    });
+  }
+
   onMapScroll(event: WheelEvent) {
     // Only zoom if they are scrolling over the map container specifically
     event.preventDefault(); // Prevent page scrolling
