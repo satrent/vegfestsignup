@@ -432,6 +432,7 @@ export class BoothAssignmentComponent implements OnInit {
       next: (area) => {
         this.boothAreas.push(area);
         this.cancelDrawing();
+        this.loadData();
       },
       error: (err) => {
         console.error(err);
