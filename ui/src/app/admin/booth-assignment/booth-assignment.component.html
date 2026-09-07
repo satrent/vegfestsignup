@@ -211,6 +211,10 @@
                                 <!-- Hover popup info -->
                                 <div class="spot-tooltip">
                                     <strong>{{ booth.registrationId.organizationName }}</strong><br>
+                                    <div class="tooltip-area">
+                                        Area: {{ booth.areaId?.name || 'Unassigned' }} |
+                                        Spot: {{ booth.areaId?.name || '' }}{{ booth.boothNumber }}
+                                    </div>
                                     {{ booth.registrationId.firstName }} {{ booth.registrationId.lastName }}<br>
                                     <a href="mailto:{{ booth.registrationId.email }}">{{ booth.registrationId.email
                                         }}</a>
