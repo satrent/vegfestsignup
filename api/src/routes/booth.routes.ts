@@ -10,6 +10,33 @@ const router = Router();
 // Ensure only super admin can access booth management
 router.use(authenticate, requireSuperAdmin);
 
+const csvEscape = (value: unknown): string => {
+    if (value === null || value === undefined) {
+        return '';
+    }
+
+    const text = String(value);
+    if (/[",\n\r]/.test(text)) {
+        return `"${text.replace(/"/g, '""')}"`;
+    }
+
+    return text;
+};
+
+const boothAreaName = (booth: any): string => booth.areaId?.name || '';
+
+const sortBoothsByMapSpot = (a: any, b: any): number => {
+    const areaCompare = boothAreaName(a).localeCompare(boothAreaName(b), undefined, {
+        numeric: true,
+        sensitivity: 'base',
+    });
+    if (areaCompare !== 0) {
+        return areaCompare;
+    }
+
+    return (a.boothNumber || 0) - (b.boothNumber || 0);
+};
+
 // Get all booth spots
 router.get('/', async (_req: Request, res: Response) => {
     try {
@@ -23,6 +50,76 @@ router.get('/', async (_req: Request, res: Response) => {
     } catch (error) {
         console.error('Error fetching booths:', error);
         res.status(500).json({ error: 'Failed to fetch booths' });
+    }
+});
+
+// Export booth assignments as a spreadsheet-friendly CSV
+router.get('/export/assignments', async (_req: Request, res: Response) => {
+    try {
+        const booths = await Booth.find()
+            .populate({
+                path: 'registrationId',
+                select: 'organizationName firstName lastName email phone numBoothSpaces assignedBoothIds tags type organizationCategory'
+            })
+            .populate('areaId')
+            .lean();
+
+        const headers = [
+            'Area',
+            'Spot',
+            'Spot Type',
+            'Assigned',
+            'Organization',
+            'Contact First Name',
+            'Contact Last Name',
+            'Email',
+            'Phone',
+            'Registration Type',
+            'Category',
+            'Requested Spots',
+            'Assigned Spots',
+            'Tags',
+            'Map X %',
+            'Map Y %',
+        ];
+
+        const rows = booths.sort(sortBoothsByMapSpot).map((booth: any) => {
+            const registration = booth.registrationId;
+            const areaName = boothAreaName(booth);
+            const spotLabel = `${areaName}${booth.boothNumber}`;
+
+            return [
+                areaName,
+                spotLabel,
+                booth.type === 'foodTruck' ? 'Food Truck' : 'Regular',
+                registration ? 'Yes' : 'No',
+                registration?.organizationName || '',
+                registration?.firstName || '',
+                registration?.lastName || '',
+                registration?.email || '',
+                registration?.phone || '',
+                registration?.type || '',
+                registration?.organizationCategory || '',
+                registration?.numBoothSpaces ?? '',
+                Array.isArray(registration?.assignedBoothIds) ? registration.assignedBoothIds.length : '',
+                Array.isArray(registration?.tags) ? registration.tags.join('; ') : '',
+                booth.xPercentage,
+                booth.yPercentage,
+            ];
+        });
+
+        const csv = [
+            headers.map(csvEscape).join(','),
+            ...rows.map(row => row.map(csvEscape).join(',')),
+        ].join('\n');
+
+        const today = new Date().toISOString().slice(0, 10);
+        res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+        res.setHeader('Content-Disposition', `attachment; filename="booth-assignments-${today}.csv"`);
+        res.send(csv);
+    } catch (error) {
+        console.error('Error exporting booth assignments:', error);
+        res.status(500).json({ error: 'Failed to export booth assignments' });
     }
 });
 

@@ -21,6 +21,10 @@
             </div>
 
             @if (!isSpotEditorMode && !isAreaEditorMode) {
+              <button class="btn-export" (click)="exportAssignments()">
+                  Export Assignments
+              </button>
+
               <div class="editor-tools filter-tools">
                   <label>Filter Tag:</label>
                   <select [(ngModel)]="selectedTag" class="spot-type-select">

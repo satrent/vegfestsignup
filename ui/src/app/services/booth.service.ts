@@ -50,6 +50,10 @@ export class BoothService {
     return this.http.get<Booth[]>(this.apiUrl);
   }
 
+  exportAssignments(): Observable<Blob> {
+    return this.http.get(`${this.apiUrl}/export/assignments`, { responseType: 'blob' });
+  }
+
   createBooth(boothNumber: number, type: 'regular' | 'foodTruck', areaId: string | null, xPercentage: number, yPercentage: number): Observable<Booth> {
     return this.http.post<Booth>(this.apiUrl, { boothNumber, type, areaId, xPercentage, yPercentage });
   }
