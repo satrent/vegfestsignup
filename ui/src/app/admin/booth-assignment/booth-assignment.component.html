@@ -21,6 +21,10 @@
             </div>
 
             @if (!isSpotEditorMode && !isAreaEditorMode) {
+              <button class="btn-export" (click)="exportAssignments()">
+                  Export Assignments
+              </button>
+
               <div class="editor-tools filter-tools">
                   <label>Filter Tag:</label>
                   <select [(ngModel)]="selectedTag" class="spot-type-select">
@@ -207,6 +211,10 @@
                                 <!-- Hover popup info -->
                                 <div class="spot-tooltip">
                                     <strong>{{ booth.registrationId.organizationName }}</strong><br>
+                                    <div class="tooltip-area">
+                                        Area: {{ booth.areaId?.name || 'Unassigned' }} |
+                                        Spot: {{ booth.areaId?.name || '' }}{{ booth.boothNumber }}
+                                    </div>
                                     {{ booth.registrationId.firstName }} {{ booth.registrationId.lastName }}<br>
                                     <a href="mailto:{{ booth.registrationId.email }}">{{ booth.registrationId.email
                                         }}</a>
@@ -270,5 +278,51 @@
             }
         </div>
         <button class="picker-close" (click)="closeVendorPicker($event)">Cancel</button>
+    </div>
+    }
+
+    @if (selectedArea) {
+    <div class="modal-backdrop" (click)="closeAreaModal()">
+        <div class="area-modal" (click)="$event.stopPropagation()">
+            <div class="area-modal-header">
+                <h3>Edit Area</h3>
+                <button class="modal-close-btn" type="button" (click)="closeAreaModal()"
+                    [disabled]="isSavingArea || isDeletingArea">&times;</button>
+            </div>
+
+            <form (ngSubmit)="saveAreaName()">
+                <label for="areaName">Area name</label>
+                <input id="areaName" name="areaName" type="text" [(ngModel)]="areaDraftName"
+                    [disabled]="isSavingArea || isDeletingArea" autocomplete="off" />
+
+                @if (areaModalError) {
+                <div class="modal-error">{{ areaModalError }}</div>
+                }
+
+                @if (isConfirmingAreaDelete) {
+                <div class="delete-confirmation">
+                    <p>Delete area <strong>{{ selectedArea.name }}</strong>? Existing spots will remain but lose area grouping.</p>
+                    <div class="modal-actions">
+                        <button class="btn-secondary" type="button" (click)="cancelAreaDelete()"
+                            [disabled]="isDeletingArea">Cancel</button>
+                        <button class="btn-danger" type="button" (click)="deleteSelectedArea()"
+                            [disabled]="isDeletingArea">
+                            {{ isDeletingArea ? 'Deleting...' : 'Delete Area' }}
+                        </button>
+                    </div>
+                </div>
+                } @else {
+                <div class="modal-actions">
+                    <button class="btn-danger-outline" type="button" (click)="requestAreaDelete()"
+                        [disabled]="isSavingArea || isDeletingArea">Delete</button>
+                    <button class="btn-secondary" type="button" (click)="closeAreaModal()"
+                        [disabled]="isSavingArea || isDeletingArea">Cancel</button>
+                    <button class="btn-primary" type="submit" [disabled]="isSavingArea || isDeletingArea">
+                        {{ isSavingArea ? 'Saving...' : 'Save' }}
+                    </button>
+                </div>
+                }
+            </form>
+        </div>
     </div>
     }

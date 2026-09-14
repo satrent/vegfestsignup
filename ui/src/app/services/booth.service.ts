@@ -50,6 +50,10 @@ export class BoothService {
     return this.http.get<Booth[]>(this.apiUrl);
   }
 
+  exportAssignments(): Observable<Blob> {
+    return this.http.get(`${this.apiUrl}/export/assignments`, { responseType: 'blob' });
+  }
+
   createBooth(boothNumber: number, type: 'regular' | 'foodTruck', areaId: string | null, xPercentage: number, yPercentage: number): Observable<Booth> {
     return this.http.post<Booth>(this.apiUrl, { boothNumber, type, areaId, xPercentage, yPercentage });
   }
@@ -85,6 +89,10 @@ export class BoothService {
 
   createArea(name: string, polygon: { xPercentage: number, yPercentage: number }[]): Observable<BoothArea> {
     return this.http.post<BoothArea>(this.areaApiUrl, { name, polygon });
+  }
+
+  renameArea(id: string, name: string): Observable<BoothArea> {
+    return this.http.patch<BoothArea>(`${this.areaApiUrl}/${id}`, { name });
   }
 
   deleteArea(id: string): Observable<any> {
