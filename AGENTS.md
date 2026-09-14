@@ -1,4 +1,4 @@
-# Codex Workflow Notes
+# Agent Workflow Notes
 
 ## General
 
