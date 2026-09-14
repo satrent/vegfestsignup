@@ -129,6 +129,7 @@
                     <th>Status</th>
                     <th>Type</th>
                     <th>Menu 100% Vegan?</th>
+                    <th>Gluten-Free?</th>
                     <th>Food Truck?</th>
                     <th>Needs Shade?</th>
                     <th>Food Permit</th>
@@ -145,6 +146,7 @@
                     <td>{{ row.status }}</td>
                     <td>{{ vendorTypeLabel(row) }}</td>
                     <td><span class="badge" [ngClass]="veganBadgeClass(row)">{{ veganLabel(row) }}</span></td>
+                    <td><span class="badge" [ngClass]="glutenFreeBadgeClass(row)">{{ glutenFreeLabel(row) }}</span></td>
                     <td class="truck-col">
                         @if (row.isFoodTruck) {
                         <span class="badge badge-warn">Food truck</span>
@@ -170,7 +172,7 @@
                 }
                 @if (filteredData.length === 0) {
                 <tr>
-                    <td colspan="11" class="empty-state">No food or THC vendors match the current filters.</td>
+                    <td colspan="12" class="empty-state">No food or THC vendors match the current filters.</td>
                 </tr>
                 }
             </tbody>

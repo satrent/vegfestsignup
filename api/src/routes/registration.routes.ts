@@ -722,7 +722,7 @@ router.get('/reports/food-vendor', authenticate, requireAdmin, async (_req: Requ
             ]
         })
             .sort({ organizationName: 1 })
-            .select('organizationName firstName lastName email phone status organizationCategory foodOfferings foodOfferingsRejectAck cookingOnSite isFoodTruck foodTruckDimensions vehicleDimensions foodPermitOption foodPermitRequestEmailSent needsShade documents isTest')
+            .select('organizationName firstName lastName email phone status organizationCategory foodOfferings foodOfferingsRejectAck glutenFreeOfferings cookingOnSite isFoodTruck foodTruckDimensions vehicleDimensions foodPermitOption foodPermitRequestEmailSent needsShade documents isTest')
             .lean();
 
         // Latest Food Permit upload wins, so a re-upload supersedes a rejected one.
@@ -779,7 +779,7 @@ router.patch(
 
             // Clean up optional enum fields that might be sent as empty strings from front-end
             const optionalEnums = [
-                'onSite', 'powerNeeds', 'loadInVehicle', 'foodOfferings',
+                'onSite', 'powerNeeds', 'loadInVehicle', 'foodOfferings', 'glutenFreeOfferings',
                 'menuOption', 'coiOption', 'st19Option', 'swagDistributionInterest'
             ];
             optionalEnums.forEach(field => {

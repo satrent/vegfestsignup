@@ -95,6 +95,7 @@ export interface Registration {
   thcProductSales?: boolean;
   foodOfferings?: '100% Vegan' | 'Mixed';
   foodOfferingsRejectAck?: boolean;
+  glutenFreeOfferings?: 'Entirely GF' | 'Some GF' | 'GF-friendly' | 'None';
   fiveDollarItemAck?: boolean;
   menuOption?: 'upload_now' | 'later';
   compostableServicewareAck?: boolean;

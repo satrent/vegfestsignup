@@ -80,6 +80,29 @@
             </div>
 
             <div class="form-group">
+                <label>Gluten-free offerings</label>
+                <div class="radio-list">
+                    <label class="radio-item">
+                        <input type="radio" formControlName="glutenFreeOfferings" value="Entirely GF">
+                        Our entire menu is gluten-free
+                    </label>
+                    <label class="radio-item">
+                        <input type="radio" formControlName="glutenFreeOfferings" value="Some GF">
+                        We include some gluten-free options
+                    </label>
+                    <label class="radio-item">
+                        <input type="radio" formControlName="glutenFreeOfferings" value="GF-friendly">
+                        We provide gluten-friendly options and/or our food is prepared in a shared environment
+                        where cross-contact with gluten is possible
+                    </label>
+                    <label class="radio-item">
+                        <input type="radio" formControlName="glutenFreeOfferings" value="None">
+                        We do not offer gluten-free options
+                    </label>
+                </div>
+            </div>
+
+            <div class="form-group">
                 <label class="radio-item">
                     <input type="checkbox" formControlName="fiveDollarItemAck">
                     We will offer at least one food item (can be a sample size) that costs $5 or less

@@ -40,6 +40,7 @@ export class FoodComplianceComponent implements OnInit {
             thcProductSales: [null], // This triggers THC compliance for Food vendors too
 
             foodOfferings: [''], // 100% Vegan | Mixed
+            glutenFreeOfferings: [''], // Entirely GF | Some GF | GF-friendly | None
             fiveDollarItemAck: [false],
 
             menuOption: ['upload_now'],
@@ -114,6 +115,7 @@ export class FoodComplianceComponent implements OnInit {
                     foodTruckDimensions: truckDimensions,
                     thcProductSales: reg.thcProductSales,
                     foodOfferings: reg.foodOfferings || '',
+                    glutenFreeOfferings: reg.glutenFreeOfferings || '',
                     fiveDollarItemAck: reg.fiveDollarItemAck,
                     menuOption: reg.menuOption || 'upload_now',
                     compostableServicewareAck: reg.compostableServicewareAck,

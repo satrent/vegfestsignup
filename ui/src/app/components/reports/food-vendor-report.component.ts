@@ -61,6 +61,25 @@ export class FoodVendorReportComponent implements OnInit {
         return 'badge-neutral';
     }
 
+    glutenFreeLabel(row: any): string {
+        switch (row.glutenFreeOfferings) {
+            case 'Entirely GF': return 'Entirely GF';
+            case 'Some GF': return 'Some GF options';
+            case 'GF-friendly': return 'GF-friendly / shared prep';
+            case 'None': return 'No GF options';
+            default: return 'Not answered';
+        }
+    }
+
+    glutenFreeBadgeClass(row: any): string {
+        switch (row.glutenFreeOfferings) {
+            case 'Entirely GF':
+            case 'Some GF': return 'badge-ok';
+            case 'GF-friendly': return 'badge-warn';
+            default: return 'badge-neutral';
+        }
+    }
+
     permitBadgeClass(row: any): string {
         switch (row.permitStatus) {
             case 'Approved': return 'badge-ok';
@@ -173,7 +192,7 @@ export class FoodVendorReportComponent implements OnInit {
     exportCsv(): void {
         if (this.filteredData.length === 0) return;
 
-        let csvContent = 'Organization Name,First Name,Last Name,Email,Phone,Status,Vendor Type,Category,Menu 100% Vegan,Cooking On Site,Food Truck,Food Truck Dimensions,Needs Shade,Permit Option,Permit Status\n';
+        let csvContent = 'Organization Name,First Name,Last Name,Email,Phone,Status,Vendor Type,Category,Menu 100% Vegan,Gluten-Free Offerings,Cooking On Site,Food Truck,Food Truck Dimensions,Needs Shade,Permit Option,Permit Status\n';
 
         this.filteredData.forEach(row => {
             csvContent += [
@@ -186,6 +205,7 @@ export class FoodVendorReportComponent implements OnInit {
                 this.escapeCsv(this.vendorTypeLabel(row)),
                 this.escapeCsv(row.organizationCategory),
                 this.escapeCsv(this.veganLabel(row)),
+                this.escapeCsv(this.glutenFreeLabel(row)),
                 row.cookingOnSite ? 'Yes' : 'No',
                 row.isFoodTruck ? 'Yes' : 'No',
                 this.escapeCsv(this.foodTruckDimensions(row)),

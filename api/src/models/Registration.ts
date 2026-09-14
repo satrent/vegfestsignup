@@ -97,6 +97,7 @@ export interface IRegistration extends Document {
     thcProductSales?: boolean;
     foodOfferings?: '100% Vegan' | 'Mixed';
     foodOfferingsRejectAck?: boolean;
+    glutenFreeOfferings?: 'Entirely GF' | 'Some GF' | 'GF-friendly' | 'None';
     fiveDollarItemAck?: boolean;
     menuOption?: 'upload_now' | 'later';
     compostableServicewareAck?: boolean;
@@ -380,6 +381,10 @@ const registrationSchema = new Schema<IRegistration>(
             enum: ['100% Vegan', 'Mixed']
         },
         foodOfferingsRejectAck: Boolean, // System flag if they tried to submit Mixed
+        glutenFreeOfferings: {
+            type: String,
+            enum: ['Entirely GF', 'Some GF', 'GF-friendly', 'None']
+        },
         fiveDollarItemAck: Boolean,
         menuOption: {
             type: String,
